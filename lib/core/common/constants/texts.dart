@@ -299,4 +299,37 @@ class appTexts {
   static const String customersFeedbackFor = "customersFeedbackFor";
   static const String addReview = "addReview";
   static const String ago = "ago";
+
+  // --- NEW AUTH FLOW TEXTS ---
+  static const String authUserEmail = "auth_user_email";
+  static const String authEnterEmail = "auth_enter_email";
+  static const String authPassword = "auth_password";
+  static const String authEnterPassword = "auth_enter_password";
+  static const String authForgotPassword = "auth_forgot_password";
+  static const String authSignIn = "auth_sign_in";
+  static const String authDontHaveAccount = "auth_dont_have_account";
+  static const String authSignUpHere = "auth_sign_up_here";
+  static const String authLetsGetStarted = "auth_lets_get_started";
+  static const String authCreateAccount = "auth_create_account";
+  static const String authUserName = "auth_user_name";
+  static const String authEnterFirstName = "auth_enter_first_name";
+  static const String authPhoneNumber = "auth_phone_number";
+  static const String authEnterPhone = "auth_enter_phone";
+  static const String authConfirmPassword = "auth_confirm_password";
+  static const String authEnterConfirmPassword = "auth_enter_confirm_password";
+  static const String authSignUp = "auth_sign_up";
+  static const String authAlreadyHaveAccount = "auth_already_have_account";
+  static const String authSignInHere = "auth_sign_in_here";
+  static const String authResetPasswordTitle = "auth_reset_password_title";
+  static const String authEnterEmailOtp = "auth_enter_email_otp";
+  static const String authSendOtp = "auth_send_otp";
+  static const String authEnterOtpTitle = "auth_enter_otp_title";
+  static const String authResendCodeIn = "auth_resend_code_in";
+  static const String authDidntReceiveOtp = "auth_didnt_receive_otp";
+  static const String authResendOtp = "auth_resend_otp";
+  static const String authVerifyNow = "auth_verify_now";
+  static const String authResetNewPassword = "auth_reset_new_password";
+  static const String authEnterNewAndConfirm = "auth_enter_new_and_confirm";
+  static const String authNewPassword = "auth_new_password";
+  static const String authContinue = "auth_continue";
 }

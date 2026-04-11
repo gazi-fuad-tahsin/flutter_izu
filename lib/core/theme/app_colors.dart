@@ -44,4 +44,9 @@ class AppColors {
 
   static const Color pinFieldColor = Color(0xFFD7D7D7);
   
+  // Auth Flow Colors
+  static const Color authButtonBlue = Color(0xFF2870BC);
+  static const Color authBorderGrey = Color(0xFFD1D5DB);
+  static const Color authHintGrey = Color(0xFF9CA3AF);
+  static const Color authTextOrange = Color(0xFFFCA048);
 }
