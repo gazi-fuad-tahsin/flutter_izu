@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../controller/auth_controller.dart';
+import '../../../../core/common/constants/texts.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../widgets/auth_button.dart';
+import '../widgets/auth_header_logo.dart';
+import '../widgets/auth_text_field.dart';
+import 'LogIn_screen.dart';
+import 'selfie_verification_screen.dart';
 
 class CreateAccountScreen extends StatefulWidget {
   final String selectedRole;
-
   const CreateAccountScreen({super.key, required this.selectedRole});
 
   @override
@@ -13,40 +17,19 @@ class CreateAccountScreen extends StatefulWidget {
 }
 
 class _CreateAccountScreenState extends State<CreateAccountScreen> {
-  bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
-
-  late TextEditingController _usernameController;
-  late TextEditingController _emailController;
-  late TextEditingController _dateOfBirthController;
-  late TextEditingController _shopNameController;
-  late TextEditingController _passwordController;
-  late TextEditingController _confirmPasswordController;
-
-  late AuthController _authController;
-
-  @override
-  void initState() {
-    super.initState();
-    _usernameController = TextEditingController();
-    _emailController = TextEditingController();
-    _dateOfBirthController = TextEditingController();
-    _shopNameController = TextEditingController();
-    _passwordController = TextEditingController();
-    _confirmPasswordController = TextEditingController();
-
-    // Initialize AuthController
-    _authController = Get.find<AuthController>();
-  }
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPassController = TextEditingController();
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _nameController.dispose();
     _emailController.dispose();
-    _dateOfBirthController.dispose();
-    _shopNameController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
+    _confirmPassController.dispose();
     super.dispose();
   }
 
@@ -58,268 +41,119 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 40),
-
-              // App Logo
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                padding: const EdgeInsets.all(16),
-                child: Image.asset(
-                  'assets/images/appLogo.png',
-                  fit: BoxFit.contain,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                "On-demand car wash at your location",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.grey,
-                ),
-              ),
-              const SizedBox(height: 40),
-              const SizedBox(height: 32),
+              const SizedBox(height: 20),
+              // Logo
+              const AuthHeaderLogo(),
+              const SizedBox(height: 10),
 
               // Title
-              const Text(
-                'Get Started',
-                style: TextStyle(
-                  fontSize: 24,
+              Text(
+                appTexts.authLetsGetStarted.tr,
+                style: const TextStyle(
+                  fontSize: 22,
                   fontWeight: FontWeight.w700,
                   color: Colors.black,
+                  height: 1.2,
                 ),
               ),
               const SizedBox(height: 8),
-
-              // Subtitle
-              const Text(
-                'Register a new account',
-                style: TextStyle(
-                  fontSize: 14,
+              Text(
+                appTexts.authCreateAccount.tr,
+                style: const TextStyle(
+                  fontSize: 16,
                   fontWeight: FontWeight.w400,
-                  color: Colors.grey,
+                  color: Colors.black54,
                 ),
+              ),
+              const SizedBox(height: 30),
+
+              // Form fields
+              AuthTextField(
+                label: appTexts.authUserName.tr,
+                hint: appTexts.authEnterFirstName.tr,
+                prefixIcon: Icons.person_outline,
+                controller: _nameController,
+              ),
+              const SizedBox(height: 20),
+              
+              AuthTextField(
+                label: "Your Email", // appTexts.emailAddress.tr or similar
+                hint: appTexts.authEnterEmail.tr,
+                prefixIcon: Icons.mail_outline,
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 20),
+
+              AuthTextField(
+                label: appTexts.authPhoneNumber.tr,
+                hint: appTexts.authEnterPhone.tr,
+                prefixIcon: Icons.phone_outlined,
+                controller: _phoneController,
+                keyboardType: TextInputType.phone,
+              ),
+              const SizedBox(height: 20),
+
+              AuthTextField(
+                label: appTexts.authPassword.tr,
+                hint: appTexts.authEnterPassword.tr,
+                prefixIcon: Icons.lock_outline,
+                isPassword: true,
+                controller: _passwordController,
+              ),
+              const SizedBox(height: 20),
+
+              AuthTextField(
+                label: appTexts.authConfirmPassword.tr,
+                hint: appTexts.authEnterConfirmPassword.tr,
+                prefixIcon: Icons.lock_outline,
+                isPassword: true,
+                controller: _confirmPassController,
+              ),
+              const SizedBox(height: 32),
+
+              // Sign Up Button
+              AuthButton(
+                text: appTexts.authSignUp.tr,
+                onPressed: () {
+                  // TODO: Implement signup logic
+                  Get.to(() => const SelfieVerificationScreen());
+                },
               ),
               const SizedBox(height: 40),
 
-              // Email Field
-              _buildTextField(
-                controller: _emailController,
-                hintText: 'Email or Phone number',
-              ),
-              const SizedBox(height: 16),
-
-              // Password Field
-              _buildTextField(
-                controller: _passwordController,
-                hintText: 'Password',
-                obscureText: _obscurePassword,
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscurePassword
-                        ? Icons.visibility_off_outlined
-                        : Icons.visibility_outlined,
-                    color: Colors.grey,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
-                  },
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Confirm Password Field
-              _buildTextField(
-                controller: _confirmPasswordController,
-                hintText: 'Confirm Password',
-                obscureText: _obscureConfirmPassword,
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscureConfirmPassword
-                        ? Icons.visibility_off_outlined
-                        : Icons.visibility_outlined,
-                    color: Colors.grey,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _obscureConfirmPassword = !_obscureConfirmPassword;
-                    });
-                  },
-                ),
-              ),
-              const SizedBox(height: 80),
-            ],
-          ),
-        ),
-      ),
-      // Bottom section with button and login link
-      bottomNavigationBar: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Sign Up Button
-            Obx(
-              () => SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: _authController.isLoading.value
-                      ? null
-                      : () {
-                          _validateAndSignUp();
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black87,
-                    disabledBackgroundColor: Colors.grey,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              // Sign In Link
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    appTexts.authAlreadyHaveAccount.tr,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
                     ),
-                    elevation: 0,
                   ),
-                  child: _authController.isLoading.value
-                      ? const SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.5,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
-                          ),
-                        )
-                      : const Text(
-                          'Sign up',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                ),
+                  const SizedBox(width: 4),
+                  GestureDetector(
+                    onTap: () {
+                      Get.to(() => const LoginRoleScreen());
+                    },
+                    child: Text(
+                      appTexts.authSignInHere.tr,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: AppColors.authTextOrange,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 16),
-
-            // // Login Link
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.center,
-            //   children: [
-            //     const Text(
-            //       'Already have an Account? ',
-            //       style: TextStyle(fontSize: 14, color: Colors.grey),
-            //     ),
-            //     GestureDetector(
-            //       onTap: () {
-            //         Get.to(() => const LoginRoleScreen());
-            //       },
-            //       child: const Text(
-            //         'Login',
-            //         style: TextStyle(
-            //           fontSize: 14,
-            //           fontWeight: FontWeight.w600,
-            //           color: Colors.black87,
-            //         ),
-            //       ),
-            //     ),
-            //   ],
-            // ),
-            const SizedBox(height: 40),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _validateAndSignUp() {
-    // Validation
-    if (_emailController.text.trim().isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Please enter your email or phone number',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
-    }
-
-    if (_passwordController.text.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Please enter your password',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
-    }
-
-    if (_confirmPasswordController.text.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Please confirm your password',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
-    }
-
-    if (_passwordController.text != _confirmPasswordController.text) {
-      Get.snackbar(
-        'Error',
-        'Passwords do not match',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
-    }
-
-    // Call register with email, password, confirmPassword, and role
-    _authController.register(
-      _emailController.text.trim(),
-      _passwordController.text,
-      _confirmPasswordController.text,
-      widget.selectedRole
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hintText,
-    bool obscureText = false,
-    Widget? suffixIcon,
-  }) {
-    return Container(
-      height: 56,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: obscureText,
-        style: const TextStyle(color: Colors.black),
-        decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
-          suffixIcon: suffixIcon,
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 16,
+              const SizedBox(height: 40),
+            ],
           ),
         ),
       ),

@@ -3,7 +3,7 @@ import '../../../../../core/network/api_client.dart';
 import '../../../../../core/network/services/auth_storage_service.dart';
 import '../../../../../core/services/socket_service.dart';
 import '../../../../../core/utils/debug_print.dart';
-import '../screens/auth_decision_screen.dart';
+import '../screens/OnboardingScreen1.dart';
 import 'auth_controller.dart';
 
 class SplashScreenController extends GetxController {
@@ -37,7 +37,7 @@ class SplashScreenController extends GetxController {
       DPrint.log(
         "═══════════════════════════════════════════════════════════════\n",
       );
-      _navigateToRoleSelection();
+      _navigateToOnboarding();
       return;
     }
 
@@ -126,9 +126,9 @@ class SplashScreenController extends GetxController {
   //   );
   // }
 
-  void _navigateToRoleSelection() {
+  void _navigateToOnboarding() {
     Get.offAll(
-      () => const AuthDecisionScreen(),
+      () => const OnboardingScreen1(),
       transition: Transition.fade,
     );
   }
