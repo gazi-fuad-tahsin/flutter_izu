@@ -4,11 +4,13 @@ import 'nearby_artisan_item.dart';
 
 class NearbyArtisansSection extends StatelessWidget {
   final List<Map<String, dynamic>> artisans;
+  final List<String>? serviceIds;
   final Function(int)? onArtisanTap;
 
   const NearbyArtisansSection({
     super.key,
     required this.artisans,
+    this.serviceIds,
     this.onArtisanTap,
   });
 
@@ -23,6 +25,7 @@ class NearbyArtisansSection extends StatelessWidget {
       itemBuilder: (context, index) {
         return NearbyArtisanItem(
           artisanData: artisans[index],
+          serviceId: serviceIds != null && index < serviceIds!.length ? serviceIds![index] : null,
           onBookPressed: () => onArtisanTap?.call(index),
         );
       },

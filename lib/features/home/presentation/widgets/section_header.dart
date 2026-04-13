@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/common/constants/feature_texts.dart';
+import '../../../../../core/theme/app_colors.dart';
+
 class SectionHeader extends StatelessWidget {
   final String title;
   final VoidCallback? onViewAll;
@@ -28,10 +31,10 @@ class SectionHeader extends StatelessWidget {
           GestureDetector(
             onTap: onViewAll,
             child: const Text(
-              'View all',
+              IzuHomeTexts.viewAll,
               style: TextStyle(
                 fontSize: 14,
-                color: Color(0xFFFCA048),
+                color: AppColors.homeViewAllOrange,
                 fontWeight: FontWeight.w500,
               ),
             ),

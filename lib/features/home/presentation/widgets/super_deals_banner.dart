@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/common/constants/feature_texts.dart';
+import '../../../../../core/theme/app_colors.dart';
+
 class SuperDealsBanner extends StatelessWidget {
   final VoidCallback? onPressed;
 
@@ -14,7 +17,7 @@ class SuperDealsBanner extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         gradient: const LinearGradient(
-          colors: [Color(0XFF3AABE8), Color(0xFFCCEBFD)],
+          colors: [AppColors.homeBannerGradientStart, AppColors.homeBannerGradientEnd],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -29,18 +32,18 @@ class SuperDealsBanner extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
-                  'Super Deals',
+                  IzuHomeTexts.superDeals,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColors.primaryWhite,
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Unlock Everything You Need in\nOne Place',
+                  IzuHomeTexts.superDealsSubtitle,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColors.primaryWhite,
                     fontSize: 12,
                     height: 1.4,
                   ),
@@ -49,8 +52,8 @@ class SuperDealsBanner extends StatelessWidget {
                 ElevatedButton(
                   onPressed: onPressed,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2870BC),
-                    foregroundColor: Colors.white,
+                    backgroundColor: AppColors.homePrimary,
+                    foregroundColor: AppColors.primaryWhite,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
@@ -59,7 +62,7 @@ class SuperDealsBanner extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                   ),
                   child: const Text(
-                    'All Services',
+                    IzuHomeTexts.allServices,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
