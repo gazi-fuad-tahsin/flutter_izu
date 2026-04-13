@@ -5,6 +5,7 @@ import '../../../../../core/common/constants/feature_texts.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../notifications/presentation/screens/notifications_screen.dart';
 import '../../../profile_provider/presentation/screens/provider_profile_screen.dart';
+import '../../../provider_jobs/presentation/screens/your_services_screen.dart';
 import '../../data/model/service_request_model.dart';
 import '../widgets/request_card.dart';
 import 'provider_booking_screen.dart';
@@ -197,12 +198,7 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
   }
 
   Widget _buildServiceScreen() {
-    return Center(
-      child: Text(
-        IzuHomeTexts.navService,
-        style: const TextStyle(fontSize: 18, color: Colors.black),
-      ),
-    );
+    return const YourServicesScreen();
   }
 
   Widget _buildProfileScreen() {
