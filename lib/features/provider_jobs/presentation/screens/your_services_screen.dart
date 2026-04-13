@@ -14,26 +14,23 @@ class YourServicesScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        scrolledUnderElevation: 0,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
-          onPressed: () => Get.back(),
-        ),
-        title: const Text(
-          'Your Services',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: false,
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: Colors.white,
+      //   scrolledUnderElevation: 0,
+      //   elevation: 0,
+      //   title: const Text(
+      //     'Your Services',
+      //     style: TextStyle(
+      //       color: Colors.black,
+      //       fontSize: 18,
+      //       fontWeight: FontWeight.w600,
+      //     ),
+      //   ),
+      //   centerTitle: false,
+      // ),
       body: Column(
         children: [
+          const SizedBox(height: 45),
           // Header with Add New button
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
