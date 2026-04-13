@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../booking/presentation/widgets/booking_confirmation_sheet.dart';
 import '../controller/service_controller.dart';
 
 class ServiceDetailsScreen extends StatefulWidget {
@@ -26,6 +27,26 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
     // Fetch service detail when screen loads
     final serviceController = Get.find<ServiceController>();
     serviceController.fetchServiceDetail(widget.serviceId);
+  }
+
+  void _showBookingConfirmation(String providerName, String amount, String address, String price) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+      ),
+      builder: (context) => BookingConfirmationSheet(
+        providerName: providerName,
+        amount: amount,
+        selectedDate: DateTime.now().toString().split(' ')[0],
+        selectedTime: '10:00 AM',
+        location: address,
+      ),
+    );
   }
 
   @override
@@ -372,10 +393,11 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                   height: 56,
                   child: ElevatedButton(
                     onPressed: () {
-                      Get.snackbar(
-                        'Booking',
-                        'Booking feature coming soon!',
-                        snackPosition: SnackPosition.BOTTOM,
+                      _showBookingConfirmation(
+                        serviceDetail.providerId.name,
+                        '\$${serviceDetail.serviceDetails.hourlyPrice.toString()}',
+                        serviceDetail.serviceDetails.address,
+                        serviceDetail.serviceDetails.hourlyPrice.toString(),
                       );
                     },
                     style: ElevatedButton.styleFrom(
