@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
+import '../../../location/data/model/location_model.dart';
+import '../../../location/presentation/screens/location_screen.dart';
 import '../../data/model/provider_booking_model.dart';
+import 'ready_confirmation_dialog.dart';
 
 class ProviderBookingCard extends StatelessWidget {
   final ProviderBooking booking;
@@ -210,7 +214,16 @@ class ProviderBookingCard extends StatelessWidget {
                 // Location Button
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      final locationData = LocationData(
+                        address: booking.location,
+                        latitude: 0.0,
+                        longitude: 0.0,
+                        clientName: booking.clientName,
+                        serviceType: booking.service,
+                      );
+                      Get.to(() => LocationScreen(locationData: locationData));
+                    },
                     icon: const Icon(Icons.location_on, size: 18),
                     label: const Text('Location'),
                     style: ElevatedButton.styleFrom(
@@ -253,7 +266,33 @@ class ProviderBookingCard extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => ReadyConfirmationDialog(
+                      onAccept: () {
+                        Get.snackbar(
+                          'Success',
+                          'Service started!',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.green,
+                          colorText: Colors.white,
+                          duration: const Duration(seconds: 2),
+                        );
+                      },
+                      onCancel: () {
+                        Get.snackbar(
+                          'Cancelled',
+                          'Service start cancelled',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.orange,
+                          colorText: Colors.white,
+                          duration: const Duration(seconds: 2),
+                        );
+                      },
+                    ),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF2870BC),
                   shape: RoundedRectangleBorder(
