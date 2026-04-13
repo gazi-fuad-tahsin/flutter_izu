@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../service/presentation/controller/service_controller.dart';
+import '../../../service/presentation/screens/service_details_screen.dart';
 import '../widgets/service_card.dart';
 
 class CategoryServicesScreen extends StatefulWidget {
@@ -16,136 +18,6 @@ class CategoryServicesScreen extends StatefulWidget {
 }
 
 class _CategoryServicesScreenState extends State<CategoryServicesScreen> {
-  late List<Map<String, dynamic>> services;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeServices();
-  }
-
-  void _initializeServices() {
-    // Sample services data - in production, this would come from API based on category
-    final allServices = {
-      'Cleaning': [
-        {
-          'title': 'Complete Kitchen Cleaning',
-          'image': 'assets/images/home_assets/artisan_1.jpg',
-          'providerName': 'Mrs. Rani',
-          'providerSubtitle': '@Service Provider',
-          'providerImage': 'assets/images/home_assets/profile.jpg',
-          'rating': '4.8',
-          'distance': '2.5 km',
-          'price': '45/hr',
-        },
-        {
-          'title': 'Complete Kitchen Cleaning',
-          'image': 'assets/images/home_assets/artisan_2.jpg',
-          'providerName': 'Mrs. Rani',
-          'providerSubtitle': '@Service Provider',
-          'providerImage': 'assets/images/home_assets/profile.jpg',
-          'rating': '4.8',
-          'distance': '2.5 km',
-          'price': '45/hr',
-        },
-        {
-          'title': 'Complete Kitchen Cleaning',
-          'image': 'assets/images/home_assets/artisan_3.jpg',
-          'providerName': 'Mrs. Rani',
-          'providerSubtitle': '@Service Provider',
-          'providerImage': 'assets/images/home_assets/profile.jpg',
-          'rating': '4.8',
-          'distance': '2.5 km',
-          'price': '45/hr',
-        },
-      ],
-      'Plumbing': [
-        {
-          'title': 'Pipe Installation & Repair',
-          'image': 'assets/images/home_assets/artisan_1.jpg',
-          'providerName': 'Mr. Singh',
-          'providerSubtitle': '@Service Provider',
-          'providerImage': 'assets/images/home_assets/profile.jpg',
-          'rating': '4.9',
-          'distance': '1.8 km',
-          'price': '50/hr',
-        },
-        {
-          'title': 'Leak Detection & Fixing',
-          'image': 'assets/images/home_assets/artisan_2.jpg',
-          'providerName': 'Mr. Singh',
-          'providerSubtitle': '@Service Provider',
-          'providerImage': 'assets/images/home_assets/profile.jpg',
-          'rating': '4.9',
-          'distance': '1.8 km',
-          'price': '50/hr',
-        },
-      ],
-      'Electrical': [
-        {
-          'title': 'Electrical Wiring & Installation',
-          'image': 'assets/images/home_assets/artisan_3.jpg',
-          'providerName': 'Mr. Sharma',
-          'providerSubtitle': '@Service Provider',
-          'providerImage': 'assets/images/home_assets/profile.jpg',
-          'rating': '4.7',
-          'distance': '3.0 km',
-          'price': '60/hr',
-        },
-      ],
-      'Carpentry': [
-        {
-          'title': 'Custom Furniture Making',
-          'image': 'assets/images/home_assets/artisan_1.jpg',
-          'providerName': 'Mr. Kumar',
-          'providerSubtitle': '@Service Provider',
-          'providerImage': 'assets/images/home_assets/profile.jpg',
-          'rating': '4.8',
-          'distance': '2.2 km',
-          'price': '55/hr',
-        },
-      ],
-      'Painting': [
-        {
-          'title': 'Interior & Exterior Painting',
-          'image': 'assets/images/home_assets/artisan_2.jpg',
-          'providerName': 'Mr. Verma',
-          'providerSubtitle': '@Service Provider',
-          'providerImage': 'assets/images/home_assets/profile.jpg',
-          'rating': '4.6',
-          'distance': '2.8 km',
-          'price': '40/hr',
-        },
-      ],
-      'Interior': [
-        {
-          'title': 'Interior Design & Decoration',
-          'image': 'assets/images/home_assets/artisan_3.jpg',
-          'providerName': 'Ms. Priya',
-          'providerSubtitle': '@Service Provider',
-          'providerImage': 'assets/images/home_assets/profile.jpg',
-          'rating': '4.9',
-          'distance': '1.5 km',
-          'price': '65/hr',
-        },
-      ],
-      'Construction': [
-        {
-          'title': 'Building Construction & Renovation',
-          'image': 'assets/images/home_assets/artisan_1.jpg',
-          'providerName': 'Mr. Patel',
-          'providerSubtitle': '@Service Provider',
-          'providerImage': 'assets/images/home_assets/profile.jpg',
-          'rating': '4.8',
-          'distance': '3.5 km',
-          'price': '75/hr',
-        },
-      ],
-    };
-
-    services = allServices[widget.categoryName] ?? [];
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -168,45 +40,57 @@ class _CategoryServicesScreenState extends State<CategoryServicesScreen> {
         centerTitle: false,
       ),
       body: SafeArea(
-        child: services.isEmpty
-            ? Center(
-                child: Text(
-                  'No services available',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey.shade500,
-                  ),
-                ),
-              )
-            : SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 20),
-                child: Column(
-                  children: List.generate(
-                    services.length,
-                    (index) {
-                      final service = services[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 28),
-                        child: ServiceCard(
-                          serviceTitle: service['title'],
-                          serviceImage: service['image'],
-                          categoryName: widget.categoryName,
-                          providerName: service['providerName'],
-                          providerSubtitle: service['providerSubtitle'],
-                          providerImage: service['providerImage'],
-                          rating: service['rating'],
-                          distance: service['distance'],
-                          price: service['price'],
-                          onViewPressed: () {
-                            // Handle service view
-                            // Future: Navigate to service detail screen
-                          },
-                        ),
-                      );
-                    },
-                  ),
+        child: Obx(() {
+          final serviceController = Get.find<ServiceController>();
+          final services = serviceController.allServices[widget.categoryName] ?? [];
+
+          if (services.isEmpty) {
+            return Center(
+              child: Text(
+                'No services available',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey.shade500,
                 ),
               ),
+            );
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 20),
+            child: Column(
+              children: List.generate(
+                services.length,
+                (index) {
+                  final service = services[index];
+                  
+                  // Get service image - use first thumbnail if available, otherwise placeholder
+                  final serviceImageUrl = service.serviceDetails.serviceThumbnails.isNotEmpty
+                      ? service.serviceDetails.serviceThumbnails[0] as String
+                      : 'assets/images/home_assets/artisan_1.jpg';
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 28),
+                    child: ServiceCard(
+                      serviceTitle: service.serviceDetails.title,
+                      serviceImage: serviceImageUrl,
+                      categoryName: widget.categoryName,
+                      providerName: service.provider.name,
+                      providerSubtitle: '@Service Provider',
+                      providerImage: service.provider.profileImage,
+                      rating: service.averageRating.toStringAsFixed(1),
+                      distance: service.serviceDetails.address,
+                      price: '${service.serviceDetails.hourlyPrice}/hr',
+                      onViewPressed: () {
+                        Get.to(() => ServiceDetailsScreen(serviceId: service.id));
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+          );
+        }),
       ),
     );
   }

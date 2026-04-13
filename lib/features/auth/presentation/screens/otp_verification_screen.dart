@@ -3,9 +3,8 @@ import 'package:get/get.dart';
 
 import '../../../../core/common/constants/texts.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../widgets/auth_button.dart';
+import '../controller/auth_controller.dart';
 import '../widgets/auth_header_logo.dart';
-import 'set_new_password_screen.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   const OtpVerificationScreen({super.key, required this.email});
@@ -17,9 +16,15 @@ class OtpVerificationScreen extends StatefulWidget {
 }
 
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
-  final List<FocusNode> _focusNodes = List.generate(5, (_) => FocusNode());
-  final List<TextEditingController> _controllers = List.generate(5, (_) => TextEditingController());
-  String _currentOtp = '';
+  final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
+  final List<TextEditingController> _controllers = List.generate(6, (_) => TextEditingController());
+  late final AuthController _authController;
+
+  @override
+  void initState() {
+    super.initState();
+    _authController = Get.find<AuthController>();
+  }
 
   @override
   void dispose() {
@@ -32,10 +37,25 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     super.dispose();
   }
 
-  void _onOtpCompleted(String otp) {
-    setState(() {
-      _currentOtp = otp;
-    });
+  void _verifyOtp() async {
+    final otp = _controllers.map((c) => c.text).join();
+    
+    if (otp.length != 6) {
+      Get.snackbar(
+        'Error',
+        'Please enter complete OTP',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+        duration: const Duration(seconds: 3),
+      );
+      return;
+    }
+
+    // Call verify OTP from controller
+    await _authController.verifyOTP(widget.email, otp, isRegistrationFlow: false);
   }
 
   @override
@@ -63,7 +83,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
               // Title
               Text(
-                appTexts.authEnterOtpTitle.tr, // 'Enter OTP'
+                appTexts.authEnterOtpTitle.tr,
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
@@ -73,10 +93,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               ),
               const SizedBox(height: 32),
 
-              // 5-box OTP field
+              // 6-box OTP field
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(5, (index) {
+                children: List.generate(6, (index) {
                   return SizedBox(
                     width: 50,
                     height: 56,
@@ -90,9 +110,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         fontSize: 24,
                         fontWeight: FontWeight.w600,
                         color: Colors.black,
+                        height: 1.0,
                       ),
                       decoration: InputDecoration(
                         counterText: "",
+                        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 0),
+                        isDense: true,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: const BorderSide(color: AppColors.authBorderGrey),
@@ -107,11 +130,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         ),
                       ),
                       onChanged: (value) {
-                        if (value.isNotEmpty && index < 4) {
+                        if (value.isNotEmpty && index < 5) {
                           _focusNodes[index + 1].requestFocus();
-                        } else if (value.isNotEmpty && index == 4) {
-                          _focusNodes[index].unfocus();
-                          _onOtpCompleted(_controllers.map((c) => c.text).join());
                         } else if (value.isEmpty && index > 0) {
                           _focusNodes[index - 1].requestFocus();
                         }
@@ -124,7 +144,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
               // Setup resend text
               Text(
-                appTexts.authResendCodeIn.tr, // 'Resend code in 45s'
+                appTexts.authResendCodeIn.tr,
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
@@ -148,14 +168,15 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   const SizedBox(width: 4),
                   GestureDetector(
                     onTap: () {
-                      // TODO: Implement resend OTP logic
+                      // Resend OTP by calling forgot password API with the same email
+                      _authController.forgotPassword(widget.email);
                     },
                     child: Text(
-                      appTexts.authResendOtp.tr, // 'RESEND OTP'
+                      appTexts.authResendOtp.tr,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF1E5F48), // Dark green looking color from screenshot
+                        color: AppColors.authButtonBlue,
                       ),
                     ),
                   ),
@@ -163,15 +184,46 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               ),
               const SizedBox(height: 40),
 
-              // Verify Button
-              AuthButton(
-                text: appTexts.authVerifyNow.tr, // 'Verify Now'
-                onPressed: () {
-                  // TODO: implement verification logic
-                  Get.to(() => SetNewPasswordScreen(
-                    email: widget.email,
-                    otp: _currentOtp,
-                  ));
+              // Verify Button with loading state
+              Obx(
+                () {
+                  final isLoading = Get.find<AuthController>().isLoading.value;
+                  return SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: isLoading ? null : _verifyOtp,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isLoading
+                          ? AppColors.authButtonBlue.withOpacity(0.6)
+                          : AppColors.authButtonBlue,
+                        disabledBackgroundColor: AppColors.authButtonBlue.withOpacity(0.6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: isLoading
+                        ? SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white.withOpacity(0.8),
+                            ),
+                            strokeWidth: 2,
+                          ),
+                        )
+                        : Text(
+                          appTexts.authVerifyNow.tr,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                    ),
+                  );
                 },
               ),
             ],

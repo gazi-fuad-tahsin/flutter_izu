@@ -23,23 +23,7 @@ class HomeHeader extends StatelessWidget {
       child: Row(
         children: [
           ClipOval(
-            child: Image.asset(
-              avatarAsset,
-              width: 44,
-              height: 44,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.grey.shade200,
-                  ),
-                  child: Icon(Icons.person, color: Colors.grey.shade500),
-                );
-              },
-            ),
+            child: _buildAvatarImage(),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -77,6 +61,46 @@ class HomeHeader extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  /// Build avatar image handling both network and asset images
+  Widget _buildAvatarImage() {
+    // Check if avatarAsset looks like a URL (network image)
+    if (avatarAsset.startsWith('http')) {
+      return Image.network(
+        avatarAsset,
+        width: 44,
+        height: 44,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return _buildFallbackAvatar();
+        },
+      );
+    } else {
+      // Asset image
+      return Image.asset(
+        avatarAsset,
+        width: 44,
+        height: 44,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return _buildFallbackAvatar();
+        },
+      );
+    }
+  }
+
+  /// Build fallback avatar when image fails to load
+  Widget _buildFallbackAvatar() {
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.grey.shade200,
+      ),
+      child: Icon(Icons.person, color: Colors.grey.shade500),
     );
   }
 }

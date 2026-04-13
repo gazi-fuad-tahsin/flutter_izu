@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import 'LogIn_screen.dart';
 import 'role_selection_screen.dart';
 
 class OnboardingScreen1 extends StatefulWidget {
@@ -50,7 +52,7 @@ class _OnboardingScreen1State extends State<OnboardingScreen1> {
   }
 
   void _skipOnboarding() {
-    Get.off(() => const RoleSelectionScreen());
+    Get.off(() => const LoginScreen());
   }
 
   @override

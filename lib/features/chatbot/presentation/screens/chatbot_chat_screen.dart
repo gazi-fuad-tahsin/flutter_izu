@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../../core/common/constants/feature_texts.dart';
+import '../../../../../core/theme/app_colors.dart';
+
 class ChatbotChatScreen extends StatefulWidget {
   final String? initialMessage;
 
@@ -34,39 +37,16 @@ class _ChatbotChatScreenState extends State<ChatbotChatScreen> {
 
   void _initializeMessages() {
     _messages = [
-      {
-        'isUser': true,
-        'text': 'Hi, I need help booking an appointment.'
-      },
-      {
-        'isUser': false,
-        'text': 'Sure! What type of service are you looking for?'
-      },
-      {
-        'isUser': false,
-        'text': 'Please choose a date and time that works for you.'
-      },
-      {
-        'isUser': true,
-        'text': 'I want to book a haircut.\nTomorrow at 4 PM.'
-      },
-      {
-        'isUser': false,
-        'text': 'Perfect! Your appointment is available at 4:00 PM tomorrow.'
-      },
+      {'isUser': true, 'text': IzuChatbotTexts.sampleUserMsg1},
+      {'isUser': false, 'text': IzuChatbotTexts.sampleBotMsg1},
+      {'isUser': false, 'text': IzuChatbotTexts.sampleBotMsg2},
+      {'isUser': true, 'text': IzuChatbotTexts.sampleUserMsg2},
+      {'isUser': false, 'text': IzuChatbotTexts.sampleBotMsg3},
     ];
 
-    // Add initial message from popup if provided
     if (widget.initialMessage != null && widget.initialMessage!.isNotEmpty) {
-      _messages.add({
-        'isUser': true,
-        'text': widget.initialMessage,
-      });
-      // Add bot response
-      _messages.add({
-        'isUser': false,
-        'text': 'I understand. How can I help you with that?'
-      });
+      _messages.add({'isUser': true, 'text': widget.initialMessage});
+      _messages.add({'isUser': false, 'text': IzuChatbotTexts.botUnderstandReply});
     }
   }
 
@@ -85,9 +65,9 @@ class _ChatbotChatScreenState extends State<ChatbotChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FB),
+      backgroundColor: AppColors.chatbotBackground,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.primaryWhite,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
@@ -97,19 +77,25 @@ class _ChatbotChatScreenState extends State<ChatbotChatScreen> {
           children: [
             const CircleAvatar(
               radius: 16,
-              backgroundColor: Colors.grey,
-              child: Icon(Icons.person, color: Colors.white, size: 16),
+              backgroundColor: AppColors.subText,
+              child: Icon(Icons.person, color: AppColors.primaryWhite, size: 16),
             ),
             const SizedBox(width: 8),
             const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Madiha Arora', style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold)),
-                Text('Hi, Good Morning', style: TextStyle(color: Colors.grey, fontSize: 10)),
+                Text(
+                  IzuChatbotTexts.chatbotUserName,
+                  style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  IzuChatbotTexts.chatbotGreeting,
+                  style: TextStyle(color: AppColors.subText, fontSize: 10),
+                ),
               ],
             ),
             const Spacer(),
-            Icon(Icons.notifications_none, color: Colors.grey.shade600),
+            const Icon(Icons.notifications_none, color: AppColors.subText),
           ],
         ),
       ),
@@ -130,7 +116,7 @@ class _ChatbotChatScreenState extends State<ChatbotChatScreen> {
             // Bottom Input
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              color: Colors.white,
+              color: AppColors.primaryWhite,
               child: Row(
                 children: [
                   Expanded(
@@ -138,15 +124,15 @@ class _ChatbotChatScreenState extends State<ChatbotChatScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       height: 50,
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
+                        color: AppColors.updateGrey,
                         borderRadius: BorderRadius.circular(25),
                       ),
                       child: TextField(
                         controller: _msgController,
                         decoration: const InputDecoration(
-                          hintText: 'Write here',
+                          hintText: IzuChatbotTexts.chatInputHint,
                           border: InputBorder.none,
-                          hintStyle: TextStyle(color: Colors.grey),
+                          hintStyle: TextStyle(color: AppColors.subText),
                         ),
                       ),
                     ),
@@ -158,10 +144,9 @@ class _ChatbotChatScreenState extends State<ChatbotChatScreen> {
                         setState(() {
                           _messages.add({'isUser': true, 'text': _msgController.text});
                           _msgController.clear();
-                          // Add bot response
                           _messages.add({
                             'isUser': false,
-                            'text': 'Thanks for that! Let me help you with your request.',
+                            'text': IzuChatbotTexts.botDefaultReply,
                           });
                         });
                         _scrollToBottom();
@@ -170,12 +155,12 @@ class _ChatbotChatScreenState extends State<ChatbotChatScreen> {
                     child: Container(
                       width: 50,
                       height: 50,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF5A84F8),
+                      decoration: const BoxDecoration(
+                        color: AppColors.chatbotBlue,
                         shape: BoxShape.circle,
                       ),
                       child: const Center(
-                        child: Icon(Icons.send, color: Colors.white, size: 20),
+                        child: Icon(Icons.send, color: AppColors.primaryWhite, size: 20),
                       ),
                     ),
                   ),
@@ -200,13 +185,17 @@ class _ChatbotChatScreenState extends State<ChatbotChatScreen> {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.primaryWhite,
                 shape: BoxShape.circle,
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2)),
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
                 ],
               ),
-              child: const Icon(Icons.smart_toy, color: Color(0xFF5A84F8), size: 20),
+              child: const Icon(Icons.smart_toy, color: AppColors.chatbotBlue, size: 20),
             ),
             const SizedBox(width: 8),
           ],
@@ -214,7 +203,7 @@ class _ChatbotChatScreenState extends State<ChatbotChatScreen> {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: isUser ? const Color(0xFF5A84F8) : Colors.white,
+                color: isUser ? AppColors.chatbotBlue : AppColors.primaryWhite,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
                   topRight: const Radius.circular(16),
@@ -222,13 +211,18 @@ class _ChatbotChatScreenState extends State<ChatbotChatScreen> {
                   bottomRight: isUser ? const Radius.circular(4) : const Radius.circular(16),
                 ),
                 boxShadow: [
-                  if (!isUser) BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2)),
+                  if (!isUser)
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
                 ],
               ),
               child: Text(
                 text,
                 style: TextStyle(
-                  color: isUser ? Colors.white : const Color(0xFF2870BC),
+                  color: isUser ? AppColors.primaryWhite : AppColors.homePrimary,
                   fontSize: 14,
                   height: 1.4,
                 ),
@@ -236,8 +230,8 @@ class _ChatbotChatScreenState extends State<ChatbotChatScreen> {
             ),
           ),
           if (isUser) ...[
-            const SizedBox(width: 32), // spacer for symmetry if needed, or omit
-          ]
+            const SizedBox(width: 32),
+          ],
         ],
       ),
     );

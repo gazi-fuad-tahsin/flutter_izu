@@ -15,6 +15,45 @@ class CategoryGridCard extends StatelessWidget {
     required this.imageAsset,
   });
 
+  Widget _buildImage() {
+    // Check if it's a network URL or asset path
+    if (imageAsset.startsWith('http')) {
+      return Image.network(
+        imageAsset,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey.shade200,
+            child: Center(
+              child: Icon(
+                Icons.image_not_supported,
+                color: Colors.grey.shade400,
+                size: 40,
+              ),
+            ),
+          );
+        },
+      );
+    } else {
+      return Image.asset(
+        imageAsset,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey.shade200,
+            child: Center(
+              child: Icon(
+                Icons.image_not_supported,
+                color: Colors.grey.shade400,
+                size: 40,
+              ),
+            ),
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -43,22 +82,7 @@ class CategoryGridCard extends StatelessWidget {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: Image.asset(
-                imageAsset,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: Colors.grey.shade200,
-                    child: Center(
-                      child: Icon(
-                        Icons.image_not_supported,
-                        color: Colors.grey.shade400,
-                        size: 40,
-                      ),
-                    ),
-                  );
-                },
-              ),
+              child: _buildImage(),
             ),
           ),
           const SizedBox(height: 12),

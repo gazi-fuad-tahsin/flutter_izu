@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../core/common/constants/texts.dart';
+
 import '../../../../core/theme/app_colors.dart';
-import '../widgets/auth_button.dart';
+import '../controller/auth_controller.dart';
 import '../widgets/auth_header_logo.dart';
 import '../widgets/auth_text_field.dart';
-import 'LogIn_screen.dart';
-import 'selfie_verification_screen.dart';
+import 'role_selection_screen.dart';
 
 class CreateAccountScreen extends StatefulWidget {
   final String selectedRole;
@@ -22,6 +21,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPassController = TextEditingController();
+  final AuthController _authController = Get.find<AuthController>();
 
   @override
   void dispose() {
@@ -31,6 +31,102 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     _passwordController.dispose();
     _confirmPassController.dispose();
     super.dispose();
+  }
+
+  void _handleSignup() {
+    // Validate all fields
+    if (_nameController.text.trim().isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Please enter your name",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    }
+
+    if (_emailController.text.trim().isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Please enter your email",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    }
+
+    if (_phoneController.text.trim().isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Please enter your phone number",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    }
+
+    if (_passwordController.text.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Please enter your password",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    }
+
+    if (_confirmPassController.text.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Please confirm your password",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    }
+
+    if (_passwordController.text != _confirmPassController.text) {
+      Get.snackbar(
+        "Error",
+        "Passwords do not match",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    }
+
+    // Call signup API
+    _authController.signup(
+      _nameController.text.trim(),
+      _emailController.text.trim(),
+      _passwordController.text,
+      widget.selectedRole,
+      _phoneController.text.trim(),
+    );
   }
 
   @override
@@ -50,7 +146,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
               // Title
               Text(
-                appTexts.authLetsGetStarted.tr,
+                'Let\'s Get Started!',
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
@@ -60,7 +156,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                appTexts.authCreateAccount.tr,
+                'Create an account',
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w400,
@@ -71,16 +167,16 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
               // Form fields
               AuthTextField(
-                label: appTexts.authUserName.tr,
-                hint: appTexts.authEnterFirstName.tr,
+                label: 'User Name',
+                hint: 'Enter your First Name',
                 prefixIcon: Icons.person_outline,
                 controller: _nameController,
               ),
               const SizedBox(height: 20),
               
               AuthTextField(
-                label: "Your Email", // appTexts.emailAddress.tr or similar
-                hint: appTexts.authEnterEmail.tr,
+                label: 'Your Email',
+                hint: 'Enter your Email',
                 prefixIcon: Icons.mail_outline,
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -88,8 +184,8 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
               const SizedBox(height: 20),
 
               AuthTextField(
-                label: appTexts.authPhoneNumber.tr,
-                hint: appTexts.authEnterPhone.tr,
+                label: 'Phone Number',
+                hint: 'Enter your phone number',
                 prefixIcon: Icons.phone_outlined,
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
@@ -97,8 +193,8 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
               const SizedBox(height: 20),
 
               AuthTextField(
-                label: appTexts.authPassword.tr,
-                hint: appTexts.authEnterPassword.tr,
+                label: 'Password',
+                hint: 'Enter your Password',
                 prefixIcon: Icons.lock_outline,
                 isPassword: true,
                 controller: _passwordController,
@@ -106,22 +202,50 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
               const SizedBox(height: 20),
 
               AuthTextField(
-                label: appTexts.authConfirmPassword.tr,
-                hint: appTexts.authEnterConfirmPassword.tr,
+                label: 'Confirm Password',
+                hint: 'Enter Confirm Password',
                 prefixIcon: Icons.lock_outline,
                 isPassword: true,
                 controller: _confirmPassController,
               ),
               const SizedBox(height: 32),
 
-              // Sign Up Button
-              AuthButton(
-                text: appTexts.authSignUp.tr,
-                onPressed: () {
-                  // TODO: Implement signup logic
-                  Get.to(() => const SelfieVerificationScreen());
-                },
-              ),
+              // Sign Up Button with Loading State
+              Obx(() {
+                final isLoading = _authController.isLoading.value;
+                return SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: isLoading ? null : _handleSignup,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2870BC),
+                      disabledBackgroundColor: const Color(0xFF2870BC).withOpacity(0.6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: isLoading
+                        ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'Sign up',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                  ),
+                );
+              }),
               const SizedBox(height: 40),
 
               // Sign In Link
@@ -129,7 +253,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    appTexts.authAlreadyHaveAccount.tr,
+                    'Already have an account?',
                     style: const TextStyle(
                       fontSize: 14,
                       color: Colors.black,
@@ -139,10 +263,10 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                   const SizedBox(width: 4),
                   GestureDetector(
                     onTap: () {
-                      Get.to(() => const LoginRoleScreen());
+                      Get.to(() => const RoleSelectionScreen());
                     },
                     child: Text(
-                      appTexts.authSignInHere.tr,
+                      'Sign In Here',
                       style: const TextStyle(
                         fontSize: 14,
                         color: AppColors.authTextOrange,

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/common/constants/app_images.dart';
-import 'LogIn_screen.dart';
 import 'create_account_screen.dart';
 import 'role_selection_screen.dart';
 
@@ -68,7 +67,7 @@ class AuthDecisionScreen extends StatelessWidget {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
-                    Get.to(() => const LoginRoleScreen());
+                    Get.to(() => const RoleSelectionScreen());
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF0F172A), // Dark blue/black

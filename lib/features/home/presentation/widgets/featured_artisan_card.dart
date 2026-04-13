@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/theme/app_colors.dart';
+
 class FeaturedArtisanCard extends StatelessWidget {
   final Map<String, dynamic> artisanData;
 
@@ -12,9 +14,9 @@ class FeaturedArtisanCard extends StatelessWidget {
     return Container(
       width: screenWidth * 0.55 > 250 ? 250 : screenWidth * 0.55,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.primaryWhite,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFB5D7F8), width: 1.5), 
+        border: Border.all(color: AppColors.homeCardBorder, width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,7 +30,7 @@ class FeaturedArtisanCard extends StatelessWidget {
                 Container(
                   height: 105,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
+                    color: AppColors.updateGrey,
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
                     image: DecorationImage(
                       image: AssetImage(artisanData['bgImage']),
@@ -42,11 +44,18 @@ class FeaturedArtisanCard extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.primaryWhite,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.grey.shade200, width: 1),
+                      border: Border.all(color: AppColors.updateGrey, width: 1),
                     ),
-                    child: Text(artisanData['jobTitle'], style: const TextStyle(color: Color(0xFF2870BC), fontSize: 13, fontWeight: FontWeight.bold)),
+                    child: Text(
+                      artisanData['jobTitle'] ?? '',
+                      style: const TextStyle(
+                        color: AppColors.homePrimary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -64,11 +73,15 @@ class FeaturedArtisanCard extends StatelessWidget {
                       child: Row(
                         children: [
                           Container(
-                            width: 32, height: 32,
+                            width: 32,
+                            height: 32,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.grey.shade200,
-                              image: DecorationImage(image: AssetImage(artisanData['profileImage']), fit: BoxFit.cover)
+                              color: AppColors.updateGrey,
+                              image: DecorationImage(
+                                image: AssetImage(artisanData['profileImage']),
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -76,8 +89,22 @@ class FeaturedArtisanCard extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(artisanData['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13), overflow: TextOverflow.ellipsis),
-                                Text(artisanData['username'], style: TextStyle(color: Colors.grey.shade600, fontSize: 9), overflow: TextOverflow.ellipsis),
+                                Text(
+                                  artisanData['name'] ?? '',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  artisanData['username'] ?? '',
+                                  style: const TextStyle(
+                                    color: AppColors.subText,
+                                    fontSize: 9,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ],
                             ),
                           ),
@@ -86,10 +113,13 @@ class FeaturedArtisanCard extends StatelessWidget {
                     ),
                     Row(
                       children: [
-                        const Icon(Icons.star_rounded, color: Color(0xFFFFC107), size: 18),
-                        Text(' ${artisanData['rating']}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                        const Icon(Icons.star_rounded, color: AppColors.starYellow, size: 18),
+                        Text(
+                          ' ${artisanData['rating']}',
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                        ),
                       ],
-                    )
+                    ),
                   ],
                 ),
                 const SizedBox(height: 14),
@@ -99,14 +129,24 @@ class FeaturedArtisanCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.location_on_outlined, size: 14, color: Colors.grey.shade600),
-                        Text(' ${artisanData['distance']}', style: TextStyle(fontSize: 11, color: Colors.grey.shade600)),
+                        const Icon(Icons.location_on_outlined, size: 14, color: AppColors.subText),
+                        Text(
+                          ' ${artisanData['distance']}',
+                          style: const TextStyle(fontSize: 11, color: AppColors.subText),
+                        ),
                       ],
                     ),
                     Row(
                       children: [
-                        Icon(Icons.attach_money, size: 14, color: Colors.grey.shade600),
-                        Text('${artisanData['price']}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black87)),
+                        const Icon(Icons.attach_money, size: 14, color: AppColors.subText),
+                        Text(
+                          '${artisanData['price']}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -119,11 +159,20 @@ class FeaturedArtisanCard extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2870BC),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      backgroundColor: AppColors.homePrimary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       elevation: 0,
                     ),
-                    child: const Text('View', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+                    child: const Text(
+                      'View',
+                      style: TextStyle(
+                        color: AppColors.primaryWhite,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
               ],

@@ -28,6 +28,93 @@ class ServiceCard extends StatelessWidget {
     this.onViewPressed,
   });
 
+  /// Build service image - supports both asset and network images
+  Widget _buildServiceImage() {
+    if (serviceImage.startsWith('http')) {
+      // Network image from Cloudinary
+      return Image.network(
+        serviceImage,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return _buildPlaceholder();
+        },
+      );
+    } else if (serviceImage.isNotEmpty) {
+      // Asset image
+      return Image.asset(
+        serviceImage,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return _buildPlaceholder();
+        },
+      );
+    } else {
+      return _buildPlaceholder();
+    }
+  }
+
+  /// Build provider avatar image - supports both asset and network images
+  Widget _buildProviderImage() {
+    if (providerImage.startsWith('http')) {
+      // Network image from Cloudinary
+      return ClipOval(
+        child: Image.network(
+          providerImage,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.grey.shade300,
+              ),
+              child: Icon(Icons.person, color: Colors.grey.shade500, size: 18),
+            );
+          },
+        ),
+      );
+    } else if (providerImage.isNotEmpty) {
+      // Asset image
+      return ClipOval(
+        child: Image.asset(
+          providerImage,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.grey.shade300,
+              ),
+              child: Icon(Icons.person, color: Colors.grey.shade500, size: 18),
+            );
+          },
+        ),
+      );
+    } else {
+      // No image provided
+      return Icon(Icons.person, color: Colors.grey.shade500, size: 18);
+    }
+  }
+
+  /// Build placeholder gradient background
+  Widget _buildPlaceholder() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.blue.shade300, Colors.blue.shade500],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          Icons.image,
+          color: Colors.white.withOpacity(0.5),
+          size: 50,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -66,34 +153,8 @@ class ServiceCard extends StatelessWidget {
                   child: Container(
                     width: double.infinity,
                     height: 160,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.blue.shade300, Colors.blue.shade500],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: serviceImage.isNotEmpty
-                        ? Image.asset(
-                            serviceImage,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Center(
-                                child: Icon(
-                                  Icons.image,
-                                  color: Colors.white.withOpacity(0.5),
-                                  size: 50,
-                                ),
-                              );
-                            },
-                          )
-                        : Center(
-                            child: Icon(
-                              Icons.image,
-                              color: Colors.white.withOpacity(0.5),
-                              size: 50,
-                            ),
-                          ),
+                    color: Colors.blue.shade300,
+                    child: _buildServiceImage(),
                   ),
                 ),
                 // Category Badge
@@ -156,14 +217,15 @@ class ServiceCard extends StatelessWidget {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: Colors.grey.shade300,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 2,
+                                  offset: const Offset(0, 1),
+                                )
+                              ],
                             ),
-                            child: providerImage.isNotEmpty
-                                ? Image.asset(
-                                    providerImage,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Icon(Icons.person,
-                                    color: Colors.grey.shade500, size: 18),
+                            child: _buildProviderImage(),
                           ),
                           const SizedBox(width: 8),
                           Flexible(

@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../../core/common/constants/feature_texts.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../auth/presentation/controller/user_controller.dart';
+import '../../../category/presentation/controller/category_controller.dart';
 import '../../../category/presentation/screens/all_categories_screen.dart';
 import '../../../chatbot/presentation/widgets/chatbot_overlay_popup.dart';
+import '../../../notifications/presentation/screens/notifications_screen.dart';
 import '../../../profile/presentation/screens/user_profile_screen.dart';
+import '../../../service/presentation/controller/service_controller.dart';
+import '../../../service/presentation/screens/services_list_screen.dart';
 import '../widgets/categories_list.dart';
 import '../widgets/featured_artisans_section.dart';
 import '../widgets/home_header.dart';
@@ -21,74 +28,10 @@ class UserHomeScreen extends StatefulWidget {
 class _UserHomeScreenState extends State<UserHomeScreen> {
   int _currentIndex = 0;
 
-  // Sample data
-  final List<Map<String, String>> categories = [
-    {'name': 'Cleaning', 'image': 'assets/images/home_assets/cat_cleaning.jpg'},
-    {'name': 'Plumbing', 'image': 'assets/images/home_assets/cat_plumbing.jpg'},
-    {'name': 'Electrical', 'image': 'assets/images/home_assets/cat_electrical.jpg'},
-    {'name': 'Carpentry', 'image': 'assets/images/home_assets/cat_carpentry.jpg'},
-  ];
-
-  final List<Map<String, dynamic>> featuredArtisans = [
-    {
-      'bgImage': 'assets/images/home_assets/artisan_1.jpg',
-      'category': 'Plumber',
-      'profileImage': 'assets/images/home_assets/profile.jpg',
-      'name': 'Mrs. Rani',
-      'subtitle': '@Service Provider',
-      'rating': '4.8',
-      'distance': '2.5 km',
-      'price': '45/hr',
-    },
-    {
-      'bgImage': 'assets/images/home_assets/artisan_2.jpg',
-      'category': 'Electrician',
-      'profileImage': 'assets/images/home_assets/profile.jpg',
-      'name': 'Mrs. Rani',
-      'subtitle': '@Service Provider',
-      'rating': '4.8',
-      'distance': '2.5 km',
-      'price': '45/hr',
-    },
-  ];
-
-  final List<Map<String, dynamic>> nearbyArtisans = [
-    {
-      'bgImage': 'assets/images/home_assets/artisan_3.jpg',
-      'category': 'Plumber',
-      'profileImage': 'assets/images/home_assets/profile.jpg',
-      'name': 'Mrs. Rani',
-      'subtitle': '@Service Provider',
-      'rating': '4.8',
-      'distance': '2.5 km',
-      'price': '45/hr',
-    },
-    {
-      'bgImage': 'assets/images/home_assets/artisan_1.jpg',
-      'category': 'Electrical',
-      'profileImage': 'assets/images/home_assets/profile.jpg',
-      'name': 'Mrs. Rani',
-      'subtitle': '@Service Provider',
-      'rating': '4.8',
-      'distance': '2.5 km',
-      'price': '45/hr',
-    },
-    {
-      'bgImage': 'assets/images/home_assets/artisan_2.jpg',
-      'category': 'Cleaning',
-      'profileImage': 'assets/images/home_assets/profile.jpg',
-      'name': 'Mrs. Rani',
-      'subtitle': '@Service Provider',
-      'rating': '4.8',
-      'distance': '2.5 km',
-      'price': '45/hr',
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFDFDFD),
+      backgroundColor: AppColors.homeBackground,
       body: SafeArea(
         child: Stack(
           children: [
@@ -98,71 +41,133 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Header with user greeting
-                  HomeHeader(
-                    userName: 'Madiha Arora',
-                    greeting: 'Hi, Good Morning',
-                    avatarAsset: 'assets/images/home_assets/profile.jpg',
-                    notificationCount: 3,
-                    onNotificationTap: () {
-                      // Handle notification tap
-                    },
-                  ),
+                  Obx(() {
+                    final userController = Get.find<UserController>();
+                    return HomeHeader(
+                      userName: userController.userName,
+                      greeting: 'Hi, Good Morning',
+                      avatarAsset: userController.userProfileImage ?? 'assets/images/home_assets/profile.jpg',
+                      notificationCount: 3,
+                      onNotificationTap: () {
+                        Get.to(() => const NotificationsScreen());
+                      },
+                    );
+                  }),
                   const SizedBox(height: 24),
 
                   // Super Deals Banner
                   SuperDealsBanner(
                     onPressed: () {
-                      // Handle All Services tap
+                      Get.to(() => const ServicesListScreen(sourceScreen: 'super_deals'));
                     },
                   ),
                   const SizedBox(height: 24),
 
                   // Categories Section
                   SectionHeader(
-                    title: 'Select Category',
+                    title: IzuHomeTexts.selectCategory,
                     onViewAll: () {
                       Get.to(() => const AllCategoriesScreen());
                     },
                   ),
                   const SizedBox(height: 16),
-                  CategoriesList(
-                    categories: categories,
-                    onCategoryTap: (index) {
-                      // Handle category selection
-                    },
-                  ),
+                  Obx(() {
+                    final categoryController = Get.find<CategoryController>();
+                    final topCategories = categoryController.topFiveCategories;
+                    
+                    // Convert CategoryModel to Map format for CategoriesList widget
+                    final categoriesList = topCategories.map((cat) {
+                      return {
+                        'name': cat.name,
+                        'image': cat.catImage,
+                      };
+                    }).toList();
+                    
+                    return CategoriesList(
+                      categories: categoriesList,
+                      onCategoryTap: (index) {},
+                    );
+                  }),
                   const SizedBox(height: 24),
 
                   // Featured Artisans Section
                   SectionHeader(
-                    title: 'Featured Artisans',
+                    title: IzuHomeTexts.featuredArtisans,
                     onViewAll: () {
-                      // Handle View all tap
+                      Get.to(() => const ServicesListScreen(sourceScreen: 'featured'));
                     },
                   ),
                   const SizedBox(height: 16),
-                  FeaturedArtisansSection(
-                    artisans: featuredArtisans,
-                    onArtisanTap: (index) {
-                      // Handle artisan selection
-                    },
-                  ),
+                  Obx(() {
+                    final serviceController = Get.find<ServiceController>();
+                    final featured = serviceController.featuredArtisans;
+                    
+                    final artisans = featured.map((svc) {
+                      // Get service image - use first thumbnail if available
+                      final serviceImage = svc.serviceDetails.serviceThumbnails.isNotEmpty
+                          ? svc.serviceDetails.serviceThumbnails[0] as String
+                          : 'assets/images/home_assets/artisan_1.jpg';
+                      
+                      return {
+                        'bgImage': serviceImage,
+                        'jobTitle': svc.category.name,
+                        'profileImage': svc.provider.profileImage,
+                        'name': svc.provider.name,
+                        'username': '@Service Provider',
+                        'rating': svc.averageRating.toStringAsFixed(1),
+                        'distance': svc.serviceDetails.address,
+                        'price': '${svc.serviceDetails.hourlyPrice}/hr',
+                      };
+                    }).toList();
+                    
+                    final serviceIds = featured.map((svc) => svc.id).toList();
+                    
+                    return FeaturedArtisansSection(
+                      artisans: artisans,
+                      serviceIds: serviceIds,
+                      onArtisanTap: (index) {},
+                    );
+                  }),
                   const SizedBox(height: 24),
 
                   // Nearby Artisans Section
                   SectionHeader(
-                    title: 'Artisans Near By you',
+                    title: IzuHomeTexts.artisansNearBy,
                     onViewAll: () {
-                      // Handle View all tap
+                      Get.to(() => const ServicesListScreen(sourceScreen: 'nearby'));
                     },
                   ),
                   const SizedBox(height: 16),
-                  NearbyArtisansSection(
-                    artisans: nearbyArtisans,
-                    onArtisanTap: (index) {
-                      // Handle artisan booking
-                    },
-                  ),
+                  Obx(() {
+                    final serviceController = Get.find<ServiceController>();
+                    final nearby = serviceController.nearbyArtisans;
+                    
+                    final artisans = nearby.map((svc) {
+                      // Get service image - use first thumbnail if available
+                      final serviceImage = svc.serviceDetails.serviceThumbnails.isNotEmpty
+                          ? svc.serviceDetails.serviceThumbnails[0] as String
+                          : 'assets/images/home_assets/artisan_1.jpg';
+                      
+                      return {
+                        'bgImage': serviceImage,
+                        'jobTitle': svc.category.name,
+                        'profileImage': svc.provider.profileImage,
+                        'name': svc.provider.name,
+                        'username': '@Service Provider',
+                        'rating': svc.averageRating.toStringAsFixed(1),
+                        'distance': svc.serviceDetails.address,
+                        'price': '${svc.serviceDetails.hourlyPrice}/hr',
+                      };
+                    }).toList();
+                    
+                    final serviceIds = nearby.map((svc) => svc.id).toList();
+                    
+                    return NearbyArtisansSection(
+                      artisans: artisans,
+                      serviceIds: serviceIds,
+                      onArtisanTap: (index) {},
+                    );
+                  }),
                 ],
               ),
             ),
@@ -179,12 +184,9 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.primaryWhite,
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.grey.shade300,
-                      width: 1,
-                    ),
+                    border: Border.all(color: AppColors.authBorderGrey, width: 1),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.08),
@@ -196,7 +198,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                   child: const Center(
                     child: Icon(
                       Icons.smart_toy_outlined,
-                      color: Color(0xFF2870BC),
+                      color: AppColors.homePrimary,
                       size: 30,
                     ),
                   ),
@@ -208,46 +210,45 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.primaryWhite,
           border: Border(
-            top: BorderSide(color: Colors.grey.shade200, width: 1),
+            top: BorderSide(color: AppColors.updateGrey, width: 1),
           ),
         ),
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: (index) {
             if (index == 3) {
-              // Navigate to Profile screen
               Get.to(() => const UserProfileScreen());
             } else {
               setState(() => _currentIndex = index);
             }
           },
           type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
-          selectedItemColor: const Color(0xFF2870BC),
-          unselectedItemColor: Colors.grey.shade500,
+          backgroundColor: AppColors.primaryWhite,
+          selectedItemColor: AppColors.homePrimary,
+          unselectedItemColor: AppColors.subText,
           elevation: 0,
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home_outlined),
               activeIcon: Icon(Icons.home),
-              label: 'Home',
+              label: IzuHomeTexts.navHome,
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.calendar_month_outlined),
               activeIcon: Icon(Icons.calendar_month),
-              label: 'Booking',
+              label: IzuHomeTexts.navBooking,
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.message_outlined),
               activeIcon: Icon(Icons.message),
-              label: 'Message',
+              label: IzuHomeTexts.navMessage,
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
               activeIcon: Icon(Icons.person),
-              label: 'Profile',
+              label: IzuHomeTexts.navProfile,
             ),
           ],
         ),

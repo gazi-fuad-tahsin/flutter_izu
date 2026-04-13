@@ -4,11 +4,13 @@ import 'featured_artisan_item.dart';
 
 class FeaturedArtisansSection extends StatelessWidget {
   final List<Map<String, dynamic>> artisans;
+  final List<String>? serviceIds;
   final Function(int)? onArtisanTap;
 
   const FeaturedArtisansSection({
     super.key,
     required this.artisans,
+    this.serviceIds,
     this.onArtisanTap,
   });
 
@@ -38,6 +40,7 @@ class FeaturedArtisansSection extends StatelessWidget {
                     ),
                     child: FeaturedArtisanItem(
                       artisanData: artisans[index],
+                      serviceId: serviceIds != null && index < serviceIds!.length ? serviceIds![index] : null,
                       onViewPressed: () => onArtisanTap?.call(index),
                     ),
                   ),

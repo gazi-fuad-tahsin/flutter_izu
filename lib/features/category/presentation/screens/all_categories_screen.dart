@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../controller/category_controller.dart';
 import '../widgets/category_grid_card.dart';
 
 class AllCategoriesScreen extends StatefulWidget {
@@ -11,38 +12,6 @@ class AllCategoriesScreen extends StatefulWidget {
 }
 
 class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
-  // Sample categories data
-  final List<Map<String, String>> categories = [
-    {
-      'name': 'Cleaning',
-      'image': 'assets/images/home_assets/cat_cleaning.jpg',
-    },
-    {
-      'name': 'Plumbing',
-      'image': 'assets/images/home_assets/cat_plumbing.jpg',
-    },
-    {
-      'name': 'Electrical',
-      'image': 'assets/images/home_assets/cat_electrical.jpg',
-    },
-    {
-      'name': 'Carpentry',
-      'image': 'assets/images/home_assets/cat_carpentry.jpg',
-    },
-    {
-      'name': 'Painting',
-      'image': 'assets/images/home_assets/cat_painting.jpg',
-    },
-    {
-      'name': 'Interior',
-      'image': 'assets/images/home_assets/cat_interior.jpg',
-    },
-    {
-      'name': 'Construction',
-      'image': 'assets/images/home_assets/cat_construction.jpg',
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,27 +34,38 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
         centerTitle: false,
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 20,
-              childAspectRatio: 0.95,
+        child: Obx(() {
+          final categoryController = Get.find<CategoryController>();
+          final categories = categoryController.categories;
+          
+          if (categories.isEmpty) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 20,
+                childAspectRatio: 0.95,
+              ),
+              itemCount: categories.length,
+              itemBuilder: (context, index) {
+                final category = categories[index];
+                return CategoryGridCard(
+                  categoryName: category.name,
+                  imageAsset: category.catImage,
+                );
+              },
             ),
-            itemCount: categories.length,
-            itemBuilder: (context, index) {
-              final category = categories[index];
-              return CategoryGridCard(
-                categoryName: category['name']!,
-                imageAsset: category['image']!,
-              );
-            },
-          ),
-        ),
+          );
+        }),
       ),
     );
   }

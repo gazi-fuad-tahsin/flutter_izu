@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../core/theme/app_colors.dart';
+
+import '../../../../../core/common/constants/feature_texts.dart';
+import '../../../../../core/theme/app_colors.dart';
 import '../widgets/auth_button.dart';
 import '../../../home/presentation/screens/user_home_screen.dart';
 
@@ -10,9 +12,9 @@ class SelfieVerificationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.primaryWhite,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.primaryWhite,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
@@ -26,7 +28,7 @@ class SelfieVerificationScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                'Selfie Verification',
+                IzuAuthTexts.selfieVerification,
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
@@ -36,7 +38,7 @@ class SelfieVerificationScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Verify your identity by taking a photo\nthat matches your ID provided',
+                IzuAuthTexts.selfieVerificationDesc,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 15,
@@ -46,47 +48,42 @@ class SelfieVerificationScreen extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              
-              // The Camera Overlay Frame Mockup
-              Container(
+
+              // Camera Overlay Frame Mockup
+              SizedBox(
                 width: 280,
                 height: 280,
-                decoration: BoxDecoration(
-                  // We simulate the corners with a Stack or CustomPaint. 
-                  // For simplicity, a stack of angled borders works well.
-                ),
                 child: Stack(
                   children: [
-                    // Top Left
                     Positioned(
-                      top: 0, left: 0,
+                      top: 0,
+                      left: 0,
                       child: _buildCorner(isTop: true, isLeft: true),
                     ),
-                    // Top Right
                     Positioned(
-                      top: 0, right: 0,
+                      top: 0,
+                      right: 0,
                       child: _buildCorner(isTop: true, isLeft: false),
                     ),
-                    // Bottom Left
                     Positioned(
-                      bottom: 0, left: 0,
+                      bottom: 0,
+                      left: 0,
                       child: _buildCorner(isTop: false, isLeft: true),
                     ),
-                    // Bottom Right
                     Positioned(
-                      bottom: 0, right: 0,
+                      bottom: 0,
+                      right: 0,
                       child: _buildCorner(isTop: false, isLeft: false),
                     ),
                   ],
                 ),
               ),
-              
+
               const Spacer(),
-              
+
               AuthButton(
-                text: 'Open Camera',
+                text: IzuAuthTexts.openCamera,
                 onPressed: () {
-                  // Simulate successful profile creation/camera upload directly to Home.
                   Get.offAll(() => const UserHomeScreen());
                 },
               ),

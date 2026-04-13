@@ -1,24 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../core/common/constants/app_images.dart';
-import '../../../../core/theme/app_colors.dart';
-import 'set_new_password_screen.dart';
+import '../../../../../core/common/constants/app_images.dart';
+import '../../../../../core/common/constants/feature_texts.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../controller/auth_controller.dart';
 
-class OtpVerificationScreen extends StatefulWidget {
-  const OtpVerificationScreen({super.key, required this.email});
+/// OTP screen that follows the old UI design (dark background style).
+/// Used in the forgot password flow from ForgotEmailScreen.
+class OtpVerifyScreen extends StatefulWidget {
+  const OtpVerifyScreen({super.key, required this.email});
   final String email;
 
   @override
-  State<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
+  State<OtpVerifyScreen> createState() => _OtpVerifyScreenState();
 }
 
-class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
+class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
   final List<TextEditingController> _otpControllers = List.generate(
     6,
     (index) => TextEditingController(),
   );
   final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
+  late final AuthController _authController;
+
+  @override
+  void initState() {
+    super.initState();
+    _authController = Get.find<AuthController>();
+  }
 
   @override
   void dispose() {
@@ -31,23 +41,22 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     super.dispose();
   }
 
-  void _submitOtp() {
+  void _submitOtp() async {
     final otp = _otpControllers.map((c) => c.text).join();
 
-    // Validation
     if (otp.length != 6) {
       Get.snackbar(
-        'Error',
+        IzuAuthTexts.loginError,
         'Please enter complete OTP',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
+        backgroundColor: AppColors.logoutRed,
+        colorText: AppColors.primaryWhite,
       );
       return;
     }
 
-    // Navigate to reset password screen with email and OTP
-    Get.to(() => SetNewPasswordScreen(email: widget.email, otp: otp));
+    // Call verify OTP from controller
+    await _authController.verifyOTP(widget.email, otp, isRegistrationFlow: false);
   }
 
   @override
@@ -91,7 +100,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
-                  color: Color(0xFF676877),
+                  color: AppColors.subText,
                   height: 1.5,
                 ),
               ),
@@ -103,12 +112,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     final availableWidth = constraints.maxWidth;
-                    final spacing = 6.0;
-                    final totalSpacing = spacing * 5; // 5 gaps between 6 boxes
-                    final boxSize = ((availableWidth - totalSpacing) / 6).clamp(
-                      45.0,
-                      65.0,
-                    );
+                    const spacing = 6.0;
+                    const totalSpacing = spacing * 5;
+                    final boxSize = ((availableWidth - totalSpacing) / 6).clamp(45.0, 65.0);
                     final fontSize = boxSize > 45 ? 25.0 : 20.0;
 
                     return Row(
@@ -122,7 +128,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: _otpControllers[index].text.isNotEmpty
-                                  ? const Color(0xFF555555)
+                                  ? AppColors.textBlack
                                   : AppColors.pinFieldColor,
                               width: 2,
                             ),
@@ -136,12 +142,17 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             style: TextStyle(
                               fontSize: fontSize,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                              color: AppColors.primaryWhite,
+                              height: 1.0,
                             ),
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               border: InputBorder.none,
                               counterText: '',
-                              contentPadding: EdgeInsets.zero,
+                              contentPadding: EdgeInsets.symmetric(
+                                vertical: boxSize / 2 - fontSize / 2,
+                                horizontal: 0,
+                              ),
+                              isDense: true,
                             ),
                             onChanged: (value) {
                               setState(() {});
@@ -166,12 +177,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 children: [
                   const Text(
                     "Didn't get the code? ",
-                    style: TextStyle(fontSize: 14, color: Color(0xFF999999)),
+                    style: TextStyle(fontSize: 14, color: AppColors.subText),
                   ),
                   GestureDetector(
-                    onTap: () {
-                      // Handle resend
-                    },
+                    onTap: () {},
                     child: const Text(
                       'Resend it',
                       style: TextStyle(
@@ -185,28 +194,46 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               ),
               const Spacer(),
 
-              // Continue Button
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: _submitOtp,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.containerBG,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
+              // Continue Button with loading state
+              GetBuilder<AuthController>(
+                builder: (controller) {
+                  return SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: controller.isLoading.value ? null : _submitOtp,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: controller.isLoading.value
+                          ? AppColors.containerBG.withOpacity(0.6)
+                          : AppColors.containerBG,
+                        disabledBackgroundColor: AppColors.containerBG.withOpacity(0.6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: controller.isLoading.value
+                        ? SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white.withOpacity(0.8),
+                            ),
+                            strokeWidth: 2,
+                          ),
+                        )
+                        : const Text(
+                          'Verify Now',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primaryWhite,
+                          ),
+                        ),
                     ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Continue',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+                  );
+                },
               ),
               const SizedBox(height: 40),
             ],
@@ -216,3 +243,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     );
   }
 }
+
+// ─── Backward-compat alias (some screens may still use OtpVerificationScreen) ───
+// ignore: non_constant_identifier_names
+Widget OtpVerificationScreenAlias({required String email}) =>
+    OtpVerifyScreen(email: email);

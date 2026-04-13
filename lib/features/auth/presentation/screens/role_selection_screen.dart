@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../../core/common/constants/feature_texts.dart';
 import '../../../../../core/network/services/auth_storage_service.dart';
+import '../../../../../core/theme/app_colors.dart';
 import 'create_account_screen.dart';
 
 class RoleSelectionScreen extends StatefulWidget {
@@ -12,12 +14,12 @@ class RoleSelectionScreen extends StatefulWidget {
 }
 
 class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
-  String _selectedRole = 'user'; // Changed from beardfriend
+  String _selectedRole = 'user';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.primaryWhite,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -36,9 +38,9 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
               const SizedBox(height: 40),
 
               // Heading
-              const Text(
-                'Select your role to begin\nyour journey.',
-                style: TextStyle(
+              Text(
+                IzuAuthTexts.selectRoleTitle,
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
                   color: Colors.black,
@@ -48,9 +50,9 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
               const SizedBox(height: 8),
 
               // Subtitle
-              const Text(
-                'We tailor the experience based on who you are.',
-                style: TextStyle(
+              Text(
+                IzuAuthTexts.selectRoleSubtitle,
+                style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
                   color: Colors.black87,
@@ -61,26 +63,16 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
 
               // User Card
               GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _selectedRole = 'user';
-                  });
-                },
+                onTap: () => setState(() => _selectedRole = 'user'),
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 24,
-                    horizontal: 20,
-                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
                   decoration: BoxDecoration(
                     color: _selectedRole == 'user'
-                        ? const Color(0xFF2870BC)
-                        : Colors.white,
+                        ? AppColors.homePrimary
+                        : AppColors.primaryWhite,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: const Color(0xFF2870BC),
-                      width: 1,
-                    ),
+                    border: Border.all(color: AppColors.homePrimary, width: 1),
                   ),
                   child: Row(
                     children: [
@@ -88,14 +80,10 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                         width: 56,
                         height: 56,
                         decoration: const BoxDecoration(
-                          color: Color(0xFFFCA048),
+                          color: AppColors.authTextOrange,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
-                          Icons.person,
-                          color: Colors.white,
-                          size: 32,
-                        ),
+                        child: const Icon(Icons.person, color: AppColors.primaryWhite, size: 32),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -103,24 +91,24 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Continue as User',
+                              IzuAuthTexts.continueAsUser,
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,
                                 color: _selectedRole == 'user'
-                                    ? Colors.white
+                                    ? AppColors.primaryWhite
                                     : Colors.black,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Book For Service',
+                              IzuAuthTexts.bookForService,
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,
                                 color: _selectedRole == 'user'
-                                    ? Colors.white70
-                                    : Colors.grey.shade600,
+                                    ? AppColors.primaryWhite.withOpacity(0.7)
+                                    : AppColors.subText,
                               ),
                             ),
                           ],
@@ -135,38 +123,30 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
 
               // Provider Card
               GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _selectedRole = 'provider'; // Changed from barbershop
-                  });
-                },
+                onTap: () => setState(() => _selectedRole = 'provider'),
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 24,
-                    horizontal: 20,
-                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
                   decoration: BoxDecoration(
                     color: _selectedRole == 'provider'
-                        ? const Color(0xFF2870BC)
-                        : Colors.white,
+                        ? AppColors.homePrimary
+                        : AppColors.primaryWhite,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: const Color(0xFF2870BC),
-                      width: 1,
-                    ),
+                    border: Border.all(color: AppColors.homePrimary, width: 1),
                   ),
                   child: Row(
                     children: [
                       Container(
                         width: 56,
                         height: 56,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                        ),
+                        decoration: const BoxDecoration(shape: BoxShape.circle),
                         child: _selectedRole == 'provider'
-                            ? const Icon(Icons.engineering, color: Colors.white, size: 48)
-                            : Image.asset('assets/icons/Izu_provider_icon.png', fit: BoxFit.contain, color: const Color(0xFF2870BC),),
+                            ? const Icon(Icons.engineering, color: AppColors.primaryWhite, size: 48)
+                            : Image.asset(
+                                'assets/icons/Izu_provider_icon.png',
+                                fit: BoxFit.contain,
+                                color: AppColors.homePrimary,
+                              ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -174,24 +154,24 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Continue as Provider',
+                              IzuAuthTexts.continueAsProvider,
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,
                                 color: _selectedRole == 'provider'
-                                    ? Colors.white
+                                    ? AppColors.primaryWhite
                                     : Colors.black,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Earn money by providing\nservices.',
+                              IzuAuthTexts.earnMoneyDesc,
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,
                                 color: _selectedRole == 'provider'
-                                    ? Colors.white70
-                                    : Colors.grey.shade600,
+                                    ? AppColors.primaryWhite.withOpacity(0.7)
+                                    : AppColors.subText,
                                 height: 1.3,
                               ),
                             ),
@@ -211,15 +191,12 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () async {
-                    // Save the selected role to persistent storage
                     final authStorageService = Get.find<AuthStorageService>();
                     await authStorageService.storeSelectedRole(_selectedRole);
-
-                    // Navigate to CreateAccountScreen with selected role
                     Get.to(() => CreateAccountScreen(selectedRole: _selectedRole));
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2870BC),
+                    backgroundColor: AppColors.authButtonBlue,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28),
                     ),
@@ -229,15 +206,15 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Continue',
+                        IzuAuthTexts.continueBtn,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                          color: AppColors.primaryWhite,
                         ),
                       ),
                       SizedBox(width: 8),
-                      Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                      Icon(Icons.arrow_forward, color: AppColors.primaryWhite, size: 20),
                     ],
                   ),
                 ),
