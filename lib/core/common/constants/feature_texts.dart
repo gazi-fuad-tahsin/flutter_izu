@@ -381,6 +381,72 @@ class ProviderAccountTexts {
   static const String signOut = 'Sign Out';
 }
 
+class ProviderProfileTexts {
+  // Header
+  static const String profileTitle = 'Profile';
+  static const String editProfile = 'Edit Profile';
+
+  // Profile Stats
+  static const String workCompletion = 'Work Completion';
+  static const String yourEarning = 'Your Earning';
+  static const String workCompletionValue = '30';
+  static const String earningValue = '\$5000';
+
+  // Menu Items
+  static const String yourServices = 'Your Services';
+  static const String changePassword = 'Change Password';
+  static const String privacyPolicy = 'Privacy Policy';
+  static const String termAndCondition = 'Term & Condition';
+  static const String language = 'Language';
+  static const String logOut = 'Log Out';
+
+  // Dialogs
+  static const String logOutTitle = 'Log Out';
+  static const String logOutMessage = 'Are you sure you want to logout?';
+  static const String cancel = 'Cancel';
+  static const String yesLogOut = 'Yes, Logout';
+  static const String loggedOutSuccess = 'Logged Out';
+  static const String loggedOutSuccessMessage = 'You have been logged out successfully';
+  static const String logOutError = 'Error';
+  static const String logOutErrorMessage = 'Something went wrong during logout';
+
+  // Provider Profile Info
+  static const String providerName = 'Mr. Khaled';
+  static const String providerHandle = '@service_provider';
+  static const String providerEmail = 'khaled@abcmail.com';
+  static const String providerPhone = '565235612021';
+  static const String ratingValue = '5'; // 5 stars
+}
+
+class ProviderBookingTexts {
+  // Filter tabs
+  static const String live = 'Live';
+  static const String next = 'Next';
+  static const String completed = 'Completed';
+  static const String cancelled = 'Cancelled';
+
+  // Live booking
+  static const String duration = 'Duration';
+  static const String location = 'Location';
+  static const String contact = 'Contact';
+  static const String startServicing = 'Start servicing';
+
+  // Next booking
+  static const String upcoming = 'Upcoming';
+  static const String amount = 'Amount';
+  static const String status = 'Status';
+  static const String pending = 'Pending';
+  static const String accepted = 'Accepted';
+  static const String cancel = 'Cancel';
+  static const String reschedule = 'Reschedule';
+
+  // Completed booking
+  static const String completedLabel = 'Completed';
+
+  // Cancelled booking
+  static const String cancelledLabel = 'Cancelled';
+}
+
 class LegalTexts {
   static const String title = 'Legal Information';
   
@@ -415,4 +481,113 @@ class LegalTexts {
   // Contact & Complaints
   static const String contactComplaintsTitle = 'Contact & Complaints';
   static const String contactComplaintsBody = 'If users have concerns about legal terms, privacy, or disputes, they may contact OWVO support through the app.\n\nUsers may also submit complaints to the UK Information Commissioner\'s Office (ICO) regarding data protection matters.';
+}
+
+// ─── IZU App Specific Text Classes ────────────────────────────────────────────
+
+class IzuHomeTexts {
+  // Section Headers
+  static const String selectCategory = 'Select Category';
+  static const String featuredArtisans = 'Featured Artisans';
+  static const String artisansNearBy = 'Artisans Near By you';
+  static const String viewAll = 'View all';
+
+  // Bottom Navigation
+  static const String navHome = 'Home';
+  static const String navBooking = 'Booking';
+  static const String navMessage = 'Message';
+  static const String navProfile = 'Profile';
+
+  // Provider Home
+  static const String listOfRequests = 'List of requests';
+  static const String navService = 'Service';
+  static const String requestAccepted = 'Request accepted!';
+  static const String requestCancelled = 'Request cancelled!';
+  static const String successLabel = 'Success';
+  static const String cancelledLabel = 'Cancelled';
+
+  // Super Deals Banner
+  static const String superDeals = 'Super Deals';
+  static const String superDealsSubtitle = 'Unlock Everything You Need in\nOne Place';
+  static const String allServices = 'All Services';
+}
+
+class IzuAuthTexts {
+  // Onboarding
+  static const String skip = 'Skip';
+  static const String next = 'Next';
+  static const String getStarted = 'Get Started';
+  static const String onboarding1Title = 'Find Skilled Artisans';
+  static const String onboarding1Desc = 'Discover trusted plumbers, electricians, carpenters\nand more near you.';
+  static const String onboarding2Title = 'Book Services Easily';
+  static const String onboarding2Desc = 'Schedule services, chat with artisans and manage\nbookings in one place.';
+  static const String onboarding3Title = 'Work & Earn as an Artisan';
+  static const String onboarding3Desc = 'Join as a service provider and get job requests from\nnearby customers.';
+
+  // Login Screen
+  static const String userEmailLabel = 'User Email';
+  static const String userEmailHint = 'Enter your Email';
+  static const String passwordLabel = 'Password';
+  static const String passwordHint = 'Enter your Password';
+  static const String forgotPassword = 'Forgot password?';
+  static const String signIn = 'Sign in';
+  static const String dontHaveAccount = 'Don\'t have an account?';
+  static const String signUpHere = 'Sign Up Here';
+  static const String loginError = 'Error';
+  static const String enterEmailError = 'Please enter your email';
+  static const String enterPasswordError = 'Please enter your password';
+
+  // Create Account Screen
+  static const String letsGetStarted = 'Let\'s Get Started!';
+  static const String createAnAccount = 'Create an account';
+  static const String userNameLabel = 'User Name';
+  static const String userNameHint = 'Enter your First Name';
+  static const String yourEmailLabel = 'Your Email';
+  static const String phoneNumberLabel = 'Phone Number';
+  static const String phoneNumberHint = 'Enter your phone number';
+  static const String confirmPasswordLabel = 'Confirm Password';
+  static const String confirmPasswordHint = 'Enter Confirm Password';
+  static const String signUp = 'Sign up';
+  static const String alreadyHaveAccount = 'Already have an account?';
+  static const String signInHere = 'Sign In Here';
+  static const String enterNameError = 'Please enter your name';
+  static const String enterPhoneError = 'Please enter your phone number';
+  static const String confirmPasswordError = 'Please confirm your password';
+  static const String passwordsDoNotMatch = 'Passwords do not match';
+
+  // Role Selection Screen
+  static const String selectRoleTitle = 'Select your role to begin\nyour journey.';
+  static const String selectRoleSubtitle = 'We tailor the experience based on who you are.';
+  static const String continueAsUser = 'Continue as User';
+  static const String bookForService = 'Book For Service';
+  static const String continueAsProvider = 'Continue as Provider';
+  static const String earnMoneyDesc = 'Earn money by providing\nservices.';
+  static const String continueBtn = 'Continue';
+
+  // Selfie Verification Screen
+  static const String selfieVerification = 'Selfie Verification';
+  static const String selfieVerificationDesc = 'Verify your identity by taking a photo\nthat matches your ID provided';
+  static const String openCamera = 'Open Camera';
+
+  // OTP Screen (additional colors marker)
+  static const String resendOtpColor = '#1E5F48';
+}
+
+class IzuChatbotTexts {
+  // Chat Screen
+  static const String chatbotUserName = 'Madiha Arora';
+  static const String chatbotGreeting = 'Hi, Good Morning';
+  static const String chatInputHint = 'Write here';
+  static const String botDefaultReply = 'Thanks for that! Let me help you with your request.';
+  static const String botUnderstandReply = 'I understand. How can I help you with that?';
+
+  // Initial messages
+  static const String sampleUserMsg1 = 'Hi, I need help booking an appointment.';
+  static const String sampleBotMsg1 = 'Sure! What type of service are you looking for?';
+  static const String sampleBotMsg2 = 'Please choose a date and time that works for you.';
+  static const String sampleUserMsg2 = 'I want to book a haircut.\nTomorrow at 4 PM.';
+  static const String sampleBotMsg3 = 'Perfect! Your appointment is available at 4:00 PM tomorrow.';
+
+  // Overlay / Search
+  static const String searchWithAi = 'Search with AI';
 }

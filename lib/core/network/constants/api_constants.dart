@@ -1,8 +1,7 @@
 class ApiConstants {
-  // static const String baseDomain = 'https://b65fbl32-5001.asse.devtunnels.ms';
   // static const String baseDomain = 'http://187.77.187.56:5005';
-  static const String baseDomain = "http://10.10.5.67:5005";
-  // static const String baseDomain = 'https://backendyamaa-2ywn.onrender.com';
+  static const String baseDomain = "http://10.10.5.67:5008";
+
   static const String baseUrl = '$baseDomain/api/v1';
 
 
@@ -52,6 +51,8 @@ class ApiConstants {
 
   static ServiceEndpoints get service => ServiceEndpoints();
   
+  static CategoryEndpoints get category => CategoryEndpoints();
+  
   static WasherEndpoints get washer => WasherEndpoints();
 
   static BookingEndpoints get booking => BookingEndpoints();
@@ -66,9 +67,10 @@ class AuthEndpoints {
   final String login = '$_base/login';
 
   final String register = '$_base/register';
-  final String forgotPass = '$_base/forget';
+  final String signup = '$_base/signup';
+  final String forgotPass = '$_base/forgot-password';
   final String resrtPass = '$_base/reset-password';
-  final String verifyMailOtp = '$_base/verify';
+  final String verifyMailOtp = '$_base/verify-otp';
 
   final String refreshToken = '$_base/refresh-token';
 
@@ -95,6 +97,9 @@ class GetProfile {
   final String fetchProfile = '$_baseUrl/user/profile';
   final String updateProfile =
       '$_baseUrl/user/profile'; // Use same endpoint as GET with PUT method
+  
+  // Auth user profile endpoint - used after login to get current user details
+  final String getAuthUserProfile = '$_baseUrl/profile';
 }
 
 class UserEndpoints {
@@ -262,6 +267,13 @@ class ServiceEndpoints {
   static const String _base = '${ApiConstants.baseUrl}/services';
 
   final String getServices = _base;
+}
+
+/// [Category Endpoints]
+class CategoryEndpoints {
+  static const String _base = '${ApiConstants.baseUrl}/categories';
+
+  final String fetchCategories = _base;
 }
 
 /// [Washer Endpoints]

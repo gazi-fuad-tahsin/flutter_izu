@@ -1,9 +1,20 @@
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
+import 'core/common/constants/language.dart';
 import 'core/init/app_initializer.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/screens/splash_screen.dart';
+
+class AppTranslations extends Translations {
+  @override
+  Map<String, Map<String, String>> get keys => {
+    'en': AppLanguages.en,
+    'es': AppLanguages.es,
+    'it': AppLanguages.it,
+    'de': AppLanguages.de,
+  };
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +35,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'flutter_izu',
       theme: AppTheme.light,
-      home:  SplashScreen(),
+      translations: AppTranslations(),
+      locale: const Locale('en'),
+      fallbackLocale: const Locale('en'),
+      home: SplashScreen(),
     );
   }
 }
