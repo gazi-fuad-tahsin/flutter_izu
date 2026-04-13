@@ -1,22 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../../../../../core/base/base_controller.dart';
 import '../../../../../core/network/services/auth_storage_service.dart';
-import '../../../../../core/services/sound_service.dart';
 import '../../../../../core/utils/debug_print.dart';
+import '../../../category/presentation/controller/category_controller.dart';
+import '../../../home/presentation/screens/provider_home_screen.dart';
+import '../../../home/presentation/screens/user_home_screen.dart';
+import '../../../service/presentation/controller/service_controller.dart';
 import '../../data/model/forgot_pass_request_model.dart';
 import '../../data/model/login_request_model.dart';
 import '../../data/model/refresh_token_request_model.dart';
 import '../../data/model/refresh_token_response_model.dart';
 import '../../data/model/register_request_model.dart';
 import '../../data/model/set_password_request_model.dart';
+import '../../data/model/signup_request_model.dart';
 import '../../data/model/verify_otp_request-model.dart';
 import '../../domain/repo/auth_repo.dart';
 import '../screens/LogIn_screen.dart';
-import '../screens/Otp_verify_screen.dart' as ForgotPasswordOtp;
-import '../screens/auth_decision_screen.dart';
+import '../screens/otp_verification_screen.dart';
+import '../screens/selfie_verification_screen.dart';
 import '../screens/set_new_password_screen.dart';
-import '../widgets/otp_verification_popup.dart';
+import 'user_controller.dart';
 
 
 class AuthController extends BaseController {
@@ -78,7 +83,7 @@ class AuthController extends BaseController {
         // Store role separately
         await _authStorageService.storeSelectedRole(success.data.role);
 
-        // Optional: show success Snackbar
+        // Show success Snackbar
         Get.snackbar(
           "Success",
           "Logged in successfully",
@@ -92,18 +97,43 @@ class AuthController extends BaseController {
 
         setLoading(false);
 
-        // Check if player has incomplete profile (empty sportPreferences)
-        // NOTE: This field no longer exists in the new model
-        // final isPlayerWithIncompleteProfile =
-        //     success.data.role == 'player' &&
-        //     (success.data.user.sportPreferences.isEmpty);
+        // Fetch user profile after successful login
+        await fetchUserProfile();
+        
+        // Fetch categories after successful login
+        final categoryController = Get.find<CategoryController>();
+        await categoryController.fetchCategories();
+        
+        // Fetch services after successful login
+        final serviceController = Get.find<ServiceController>();
+        await serviceController.fetchServices();
 
-        // Check if instructor has incomplete profile (empty gender field)
-        // NOTE: This field no longer exists in the new model
-        // final isInstructorWithIncompleteProfile =
-        //     success.data.role == 'instructor' &&
-        //     (success.data.user.gender == null ||
-        //         success.data.user.gender!.isEmpty);
+        // Navigate based on role
+        if (success.data.role == 'provider') {
+          // Navigate to Provider Home Screen
+          Get.offAll(() => const ProviderHomeScreen());
+        } else {
+          // Navigate to User Home Screen
+          Get.offAll(() => const UserHomeScreen());
+        }
+      },
+    );
+  }
+
+  Future<void> fetchUserProfile() async {
+    DPrint.log("🔄 Fetching user profile...");
+    
+    final result = await _authRepository.fetchUserProfile();
+    
+    result.fold(
+      (fail) {
+        DPrint.log("❌ Failed to fetch user profile: ${fail.message}");
+      },
+      (success) {
+        DPrint.log("✅ User profile fetched successfully!");
+        // Store profile in UserController
+        final userController = Get.find<UserController>();
+        userController.setUserProfile(success.data);
       },
     );
   }
@@ -217,6 +247,116 @@ class AuthController extends BaseController {
     );
   }
 
+  Future<void> signup(
+    String name,
+    String email,
+    String password,
+    String accountType,
+    String phone,
+  ) async {
+    setLoading(true);
+    setError('');
+
+    DPrint.log(
+      "\n╔═══════════════════════════════════════════════════════════════",
+    );
+    DPrint.log("║ 📝 SIGNUP ATTEMPT");
+    DPrint.log(
+      "╠═══════════════════════════════════════════════════════════════",
+    );
+    DPrint.log("║ 👤 Name: $name");
+    DPrint.log("║ 📧 Email: $email");
+    DPrint.log("║ 🎭 Account Type: $accountType");
+    DPrint.log("║ 📞 Phone: $phone");
+    DPrint.log(
+      "╚═══════════════════════════════════════════════════════════════\n",
+    );
+
+    // Validation
+    if (name.isEmpty || email.isEmpty || password.isEmpty || phone.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Please fill all required fields",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+        duration: const Duration(seconds: 3),
+      );
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      Get.snackbar(
+        "Error",
+        "Password must be at least 6 characters",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+        duration: const Duration(seconds: 3),
+      );
+      setLoading(false);
+      return;
+    }
+
+    final request = SignupRequestModel(
+      name: name,
+      email: email,
+      password: password,
+      accountType: accountType,
+      phone: phone,
+    );
+
+    final result = await _authRepository.signup(request);
+
+    result.fold(
+      (fail) {
+        setError(fail.message);
+
+        // Show Snackbar for API error
+        Get.snackbar(
+          "Error",
+          fail.message.contains("email")
+              ? "Email already exists"
+              : fail.message,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          margin: const EdgeInsets.all(16),
+          borderRadius: 8,
+          duration: const Duration(seconds: 3),
+        );
+
+        DPrint.log("Signup failed: ${fail.message}");
+        setLoading(false);
+      },
+      (success) async {
+        DPrint.log("✅ Signup success: ${success.data.email}");
+
+        // Show success Snackbar
+        Get.snackbar(
+          "Success",
+          "Account created successfully!",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          margin: const EdgeInsets.all(16),
+          borderRadius: 8,
+          duration: const Duration(seconds: 2),
+        );
+
+        setLoading(false);
+
+        // Navigate to selfie verification screen
+        Get.off(() => const SelfieVerificationScreen());
+      },
+    );
+  }
+
   Future forgotPassword(String email) async {
     setLoading(true);
     setError('');
@@ -271,7 +411,9 @@ class AuthController extends BaseController {
         setLoading(false);
       },
       (success) {
-        DPrint.log("✅ OTP sent successfully: ${success.message}");
+        DPrint.log("✅ OTP sent successfully");
+        DPrint.log("📧 Email: ${success.data.email}");
+        DPrint.log("⏰ OTP Expiry: ${success.data.otpExpiry}");
 
         Get.snackbar(
           "Success",
@@ -285,7 +427,7 @@ class AuthController extends BaseController {
         );
 
         setLoading(false);
-        Get.to(() => ForgotPasswordOtp.OtpVerificationScreen(email: email));
+        Get.to(() => OtpVerificationScreen(email: email));
       },
     );
   }
@@ -357,31 +499,25 @@ class AuthController extends BaseController {
 
         setLoading(false);
 
-        // Show failure popup
-        if (Get.context != null) {
-          showOtpVerificationPopup(
-            context: Get.context!,
-            isSuccess: false,
-            message: "Account not Verified!",
-            displayDuration: const Duration(seconds: 3),
-          );
-        } else {
-          Get.snackbar(
-            "Error",
-            fail.message,
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-            margin: const EdgeInsets.all(16),
-            borderRadius: 8,
-            duration: const Duration(seconds: 3),
-          );
-        }
+        // Show failure snackbar
+        Get.snackbar(
+          "Error",
+          fail.message,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          margin: const EdgeInsets.all(16),
+          borderRadius: 8,
+          duration: const Duration(seconds: 3),
+        );
       },
       (success) {
-        DPrint.log("✅ OTP verified successfully: ${success.message}");
+        DPrint.log("✅ OTP verified successfully");
+        DPrint.log("📧 Email: ${success.data.email}");
 
         setLoading(false);
+        // Navigate to set new password screen with email and otp
+        Get.to(() => SetNewPasswordScreen(email: email, otp: otp));
       },
     );
   }
@@ -453,31 +589,28 @@ class AuthController extends BaseController {
         setLoading(false);
       },
       (success) {
-        DPrint.log("✅ Password set successfully: ${success.message}");
+        DPrint.log("✅ Password set successfully");
+        DPrint.log("📧 Email: ${success.data.email}");
 
         setLoading(false);
 
-        // Show success popup then navigate to login
-        if (Get.context != null) {
-          showOtpVerificationPopup(
-            context: Get.context!,
-            isSuccess: true,
-            message: "Verified successfully.",
-            displayDuration: const Duration(seconds: 3),
-            onDismiss: () {
-              // Navigate to login screen after popup dismisses
-              Get.offAll(
-                () => const LoginRoleScreen(),
-                transition: Transition.leftToRight,
-              );
-            },
-          );
-        } else {
-          Get.offAll(
-            () => const LoginRoleScreen(),
-            transition: Transition.leftToRight,
-          );
-        }
+        // Show snackbar with success message
+        Get.snackbar(
+          "Success",
+          "Password reset successfully. Please login with your new password.",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          margin: const EdgeInsets.all(16),
+          borderRadius: 8,
+          duration: const Duration(seconds: 2),
+        );
+
+        // Navigate to login screen
+        Get.offAll(
+          () => const LoginScreen(),
+          transition: Transition.leftToRight,
+        );
       },
     );
   }
@@ -497,30 +630,70 @@ class AuthController extends BaseController {
     final request = RefreshTokenRequestModel(refreshToken: refreshToken);
     final result = await _authRepository.refreshToken(request);
 
-    return result.fold(
-      (fail) async {
+    // Handle fold synchronously and return the result directly
+    bool isSuccess = false;
+    RefreshTokenResponseModel? responseData;
+
+    result.fold(
+      (fail) {
         DPrint.log("❌ Refresh token failed: ${fail.message}");
-        await _authStorageService.clearAuthData(); // clear invalid token
-        setLoading(false);
-        return null; // Return null on failure
+        isSuccess = false;
       },
-      (success) async {
+      (success) {
         DPrint.log("✅ Refresh token success: ${success.message}");
-        
-        // Store the new tokens
-        await _authStorageService.storeAuthData(
-          accessToken: success.data.accessToken,
-          refreshToken: success.data.refreshToken,
-          userId: success.data.user.id,
-        );
-        
-        // Store role
-        await _authStorageService.storeSelectedRole(success.data.role);
-        
-        setLoading(false);
-        return success.data; // Return the full response data
+        isSuccess = true;
+        responseData = success.data;
       },
     );
+
+    // Handle async operations and return
+    if (isSuccess && responseData != null) {
+      try {
+        // Get existing data from storage (in case they're not in response)
+        final existingUserId = await _authStorageService.getUserId();
+        final existingRefreshToken = await _authStorageService.getRefreshToken();
+
+        // Use new tokens from API, or fall back to existing ones if not provided
+        final newAccessToken = responseData!.accessToken.isNotEmpty 
+          ? responseData!.accessToken 
+          : await _authStorageService.getAccessToken() ?? '';
+        
+        final newRefreshToken = responseData!.refreshToken.isNotEmpty 
+          ? responseData!.refreshToken 
+          : existingRefreshToken ?? ''; // Keep old refresh token if API doesn't return new one
+
+        DPrint.log("🔑 Access Token: ${newAccessToken.substring(0, 20)}...");
+        DPrint.log("🔄 Refresh Token: ${newRefreshToken.substring(0, 20)}...");
+
+        // Store the tokens
+        await _authStorageService.storeAuthData(
+          accessToken: newAccessToken,
+          refreshToken: newRefreshToken,
+          userId: responseData!.user?.id ?? existingUserId ?? '',
+        );
+
+        // Store role
+        await _authStorageService.storeSelectedRole(responseData!.role);
+
+        DPrint.log("✅ Tokens stored successfully");
+        setLoading(false);
+        return responseData; // Return the full response data
+      } catch (e) {
+        DPrint.log("❌ Error storing tokens: $e");
+        setLoading(false);
+        return null;
+      }
+    } else {
+      // Token refresh failed
+      try {
+        await _authStorageService.clearAuthData(); // clear invalid token
+        DPrint.log("✅ Invalid tokens cleared from storage");
+      } catch (e) {
+        DPrint.log("⚠️ Error clearing tokens: $e");
+      }
+      setLoading(false);
+      return null; // Return null on failure
+    }
   }
 
   Future<void> logout() async {
@@ -551,6 +724,19 @@ class AuthController extends BaseController {
   /// Helper method to clear local data and navigate to auth decision screen
   Future<void> _clearLocalDataAndNavigate() async {
     await _authStorageService.clearAuthData();
+    
+    // Clear user profile
+    final userController = Get.find<UserController>();
+    userController.clearUserProfile();
+    
+    // Clear categories
+    final categoryController = Get.find<CategoryController>();
+    categoryController.clearCategories();
+    
+    // Clear services
+    final serviceController = Get.find<ServiceController>();
+    serviceController.clearServices();
+    
     setLoading(false);
 
 
@@ -566,7 +752,7 @@ class AuthController extends BaseController {
       duration: const Duration(seconds: 2),
     );
     
-    // Navigate to auth decision screen (user can choose Log In or Sign Up)
-    Get.offAll(() => const AuthDecisionScreen());
+    // Navigate to login screen
+    Get.offAll(() => const LoginScreen());
   }
 }

@@ -1,13 +1,17 @@
 class ResetPasswordResponseModel {
-  final bool success;
-  final String message;
+  final String email;
 
-  ResetPasswordResponseModel({required this.success, required this.message});
+  const ResetPasswordResponseModel({required this.email});
 
   factory ResetPasswordResponseModel.fromJson(Map<String, dynamic> json) {
     return ResetPasswordResponseModel(
-      success: json['success'] ?? false,
-      message: json['message'] ?? '',
+      email: json['email'] ?? '',
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'email': email,
+    };
   }
 }

@@ -1,7 +1,4 @@
-import 'package:get/get.dart';
 
-import '../services/socket_service.dart';
-import '../services/sound_service.dart';
 
 void setupServices() {
   // Get.lazyPut<GetUserProfileService>(() => GetUserProfileService(Get.find()));

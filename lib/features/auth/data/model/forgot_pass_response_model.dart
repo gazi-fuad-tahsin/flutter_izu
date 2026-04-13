@@ -1,13 +1,23 @@
 class ForgotPassResponseModel {
-  const ForgotPassResponseModel();
+  final String email;
+  final int otpExpiry;
 
-  factory ForgotPassResponseModel.fromJson(dynamic json) {
-    // The data field from API is null, so this is just a placeholder model
-    // Success and message are handled by BaseResponse and returned via NetworkSuccess
-    return const ForgotPassResponseModel();
+  const ForgotPassResponseModel({
+    required this.email,
+    required this.otpExpiry,
+  });
+
+  factory ForgotPassResponseModel.fromJson(Map<String, dynamic> json) {
+    return ForgotPassResponseModel(
+      email: json['email'] ?? '',
+      otpExpiry: json['otpExpiry'] ?? 0,
+    );
   }
 
   Map<String, dynamic> toJson() {
-    return {};
+    return {
+      'email': email,
+      'otpExpiry': otpExpiry,
+    };
   }
 }

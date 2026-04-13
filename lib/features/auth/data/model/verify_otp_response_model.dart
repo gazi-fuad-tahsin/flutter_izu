@@ -1,13 +1,17 @@
 class VerifyMailOtpResponseModel {
-  const VerifyMailOtpResponseModel();
+  final String email;
 
-  factory VerifyMailOtpResponseModel.fromJson(dynamic json) {
-    // The data field from API is null, so this is just a placeholder model
-    // Success and message are handled by BaseResponse and returned via NetworkSuccess
-    return const VerifyMailOtpResponseModel();
+  const VerifyMailOtpResponseModel({required this.email});
+
+  factory VerifyMailOtpResponseModel.fromJson(Map<String, dynamic> json) {
+    return VerifyMailOtpResponseModel(
+      email: json['email'] ?? '',
+    );
   }
 
   Map<String, dynamic> toJson() {
-    return {};
+    return {
+      'email': email,
+    };
   }
 }

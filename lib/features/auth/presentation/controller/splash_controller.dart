@@ -1,8 +1,12 @@
 import 'package:get/get.dart';
-import '../../../../../core/network/api_client.dart';
+
 import '../../../../../core/network/services/auth_storage_service.dart';
-import '../../../../../core/services/socket_service.dart';
 import '../../../../../core/utils/debug_print.dart';
+import '../../../category/presentation/controller/category_controller.dart';
+import '../../../home/presentation/screens/provider_home_screen.dart';
+import '../../../home/presentation/screens/user_home_screen.dart';
+import '../../../service/presentation/controller/service_controller.dart';
+import '../screens/LogIn_screen.dart';
 import '../screens/OnboardingScreen1.dart';
 import 'auth_controller.dart';
 
@@ -49,86 +53,69 @@ class SplashScreenController extends GetxController {
 
     if (refreshResponse != null) {
       DPrint.log("✅ Token is valid - User is authenticated");
-      DPrint.log("👤 User: ${refreshResponse.user.name}");
+      if (refreshResponse.user != null) {
+        DPrint.log("👤 User: ${refreshResponse.user!.name}");
+      }
       DPrint.log("🎭 Role: ${refreshResponse.role}");
       DPrint.log(
         "═══════════════════════════════════════════════════════════════\n",
       );
 
-    //   if (refreshResponse.role == 'provider') {
-    //     // Provider: fetchProfileAndNavigate stores userId then connects socket
-    //     if (!Get.isRegistered<ProviderController>()) {
-    //       Get.put(ProviderController(), permanent: true);
-    //     }
-    //     final providerController = Get.find<ProviderController>();
-    //     await providerController.fetchProfileAndNavigate();
-    //   } else {
-    //     // User / other roles: fetch profile first to get & store userId,
-    //     // then connect socket, then navigate to MainScreen.
-    //     await _fetchProfileStoreUserIdAndNavigate(authStorageService);
-    //   }
-    // } else {
-    //   DPrint.log("❌ Token validation failed - Redirecting to Role Selection");
-    //   DPrint.log(
-    //     "═══════════════════════════════════════════════════════════════\n",
-    //   );
-    //   _navigateToRoleSelection();
+      // Fetch user profile after token validation
+      DPrint.log("🔄 Fetching user profile...");
+      await authController.fetchUserProfile();
+      
+      // Fetch categories after token validation
+      DPrint.log("🔄 Fetching categories...");
+      final categoryController = Get.find<CategoryController>();
+      await categoryController.fetchCategories();
+      
+      // Fetch services after token validation
+      DPrint.log("🔄 Fetching services...");
+      final serviceController = Get.find<ServiceController>();
+      await serviceController.fetchServices();
+
+      // Navigate based on role
+      _navigateToHomeBasedOnRole(refreshResponse.role);
+    } else {
+      DPrint.log("❌ Token validation failed - Redirecting to Login");
+      DPrint.log(
+        "═══════════════════════════════════════════════════════════════\n",
+      );
+      _navigateToLogin();
     }
   }
 
-  /// Calls GET /user/profile, stores the returned userId, connects the socket,
-  /// and then navigates to [MainScreen].
-  /// Falls back to [MainScreen] even if the profile call fails.
-  // Future<void> _fetchProfileStoreUserIdAndNavigate(
-  //   AuthStorageService authStorageService,
-  // ) async {
-  //   try {
-  //     final providerRepository = ProviderRepository(Get.find<ApiClient>());
-  //     final result = await providerRepository.getUserProfile();
-
-  //     result.fold(
-  //       (failure) {
-  //         DPrint.log(
-  //           '⚠️ Could not fetch user profile during auto-login (non-fatal): ${failure.message}',
-  //         );
-  //       },
-  //       (success) async {
-  //         final UserProfileResponse profile = success.data;
-
-  //         // Store the real userId from the profile response
-  //         if (profile.id.isNotEmpty) {
-  //           await authStorageService.storeUserId(profile.id);
-  //           DPrint.log('💾 Stored userId from profile: ${profile.id}');
-  //         }
-
-  //         // Connect socket now that userId is in secure storage
-  //         try {
-  //           final socketService = Get.find<SocketService>();
-  //           await socketService.connect();
-  //           DPrint.log('🔌 Socket connected for user (userId: ${profile.id})');
-  //         } catch (e) {
-  //           DPrint.log('⚠️ Socket connect error (non-fatal): $e');
-  //         }
-  //       },
-  //     );
-  //   } catch (e) {
-  //     DPrint.log('⚠️ _fetchProfileStoreUserIdAndNavigate exception (non-fatal): $e');
-  //   }
-
-  //   // Always navigate to MainScreen regardless of profile fetch outcome
-  //   _navigateToHome();
-  // }
-
-  // void _navigateToHome() {
-  //   Get.offAll(
-  //     () => const MainScreen(),
-  //     transition: Transition.fade,
-  //   );
-  // }
+  /// Navigate to home screen based on user role
+  void _navigateToHomeBasedOnRole(String role) {
+    if (role == 'provider') {
+      DPrint.log("🏢 Navigating to Provider Home Screen");
+      Get.offAll(
+        () => const ProviderHomeScreen(),
+        transition: Transition.fade,
+      );
+    } else if (role == 'user') {
+      DPrint.log("👤 Navigating to User Home Screen");
+      Get.offAll(
+        () => const UserHomeScreen(),
+        transition: Transition.fade,
+      );
+    } else {
+      DPrint.log("⚠️ Unknown role: $role - Redirecting to Onboarding");
+      _navigateToOnboarding();
+    }
+  }
 
   void _navigateToOnboarding() {
     Get.offAll(
       () => const OnboardingScreen1(),
+      transition: Transition.fade,
+    );
+  }
+
+  void _navigateToLogin() {
+    Get.offAll(
+      () => const LoginScreen(),
       transition: Transition.fade,
     );
   }

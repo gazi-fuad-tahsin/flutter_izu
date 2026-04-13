@@ -15,7 +15,7 @@ class ResetPasswordRequestModel {
     return {
       "email": email,
       "otp": otp,
-      "password": password,
+      "newPassword": password,
       "confirmPassword": confirmPassword,
     };
   }

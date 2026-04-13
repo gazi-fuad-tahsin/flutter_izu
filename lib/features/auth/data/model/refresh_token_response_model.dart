@@ -4,13 +4,13 @@ class RefreshTokenResponseModel {
   final String accessToken;
   final String refreshToken;
   final String role;
-  final User user;
+  final User? user;
 
   RefreshTokenResponseModel({
     required this.accessToken,
     required this.refreshToken,
     required this.role,
-    required this.user,
+    this.user,
   });
 
   factory RefreshTokenResponseModel.fromJson(Map<String, dynamic> json) {
@@ -18,7 +18,7 @@ class RefreshTokenResponseModel {
       accessToken: json['accessToken'] ?? '',
       refreshToken: json['refreshToken'] ?? '',
       role: json['role'] ?? '',
-      user: User.fromJson(json['user'] ?? {}),
+      user: json['user'] != null ? User.fromJson(json['user']) : null,
     );
   }
 
@@ -27,7 +27,7 @@ class RefreshTokenResponseModel {
       'accessToken': accessToken,
       'refreshToken': refreshToken,
       'role': role,
-      'user': user.toJson(),
+      'user': user?.toJson(),
     };
   }
 }
