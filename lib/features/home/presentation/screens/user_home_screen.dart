@@ -4,9 +4,11 @@ import 'package:get/get.dart';
 import '../../../../../core/common/constants/feature_texts.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../auth/presentation/controller/user_controller.dart';
+import '../../../booking/presentation/screens/booking_list_screen.dart';
 import '../../../category/presentation/controller/category_controller.dart';
 import '../../../category/presentation/screens/all_categories_screen.dart';
 import '../../../chatbot/presentation/widgets/chatbot_overlay_popup.dart';
+import '../../../message/presentation/screens/message_screen.dart';
 import '../../../notifications/presentation/screens/notifications_screen.dart';
 import '../../../profile/presentation/screens/user_profile_screen.dart';
 import '../../../service/presentation/controller/service_controller.dart';
@@ -32,182 +34,18 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.homeBackground,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 100),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header with user greeting
-                  Obx(() {
-                    final userController = Get.find<UserController>();
-                    return HomeHeader(
-                      userName: userController.userName,
-                      greeting: 'Hi, Good Morning',
-                      avatarAsset: userController.userProfileImage ?? 'assets/images/home_assets/profile.jpg',
-                      notificationCount: 3,
-                      onNotificationTap: () {
-                        Get.to(() => const NotificationsScreen());
-                      },
-                    );
-                  }),
-                  const SizedBox(height: 24),
-
-                  // Super Deals Banner
-                  SuperDealsBanner(
-                    onPressed: () {
-                      Get.to(() => const ServicesListScreen(sourceScreen: 'super_deals'));
-                    },
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Categories Section
-                  SectionHeader(
-                    title: IzuHomeTexts.selectCategory,
-                    onViewAll: () {
-                      Get.to(() => const AllCategoriesScreen());
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  Obx(() {
-                    final categoryController = Get.find<CategoryController>();
-                    final topCategories = categoryController.topFiveCategories;
-                    
-                    // Convert CategoryModel to Map format for CategoriesList widget
-                    final categoriesList = topCategories.map((cat) {
-                      return {
-                        'name': cat.name,
-                        'image': cat.catImage,
-                      };
-                    }).toList();
-                    
-                    return CategoriesList(
-                      categories: categoriesList,
-                      onCategoryTap: (index) {},
-                    );
-                  }),
-                  const SizedBox(height: 24),
-
-                  // Featured Artisans Section
-                  SectionHeader(
-                    title: IzuHomeTexts.featuredArtisans,
-                    onViewAll: () {
-                      Get.to(() => const ServicesListScreen(sourceScreen: 'featured'));
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  Obx(() {
-                    final serviceController = Get.find<ServiceController>();
-                    final featured = serviceController.featuredArtisans;
-                    
-                    final artisans = featured.map((svc) {
-                      // Get service image - use first thumbnail if available
-                      final serviceImage = svc.serviceDetails.serviceThumbnails.isNotEmpty
-                          ? svc.serviceDetails.serviceThumbnails[0] as String
-                          : 'assets/images/home_assets/artisan_1.jpg';
-                      
-                      return {
-                        'bgImage': serviceImage,
-                        'jobTitle': svc.category.name,
-                        'profileImage': svc.provider.profileImage,
-                        'name': svc.provider.name,
-                        'username': '@Service Provider',
-                        'rating': svc.averageRating.toStringAsFixed(1),
-                        'distance': svc.serviceDetails.address,
-                        'price': '${svc.serviceDetails.hourlyPrice}/hr',
-                      };
-                    }).toList();
-                    
-                    final serviceIds = featured.map((svc) => svc.id).toList();
-                    
-                    return FeaturedArtisansSection(
-                      artisans: artisans,
-                      serviceIds: serviceIds,
-                      onArtisanTap: (index) {},
-                    );
-                  }),
-                  const SizedBox(height: 24),
-
-                  // Nearby Artisans Section
-                  SectionHeader(
-                    title: IzuHomeTexts.artisansNearBy,
-                    onViewAll: () {
-                      Get.to(() => const ServicesListScreen(sourceScreen: 'nearby'));
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  Obx(() {
-                    final serviceController = Get.find<ServiceController>();
-                    final nearby = serviceController.nearbyArtisans;
-                    
-                    final artisans = nearby.map((svc) {
-                      // Get service image - use first thumbnail if available
-                      final serviceImage = svc.serviceDetails.serviceThumbnails.isNotEmpty
-                          ? svc.serviceDetails.serviceThumbnails[0] as String
-                          : 'assets/images/home_assets/artisan_1.jpg';
-                      
-                      return {
-                        'bgImage': serviceImage,
-                        'jobTitle': svc.category.name,
-                        'profileImage': svc.provider.profileImage,
-                        'name': svc.provider.name,
-                        'username': '@Service Provider',
-                        'rating': svc.averageRating.toStringAsFixed(1),
-                        'distance': svc.serviceDetails.address,
-                        'price': '${svc.serviceDetails.hourlyPrice}/hr',
-                      };
-                    }).toList();
-                    
-                    final serviceIds = nearby.map((svc) => svc.id).toList();
-                    
-                    return NearbyArtisansSection(
-                      artisans: artisans,
-                      serviceIds: serviceIds,
-                      onArtisanTap: (index) {},
-                    );
-                  }),
-                ],
-              ),
-            ),
-
-            // Floating AI Bot Icon
-            Positioned(
-              right: 20,
-              bottom: 20,
-              child: GestureDetector(
-                onTap: () {
-                  showChatbotOverlayPopup(context);
-                },
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryWhite,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.authBorderGrey, width: 1),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+      body: _currentIndex == 0
+          ? _buildHomeContent()
+          : _currentIndex == 1
+              ? const BookingListScreen()
+              : _currentIndex == 2
+                  ? const MessageScreen()
+                  : Scaffold(
+                      backgroundColor: AppColors.primaryWhite,
+                      body: Center(
+                        child: Text(IzuHomeTexts.navMessage),
                       ),
-                    ],
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.smart_toy_outlined,
-                      color: AppColors.homePrimary,
-                      size: 30,
                     ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppColors.primaryWhite,
@@ -252,6 +90,185 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildHomeContent() {
+    return SafeArea(
+      child: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 100),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header with user greeting
+                Obx(() {
+                  final userController = Get.find<UserController>();
+                  return HomeHeader(
+                    userName: userController.userName,
+                    greeting: 'Hi, Good Morning',
+                    avatarAsset: userController.userProfileImage ?? 'assets/images/home_assets/profile.jpg',
+                    notificationCount: 3,
+                    onNotificationTap: () {
+                      Get.to(() => const NotificationsScreen());
+                    },
+                  );
+                }),
+                const SizedBox(height: 24),
+
+                // Super Deals Banner
+                SuperDealsBanner(
+                  onPressed: () {
+                    Get.to(() => const ServicesListScreen(sourceScreen: 'super_deals'));
+                  },
+                ),
+                const SizedBox(height: 24),
+
+                // Categories Section
+                SectionHeader(
+                  title: IzuHomeTexts.selectCategory,
+                  onViewAll: () {
+                    Get.to(() => const AllCategoriesScreen());
+                  },
+                ),
+                const SizedBox(height: 16),
+                Obx(() {
+                  final categoryController = Get.find<CategoryController>();
+                  final topCategories = categoryController.topFiveCategories;
+                  
+                  // Convert CategoryModel to Map format for CategoriesList widget
+                  final categoriesList = topCategories.map((cat) {
+                    return {
+                      'name': cat.name,
+                      'image': cat.catImage,
+                    };
+                  }).toList();
+                  
+                  return CategoriesList(
+                    categories: categoriesList,
+                    onCategoryTap: (index) {},
+                  );
+                }),
+                const SizedBox(height: 24),
+
+                // Featured Artisans Section
+                SectionHeader(
+                  title: IzuHomeTexts.featuredArtisans,
+                  onViewAll: () {
+                    Get.to(() => const ServicesListScreen(sourceScreen: 'featured'));
+                  },
+                ),
+                const SizedBox(height: 16),
+                Obx(() {
+                  final serviceController = Get.find<ServiceController>();
+                  final featured = serviceController.featuredArtisans;
+                  
+                  final artisans = featured.map((svc) {
+                    // Get service image - use first thumbnail if available
+                    final serviceImage = svc.serviceDetails.serviceThumbnails.isNotEmpty
+                        ? svc.serviceDetails.serviceThumbnails[0] as String
+                        : 'assets/images/home_assets/artisan_1.jpg';
+                    
+                    return {
+                      'bgImage': serviceImage,
+                      'jobTitle': svc.category.name,
+                      'profileImage': svc.provider.profileImage,
+                      'name': svc.provider.name,
+                      'username': '@Service Provider',
+                      'rating': svc.averageRating.toStringAsFixed(1),
+                      'distance': svc.serviceDetails.address,
+                      'price': '${svc.serviceDetails.hourlyPrice}/hr',
+                    };
+                  }).toList();
+                  
+                  final serviceIds = featured.map((svc) => svc.id).toList();
+                  
+                  return FeaturedArtisansSection(
+                    artisans: artisans,
+                    serviceIds: serviceIds,
+                    onArtisanTap: (index) {},
+                  );
+                }),
+                const SizedBox(height: 24),
+
+                // Nearby Artisans Section
+                SectionHeader(
+                  title: IzuHomeTexts.artisansNearBy,
+                  onViewAll: () {
+                    Get.to(() => const ServicesListScreen(sourceScreen: 'nearby'));
+                  },
+                ),
+                const SizedBox(height: 16),
+                Obx(() {
+                  final serviceController = Get.find<ServiceController>();
+                  final nearby = serviceController.nearbyArtisans;
+                  
+                  final artisans = nearby.map((svc) {
+                    // Get service image - use first thumbnail if available
+                    final serviceImage = svc.serviceDetails.serviceThumbnails.isNotEmpty
+                        ? svc.serviceDetails.serviceThumbnails[0] as String
+                        : 'assets/images/home_assets/artisan_1.jpg';
+                    
+                    return {
+                      'bgImage': serviceImage,
+                      'jobTitle': svc.category.name,
+                      'profileImage': svc.provider.profileImage,
+                      'name': svc.provider.name,
+                      'username': '@Service Provider',
+                      'rating': svc.averageRating.toStringAsFixed(1),
+                      'distance': svc.serviceDetails.address,
+                      'price': '${svc.serviceDetails.hourlyPrice}/hr',
+                    };
+                  }).toList();
+                  
+                  final serviceIds = nearby.map((svc) => svc.id).toList();
+                  
+                  return NearbyArtisansSection(
+                    artisans: artisans,
+                    serviceIds: serviceIds,
+                    onArtisanTap: (index) {},
+                  );
+                }),
+              ],
+            ),
+          ),
+
+          // Floating AI Bot Icon
+          Positioned(
+            right: 20,
+            bottom: 20,
+            child: GestureDetector(
+              onTap: () {
+                showChatbotOverlayPopup(context);
+              },
+              child: Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryWhite,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.authBorderGrey, width: 1),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.smart_toy_outlined,
+                    color: AppColors.homePrimary,
+                    size: 30,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
