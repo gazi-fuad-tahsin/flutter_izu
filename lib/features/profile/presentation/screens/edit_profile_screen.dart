@@ -1,5 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../../../auth/presentation/controller/user_controller.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -10,11 +15,14 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _nameController;
+  String? _selectedImagePath;
+  final ImagePicker _imagePicker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: 'Madiha Arora');
+    final userController = Get.find<UserController>();
+    _nameController = TextEditingController(text: userController.userName);
   }
 
   @override
@@ -23,8 +31,74 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
+  Future<void> _pickImage() async {
+    try {
+      final pickedFile = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 90,
+      );
+
+      if (pickedFile != null) {
+        setState(() {
+          _selectedImagePath = pickedFile.path;
+        });
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to pick image: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  Future<void> _saveProfile() async {
+    final userController = Get.find<UserController>();
+    final name = _nameController.text.trim();
+
+    if (name.isEmpty) {
+      Get.snackbar(
+        'Validation',
+        'Please enter your name',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    // Call the update method
+    final success = await userController.updateUserProfile(
+      name: name,
+      imagePath: _selectedImagePath,
+    );
+
+    if (success) {
+      Get.snackbar(
+        'Success',
+        'Profile updated successfully',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+      // Refresh profile data to show on previous screen
+      await Future.delayed(const Duration(milliseconds: 500));
+      Get.back();
+    } else {
+      Get.snackbar(
+        'Error',
+        'Failed to update profile',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final userController = Get.find<UserController>();
+
     return Scaffold(
       backgroundColor: const Color(0xFFFDFDFD),
       appBar: AppBar(
@@ -62,24 +136,34 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       decoration: BoxDecoration(
                         color: Colors.grey.shade300,
                       ),
-                      child: Image.asset(
-                        'assets/images/home_assets/profile.jpg',
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            Icons.person,
-                            color: Colors.grey.shade500,
-                            size: 60,
-                          );
-                        },
-                      ),
+                      child: _selectedImagePath != null
+                          ? Image.file(
+                              File(_selectedImagePath!),
+                              fit: BoxFit.cover,
+                            )
+                          : (userController.userProfileImage != null &&
+                                  userController.userProfileImage!.isNotEmpty
+                              ? Image.network(
+                                  userController.userProfileImage!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Icon(
+                                      Icons.person,
+                                      color: Colors.grey.shade500,
+                                      size: 60,
+                                    );
+                                  },
+                                )
+                              : Icon(
+                                  Icons.person,
+                                  color: Colors.grey.shade500,
+                                  size: 60,
+                                )),
                     ),
                   ),
                   // Edit Icon Button
                   GestureDetector(
-                    onTap: () {
-                      // Handle image upload
-                    },
+                    onTap: _pickImage,
                     child: Container(
                       width: 48,
                       height: 48,
@@ -126,32 +210,42 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
               ),
               const SizedBox(height: 32),
-              // Save Button
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Handle save
-                    Get.back();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2870BC),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+              // Save Button with Loading State
+              Obx(() {
+                final isLoading = userController.isUpdatingProfile.value;
+                return SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: isLoading ? null : _saveProfile,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2870BC),
+                      disabledBackgroundColor: Colors.grey.shade400,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 0,
                     ),
-                    elevation: 0,
+                    child: isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
+                            ),
+                          )
+                        : const Text(
+                            'Save',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                   ),
-                  child: const Text(
-                    'Save',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
+                );
+              }),
             ],
           ),
         ),

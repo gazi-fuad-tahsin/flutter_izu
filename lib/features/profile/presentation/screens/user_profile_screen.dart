@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../core/common/widgets/logout_confirmation_dialog.dart';
+import '../../../auth/presentation/controller/user_controller.dart';
 import '../../../profile_static_screens/presentation/screens/about_app_screen.dart';
 import '../../../profile_static_screens/presentation/screens/privacy_policy_screen.dart';
 import '../../../profile_static_screens/presentation/screens/terms_conditions_screen.dart';
@@ -9,7 +11,6 @@ import '../widgets/profile_menu_item.dart';
 import 'change_password_screen.dart';
 import 'choose_language_screen.dart';
 import 'edit_profile_screen.dart';
-import 'logout_confirmation_screen.dart';
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
 
@@ -18,9 +19,6 @@ class UserProfileScreen extends StatefulWidget {
 }
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
-  final String userName = 'Madiha Arora';
-  final String userAvatar = 'assets/images/home_assets/profile.jpg';
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,14 +43,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Profile Header
-            ProfileHeader(
-              userName: userName,
-              userAvatar: userAvatar,
-              onEditPressed: () {
-                Get.to(() => const EditProfileScreen());
-              },
-            ),
+            // Profile Header with dynamic data
+            Obx(() {
+              final userController = Get.find<UserController>();
+              return ProfileHeader(
+                userName: userController.userName,
+                userAvatar: userController.userProfileImage ?? 'assets/images/home_assets/profile.jpg',
+                onEditPressed: () {
+                  Get.to(() => const EditProfileScreen());
+                },
+              );
+            }),
             const SizedBox(height: 8),
             // Menu Items
             Expanded(
@@ -105,7 +106,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       title: 'Log Out',
                       isLogOut: true,
                       onTap: () {
-                        Get.to(() => const LogoutConfirmationScreen());
+                        showLogoutConfirmationDialog(context);
                       },
                     ),
                   ],

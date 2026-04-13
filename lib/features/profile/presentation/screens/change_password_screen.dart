@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../auth/presentation/controller/user_controller.dart';
+
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
 
@@ -163,31 +165,129 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               ),
               const SizedBox(height: 32),
               // Save Button
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Handle save
-                    Get.back();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2870BC),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+              Obx(() {
+                final userController = Get.find<UserController>();
+                final isLoading = userController.isChangingPassword.value;
+
+                return SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: isLoading
+                        ? null
+                        : () async {
+                            final current = _currentPasswordController.text.trim();
+                            final newPass = _newPasswordController.text.trim();
+                            final confirmPass = _confirmPasswordController.text.trim();
+
+                            // Validation
+                            if (current.isEmpty) {
+                              Get.snackbar(
+                                'Validation',
+                                'Please enter current password',
+                                snackPosition: SnackPosition.BOTTOM,
+                              );
+                              return;
+                            }
+
+                            if (newPass.isEmpty) {
+                              Get.snackbar(
+                                'Validation',
+                                'Please enter new password',
+                                snackPosition: SnackPosition.BOTTOM,
+                              );
+                              return;
+                            }
+
+                            if (confirmPass.isEmpty) {
+                              Get.snackbar(
+                                'Validation',
+                                'Please confirm new password',
+                                snackPosition: SnackPosition.BOTTOM,
+                              );
+                              return;
+                            }
+
+                            if (newPass != confirmPass) {
+                              Get.snackbar(
+                                'Validation',
+                                'New password and confirm password do not match',
+                                snackPosition: SnackPosition.BOTTOM,
+                              );
+                              return;
+                            }
+
+                            if (newPass.length < 6) {
+                              Get.snackbar(
+                                'Validation',
+                                'New password must be at least 6 characters',
+                                snackPosition: SnackPosition.BOTTOM,
+                              );
+                              return;
+                            }
+
+                            // Call API
+                            final success = await userController.changePassword(
+                              currentPassword: current,
+                              newPassword: newPass,
+                              confirmPassword: confirmPass,
+                            );
+
+                            if (success) {
+                              Get.snackbar(
+                                'Success',
+                                'Password changed successfully',
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: Colors.green,
+                                colorText: Colors.white,
+                              );
+
+                              // Clear fields
+                              _currentPasswordController.clear();
+                              _newPasswordController.clear();
+                              _confirmPasswordController.clear();
+
+                              // Navigate back after a short delay
+                              await Future.delayed(const Duration(milliseconds: 500));
+                              Get.back();
+                            } else {
+                              Get.snackbar(
+                                'Error',
+                                'Failed to change password. Please check your current password.',
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: Colors.red,
+                                colorText: Colors.white,
+                              );
+                            }
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2870BC),
+                      disabledBackgroundColor: Colors.grey.shade400,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 0,
                     ),
-                    elevation: 0,
+                    child: isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
+                            ),
+                          )
+                        : const Text(
+                            'Save',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                   ),
-                  child: const Text(
-                    'Save',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
+                );
+              }),
             ],
           ),
         ),

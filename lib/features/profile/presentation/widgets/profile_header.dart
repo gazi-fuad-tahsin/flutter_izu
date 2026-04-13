@@ -39,16 +39,7 @@ class ProfileHeader extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: userAvatar.isNotEmpty
-                      ? Image.asset(
-                          userAvatar,
-                          fit: BoxFit.cover,
-                        )
-                      : Icon(
-                          Icons.person,
-                          color: Colors.grey.shade500,
-                          size: 28,
-                        ),
+                  child: _buildAvatarImage(),
                 ),
               ),
               const SizedBox(width: 16),
@@ -74,5 +65,43 @@ class ProfileHeader extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// Build avatar image handling both network and asset images
+  Widget _buildAvatarImage() {
+    // Check if userAvatar looks like a URL (network image)
+    if (userAvatar.startsWith('http')) {
+      return Image.network(
+        userAvatar,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Icon(
+            Icons.person,
+            color: Colors.grey.shade500,
+            size: 28,
+          );
+        },
+      );
+    } else if (userAvatar.isNotEmpty) {
+      // Asset image
+      return Image.asset(
+        userAvatar,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Icon(
+            Icons.person,
+            color: Colors.grey.shade500,
+            size: 28,
+          );
+        },
+      );
+    } else {
+      // Fallback icon
+      return Icon(
+        Icons.person,
+        color: Colors.grey.shade500,
+        size: 28,
+      );
+    }
   }
 }
