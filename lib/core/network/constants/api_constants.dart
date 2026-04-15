@@ -58,6 +58,8 @@ class ApiConstants {
   static BookingEndpoints get booking => BookingEndpoints();
   
   static RatingEndpoints get rating => RatingEndpoints();
+
+  static ProviderEndpoints get provider => ProviderEndpoints();
 }
 
 /// [Authentication Endpoints]
@@ -335,4 +337,13 @@ class RatingEndpoints {
   /// Submit rating
   /// POST /rating
   final String submitRating = _base;
+}
+
+/// [Provider Endpoints]
+class ProviderEndpoints {
+  static const String _base = '${ApiConstants.baseUrl}/providers';
+
+  /// Get pending requests
+  /// GET /providers/pending-requests
+  final String pendingRequests = '$_base/pending-requests';
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../../core/common/constants/feature_texts.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -7,6 +8,7 @@ import '../../../notifications/presentation/screens/notifications_screen.dart';
 import '../../../profile_provider/presentation/screens/provider_profile_screen.dart';
 import '../../../provider_jobs/presentation/screens/your_services_screen.dart';
 import '../../data/model/service_request_model.dart';
+import '../controllers/provider_home_controller.dart';
 import '../widgets/request_card.dart';
 import 'provider_booking_screen.dart';
 
@@ -19,30 +21,17 @@ class ProviderHomeScreen extends StatefulWidget {
 
 class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
   int _selectedNavIndex = 0;
+  late ProviderHomeController _controller;
 
-  // Sample data — TODO: replace with real data from controller/repository
-  final List<ServiceRequest> requests = [
-    ServiceRequest(
-      id: '1',
-      clientName: 'Mr. Raja',
-      clientImage: 'assets/images/profile_avatar.png',
-      date: '12 July 2025',
-      time: '10:00 AM',
-      service: 'House Cleaning',
-      location: '13th Street. 47 W 13th St, New York, NY 10011',
-    ),
-    ServiceRequest(
-      id: '2',
-      clientName: 'Mr. Raja',
-      clientImage: 'assets/images/profile_avatar.png',
-      date: '12 July 2025',
-      time: '10:00 AM',
-      service: 'House Cleaning',
-      location: '13th Street. 47 W 13th St, New York, NY 10011',
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _controller = Get.put(ProviderHomeController());
+  }
 
   void _handleAccept(int index) {
+    final request = _controller.pendingRequests[index];
+    _controller.acceptRequest(request.id);
     Get.snackbar(
       IzuHomeTexts.successLabel,
       IzuHomeTexts.requestAccepted,
@@ -56,6 +45,8 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
   }
 
   void _handleCancel(int index) {
+    final request = _controller.pendingRequests[index];
+    _controller.rejectRequest(request.id);
     Get.snackbar(
       IzuHomeTexts.cancelledLabel,
       IzuHomeTexts.requestCancelled,
@@ -65,6 +56,37 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
       margin: const EdgeInsets.all(16),
       borderRadius: 8,
       duration: const Duration(seconds: 2),
+    );
+  }
+
+  String _formatDate(String dateTimeString) {
+    try {
+      final dateTime = DateTime.parse(dateTimeString);
+      return DateFormat('d MMMM yyyy').format(dateTime);
+    } catch (e) {
+      return 'N/A';
+    }
+  }
+
+  String _formatTime(String dateTimeString) {
+    try {
+      final dateTime = DateTime.parse(dateTimeString);
+      return DateFormat('hh:mm a').format(dateTime);
+    } catch (e) {
+      return 'N/A';
+    }
+  }
+
+  ServiceRequest _convertPendingRequestToServiceRequest(index) {
+    final request = _controller.pendingRequests[index];
+    return ServiceRequest(
+      id: request.id,
+      clientName: request.userId.name,
+      clientImage: request.userId.profileImage,
+      date: _formatDate(request.bookingTime),
+      time: _formatTime(request.bookingTime),
+      service: request.serviceId.serviceDetails?.title ?? 'Service',
+      location: request.location.address,
     );
   }
 
@@ -180,17 +202,87 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
 
           // Requests List
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              itemCount: requests.length,
-              itemBuilder: (context, index) {
-                return RequestCard(
-                  request: requests[index],
-                  onAccept: () => _handleAccept(index),
-                  onCancel: () => _handleCancel(index),
+            child: Obx(() {
+              if (_controller.isLoading.value) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.homePrimary),
+                  ),
                 );
-              },
-            ),
+              }
+
+              if (_controller.errorMessage.isNotEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        color: Colors.red,
+                        size: 48,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        _controller.errorMessage.value,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.red,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () => _controller.fetchPendingRequests(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.homePrimary,
+                        ),
+                        child: const Text(
+                          'Retry',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              if (_controller.pendingRequests.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.inbox_outlined,
+                        size: 64,
+                        color: Colors.grey.shade300,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No pending requests',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey.shade600,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                itemCount: _controller.pendingRequests.length,
+                itemBuilder: (context, index) {
+                  final serviceRequest = _convertPendingRequestToServiceRequest(index);
+                  return RequestCard(
+                    request: serviceRequest,
+                    onAccept: () => _handleAccept(index),
+                    onCancel: () => _handleCancel(index),
+                  );
+                },
+              );
+            }),
           ),
         ],
       ),

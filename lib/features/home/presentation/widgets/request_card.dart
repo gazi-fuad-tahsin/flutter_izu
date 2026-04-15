@@ -14,6 +14,25 @@ class RequestCard extends StatelessWidget {
     required this.onCancel,
   });
 
+  Widget _buildClientImage(String imagePath) {
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      // Network image
+      return CircleAvatar(
+        radius: 24,
+        backgroundImage: NetworkImage(imagePath),
+        onBackgroundImageError: (exception, stackTrace) {
+          // Fallback to placeholder
+        },
+      );
+    } else {
+      // Asset image
+      return CircleAvatar(
+        radius: 24,
+        backgroundImage: AssetImage(imagePath),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -33,10 +52,7 @@ class RequestCard extends StatelessWidget {
           // Client info
           Row(
             children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundImage: AssetImage(request.clientImage),
-              ),
+              _buildClientImage(request.clientImage),
               const SizedBox(width: 12),
               Text(
                 request.clientName,
