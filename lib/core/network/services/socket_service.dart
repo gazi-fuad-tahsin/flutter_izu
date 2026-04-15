@@ -82,6 +82,19 @@ class SocketService {
       }
     });
 
+    _socket.on('reconnect_attempt', (_) {
+      if (kDebugMode) {
+        DPrint.log('🔄 Socket reconnection attempt...');
+      }
+    });
+
+    _socket.on('reconnect', (_) {
+      _isConnected = true;
+      if (kDebugMode) {
+        DPrint.log('✅ Socket reconnected');
+      }
+    });
+
     // User joined notification
     _socket.on('userJoined', (data) {
       if (kDebugMode) {

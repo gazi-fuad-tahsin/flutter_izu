@@ -27,11 +27,15 @@ class ApiClient {
 
   // Singleton instance
   static ApiClient? _instance;
+  bool _initialized = false;
   final SecureStoreServices _secureStoreServices = SecureStoreServices();
 
   factory ApiClient() {
     _instance ??= ApiClient._internal();
-    _instance!._initialize();
+    // Only initialize once
+    if (!_instance!._initialized) {
+      _instance!._initialize();
+    }
     return _instance!;
   }
 
@@ -71,6 +75,8 @@ class ApiClient {
     // );
 
     // _dio.interceptors.add(_cacheInterceptor);
+    
+    _initialized = true;
   }
 
   /// Check connectivity before making requests

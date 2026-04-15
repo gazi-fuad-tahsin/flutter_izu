@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../../../../core/network/services/auth_storage_service.dart';
 import '../../../../../core/network/services/socket_service.dart';
 import '../../../../../core/utils/debug_print.dart';
+import '../../../../../core/utils/jwt_decoder.dart';
 import '../../../category/presentation/controller/category_controller.dart';
 import '../../../home/presentation/screens/provider_home_screen.dart';
 import '../../../home/presentation/screens/user_home_screen.dart';
@@ -114,8 +115,18 @@ class SplashScreenController extends GetxController {
   /// Connect to Socket Server with user ID
   Future<void> _connectToSocket(AuthStorageService authStorageService) async {
     try {
-      final userId = await authStorageService.getUserId();
+      var userId = await authStorageService.getUserId();
       final accessToken = await authStorageService.getAccessToken();
+
+      // If userId not found, try to extract from JWT token
+      if ((userId == null || userId.isEmpty) && accessToken != null) {
+        userId = JwtDecoder.extractUserIdFromToken(accessToken);
+        if (userId != null && userId.isNotEmpty) {
+          // Store the extracted userId for future use
+          await authStorageService.storeUserId(userId);
+          DPrint.log("📝 User ID extracted and stored from JWT token");
+        }
+      }
 
       if (userId != null && userId.isNotEmpty) {
         final socketService = SocketService();

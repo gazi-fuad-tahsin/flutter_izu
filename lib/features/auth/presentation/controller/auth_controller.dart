@@ -5,6 +5,7 @@ import '../../../../../core/base/base_controller.dart';
 import '../../../../../core/network/services/auth_storage_service.dart';
 import '../../../../../core/network/services/socket_service.dart';
 import '../../../../../core/utils/debug_print.dart';
+import '../../../../../core/utils/jwt_decoder.dart';
 import '../../../category/presentation/controller/category_controller.dart';
 import '../../../home/presentation/screens/provider_home_screen.dart';
 import '../../../home/presentation/screens/user_home_screen.dart';
@@ -774,9 +775,19 @@ class AuthController extends BaseController {
   /// Connect to Socket Server after login
   Future<void> _connectSocketAfterLogin(String userId, String accessToken) async {
     try {
-      final socketService = SocketService();
-      await socketService.connect(userId, token: accessToken);
-      DPrint.log("✅ Socket connection initiated for user: $userId");
+      // Ensure userId is valid, if not try to extract from token
+      var finalUserId = userId;
+      if (userId.isEmpty) {
+        finalUserId = JwtDecoder.extractUserIdFromToken(accessToken) ?? userId;
+      }
+
+      if (finalUserId.isNotEmpty) {
+        final socketService = SocketService();
+        await socketService.connect(finalUserId, token: accessToken);
+        DPrint.log("✅ Socket connection initiated for user: $finalUserId");
+      } else {
+        DPrint.warn("⚠️  User ID empty, skipping socket connection");
+      }
     } catch (e) {
       DPrint.error("❌ Socket connection error: $e");
       // Don't block login even if socket connection fails
