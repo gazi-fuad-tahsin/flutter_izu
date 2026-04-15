@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 
 import '../../../../../core/network/services/auth_storage_service.dart';
+import '../../../../../core/network/services/socket_service.dart';
 import '../../../../../core/utils/debug_print.dart';
 import '../../../category/presentation/controller/category_controller.dart';
 import '../../../home/presentation/screens/provider_home_screen.dart';
@@ -75,6 +76,10 @@ class SplashScreenController extends GetxController {
       final serviceController = Get.find<ServiceController>();
       await serviceController.fetchServices();
 
+      // Connect to socket after successful authentication
+      DPrint.log("🔌 Connecting to Socket Server...");
+      await _connectToSocket(authStorageService);
+
       // Navigate based on role
       _navigateToHomeBasedOnRole(refreshResponse.role);
     } else {
@@ -103,6 +108,25 @@ class SplashScreenController extends GetxController {
     } else {
       DPrint.log("⚠️ Unknown role: $role - Redirecting to Onboarding");
       _navigateToOnboarding();
+    }
+  }
+
+  /// Connect to Socket Server with user ID
+  Future<void> _connectToSocket(AuthStorageService authStorageService) async {
+    try {
+      final userId = await authStorageService.getUserId();
+      final accessToken = await authStorageService.getAccessToken();
+
+      if (userId != null && userId.isNotEmpty) {
+        final socketService = SocketService();
+        await socketService.connect(userId, token: accessToken);
+        DPrint.log("✅ Socket connection initiated for user: $userId");
+      } else {
+        DPrint.warn("⚠️  User ID not found, skipping socket connection");
+      }
+    } catch (e) {
+      DPrint.error("❌ Socket connection error: $e");
+      // Don't block navigation even if socket connection fails
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../../../core/base/base_controller.dart';
 import '../../../../../core/network/services/auth_storage_service.dart';
+import '../../../../../core/network/services/socket_service.dart';
 import '../../../../../core/utils/debug_print.dart';
 import '../../../category/presentation/controller/category_controller.dart';
 import '../../../home/presentation/screens/provider_home_screen.dart';
@@ -107,6 +108,10 @@ class AuthController extends BaseController {
         // Fetch services after successful login
         final serviceController = Get.find<ServiceController>();
         await serviceController.fetchServices();
+
+        // Connect to socket after successful login
+        DPrint.log("🔌 Connecting to Socket Server...");
+        await _connectSocketAfterLogin(success.data.user.id, success.data.accessToken);
 
         // Navigate based on role
         if (success.data.role == 'provider') {
@@ -723,6 +728,16 @@ class AuthController extends BaseController {
 
   /// Helper method to clear local data and navigate to auth decision screen
   Future<void> _clearLocalDataAndNavigate() async {
+    // Disconnect socket before clearing auth data
+    DPrint.log("🔌 Disconnecting Socket Server...");
+    try {
+      final socketService = SocketService();
+      await socketService.disconnect();
+      DPrint.log("✅ Socket disconnected");
+    } catch (e) {
+      DPrint.error("⚠️ Socket disconnection error: $e");
+    }
+
     await _authStorageService.clearAuthData();
     
     // Clear user profile
@@ -754,5 +769,17 @@ class AuthController extends BaseController {
     
     // Navigate to login screen
     Get.offAll(() => const LoginScreen());
+  }
+
+  /// Connect to Socket Server after login
+  Future<void> _connectSocketAfterLogin(String userId, String accessToken) async {
+    try {
+      final socketService = SocketService();
+      await socketService.connect(userId, token: accessToken);
+      DPrint.log("✅ Socket connection initiated for user: $userId");
+    } catch (e) {
+      DPrint.error("❌ Socket connection error: $e");
+      // Don't block login even if socket connection fails
+    }
   }
 }
