@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../../../location/data/model/location_model.dart';
 import '../../../location/presentation/screens/location_screen.dart';
@@ -15,6 +16,25 @@ class ProviderBookingCard extends StatelessWidget {
     required this.booking,
     required this.filterType,
   });
+
+  Widget _buildClientImage(String imagePath) {
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      // Network image
+      return CircleAvatar(
+        radius: 24,
+        backgroundImage: NetworkImage(imagePath),
+        onBackgroundImageError: (exception, stackTrace) {
+          // Fallback to placeholder
+        },
+      );
+    } else {
+      // Asset image
+      return CircleAvatar(
+        radius: 24,
+        backgroundImage: AssetImage(imagePath),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,10 +58,7 @@ class ProviderBookingCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  CircleAvatar(
-                    radius: 24,
-                    backgroundImage: AssetImage(booking.clientImage),
-                  ),
+                  _buildClientImage(booking.clientImage),
                   const SizedBox(width: 12),
                   Text(
                     booking.clientName,
@@ -58,16 +75,9 @@ class ProviderBookingCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Live booking - show duration timer
+          // Live booking - show countdown timer
           if (filterType == 'live') ...[
-            Text(
-              booking.duration ?? '01h 60m 30s',
-              style: const TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.w700,
-                color: Colors.black,
-              ),
-            ),
+            _CountdownTimer(booking: booking),
             const SizedBox(height: 16),
           ],
 
@@ -449,3 +459,88 @@ class ProviderBookingCard extends StatelessWidget {
     }
   }
 }
+
+class _CountdownTimer extends StatefulWidget {
+  final ProviderBooking booking;
+
+  const _CountdownTimer({required this.booking});
+
+  @override
+  State<_CountdownTimer> createState() => _CountdownTimerState();
+}
+
+class _CountdownTimerState extends State<_CountdownTimer> {
+  late Stream<Duration> _countdownStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _countdownStream = _createCountdownStream();
+  }
+
+  Stream<Duration> _createCountdownStream() {
+    return Stream.periodic(const Duration(seconds: 1), (_) {
+      return _calculateRemainingTime();
+    }).takeWhile((_) => mounted);
+  }
+
+  Duration _calculateRemainingTime() {
+    try {
+      // Parse the date and time from booking
+      final dateFormat = DateFormat('d MMM yyyy');
+      final timeFormat = DateFormat('hh:mm a');
+
+      final bookingDate = dateFormat.parse(widget.booking.date);
+      final bookingTime = timeFormat.parse(widget.booking.time);
+
+      // Combine date and time
+      final bookingDateTime = DateTime(
+        bookingDate.year,
+        bookingDate.month,
+        bookingDate.day,
+        bookingTime.hour,
+        bookingTime.minute,
+      );
+
+      // Add estimated hours to get end time
+      final estimatedHours = widget.booking.estimatedHours ?? 1;
+      final endDateTime = bookingDateTime.add(Duration(hours: estimatedHours));
+
+      // Calculate remaining time
+      final now = DateTime.now();
+      final remaining = endDateTime.difference(now);
+
+      return remaining.isNegative ? Duration.zero : remaining;
+    } catch (e) {
+      return const Duration(hours: 1); // Default fallback
+    }
+  }
+
+  String _formatDuration(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds = duration.inSeconds.remainder(60);
+    return '${hours}h ${minutes}m ${seconds}s';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<Duration>(
+      stream: _countdownStream,
+      initialData: _calculateRemainingTime(),
+      builder: (context, snapshot) {
+        final remaining = snapshot.data ?? Duration.zero;
+
+        return Text(
+          _formatDuration(remaining),
+          style: const TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w700,
+            color: Colors.black,
+          ),
+        );
+      },
+    );
+  }
+}
+
