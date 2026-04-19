@@ -4,7 +4,9 @@ import 'package:intl/intl.dart';
 
 import '../../../../../core/common/constants/feature_texts.dart';
 import '../../../../../core/theme/app_colors.dart';
+import '../../../message/presentation/screens/message_screen.dart';
 import '../../../notifications/presentation/screens/notifications_screen.dart';
+import '../../../profile_provider/presentation/controller/provider_profile_controller.dart';
 import '../../../profile_provider/presentation/screens/provider_profile_screen.dart';
 import '../../../provider_jobs/presentation/screens/your_services_screen.dart';
 import '../../data/model/service_request_model.dart';
@@ -22,26 +24,23 @@ class ProviderHomeScreen extends StatefulWidget {
 class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
   int _selectedNavIndex = 0;
   late ProviderHomeController _controller;
+  late ProviderProfileController _profileController;
 
   @override
   void initState() {
     super.initState();
     _controller = Get.put(ProviderHomeController());
+    // Get or create ProviderProfileController
+    if (Get.isRegistered<ProviderProfileController>()) {
+      _profileController = Get.find<ProviderProfileController>();
+    } else {
+      _profileController = Get.put(ProviderProfileController());
+    }
   }
 
   void _handleAccept(int index) {
     final request = _controller.pendingRequests[index];
     _controller.acceptRequest(request.id);
-    Get.snackbar(
-      IzuHomeTexts.successLabel,
-      IzuHomeTexts.requestAccepted,
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: AppColors.successGreen,
-      colorText: AppColors.primaryWhite,
-      margin: const EdgeInsets.all(16),
-      borderRadius: 8,
-      duration: const Duration(seconds: 2),
-    );
   }
 
   void _handleCancel(int index) {
@@ -135,54 +134,86 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
       child: Column(
         children: [
           // Header
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: Row(
-              children: [
-                Row(
-                  children: [
-                    const CircleAvatar(
-                      radius: 28,
-                      backgroundImage: AssetImage('assets/images/profile_avatar.png'),
-                    ),
-                    const SizedBox(width: 12),
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          ProviderProfileTexts.providerName,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black,
+          Obx(() {
+            final providerData = _profileController.profileData.value;
+            final isLoading = _profileController.isLoading.value;
+            final profileImage = providerData?.profileImage ?? 'assets/images/profile_avatar.png';
+            final providerName = providerData?.name ?? 'Provider';
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Row(
+                children: [
+                  Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(28),
+                        child: Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.08),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
+                          child: isLoading
+                              ? Center(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.grey.shade500,
+                                    ),
+                                  ),
+                                )
+                              : _buildProviderAvatarImage(profileImage),
                         ),
-                        Text(
-                          ProviderProfileTexts.providerHandle,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: AppColors.subText,
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            providerName,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.message, color: Colors.black, size: 24),
-                ),
-                IconButton(
-                  onPressed: () {
-                    Get.to(() => const NotificationsScreen());
-                  },
-                  icon: const Icon(Icons.notifications, color: Colors.black, size: 24),
-                ),
-              ],
-            ),
-          ),
+                          Text(
+                            '@${(providerData?.name ?? 'provider').toLowerCase().replaceAll(' ', '_')}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.subText,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () {
+                      Get.to(() => const MessageScreen());
+                    },
+                    icon: const Icon(Icons.message, color: Colors.black, size: 24),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      Get.to(() => const NotificationsScreen());
+                    },
+                    icon: const Icon(Icons.notifications, color: Colors.black, size: 24),
+                  ),
+                ],
+              ),
+            );
+          }),
 
           // Title
           Padding(
@@ -295,5 +326,43 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
 
   Widget _buildProfileScreen() {
     return const ProviderProfileScreen();
+  }
+
+  /// Build provider avatar image handling both network and asset images
+  Widget _buildProviderAvatarImage(String avatarImage) {
+    // Check if avatarImage looks like a URL (network image)
+    if (avatarImage.startsWith('http')) {
+      return Image.network(
+        avatarImage,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Icon(
+            Icons.person,
+            color: Colors.grey.shade500,
+            size: 28,
+          );
+        },
+      );
+    } else if (avatarImage.isNotEmpty) {
+      // Asset image
+      return Image.asset(
+        avatarImage,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Icon(
+            Icons.person,
+            color: Colors.grey.shade500,
+            size: 28,
+          );
+        },
+      );
+    } else {
+      // Fallback icon
+      return Icon(
+        Icons.person,
+        color: Colors.grey.shade500,
+        size: 28,
+      );
+    }
   }
 }
