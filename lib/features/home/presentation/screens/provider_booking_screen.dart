@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../../../core/common/constants/feature_texts.dart';
 import '../../../../../core/theme/app_colors.dart';
-import '../../data/model/provider_booking_model.dart';
+import '../controllers/provider_booking_controller.dart';
 import '../widgets/provider_booking_card.dart';
 
 class ProviderBookingScreen extends StatefulWidget {
@@ -13,125 +14,23 @@ class ProviderBookingScreen extends StatefulWidget {
 }
 
 class _ProviderBookingScreenState extends State<ProviderBookingScreen> {
-  String _selectedFilter = 'live';
+  late ProviderBookingController _controller;
 
-  // Sample booking data
-  final Map<String, List<ProviderBooking>> bookingsByFilter = {
-    'live': [
-      ProviderBooking(
-        id: '1',
-        clientName: 'Mr. Raja',
-        clientImage: 'assets/images/profile_avatar.png',
-        location: '13th Street. 47 W 13th St, New York, NY 10011',
-        date: '12 July 2025',
-        time: '10:00 AM',
-        service: 'House Cleaning',
-        amount: '\$550',
-        status: 'live',
-        duration: '01h 60m 30s',
-      ),
-    ],
-    'next': [
-      ProviderBooking(
-        id: '2',
-        clientName: 'Priyanka Rs',
-        clientImage: 'assets/images/profile_avatar.png',
-        location: '13th Street. 47 W 13th St, New York, NY 10011',
-        date: '12 July 2025',
-        time: '10:00 AM',
-        service: 'House Cleaning',
-        amount: '\$550',
-        status: 'next',
-        paymentStatus: 'Pending',
-      ),
-      ProviderBooking(
-        id: '3',
-        clientName: 'Priyanka Rs',
-        clientImage: 'assets/images/profile_avatar.png',
-        location: '13th Street. 47 W 13th St, New York, NY 10011',
-        date: '12 July 2025',
-        time: '10:00 AM',
-        service: 'House Cleaning',
-        amount: '\$550',
-        status: 'next',
-        paymentStatus: 'Accepted',
-      ),
-    ],
-    'completed': [
-      ProviderBooking(
-        id: '4',
-        clientName: 'Priyanka Rs',
-        clientImage: 'assets/images/profile_avatar.png',
-        location: '13th Street. 47 W 13th St, New York, NY 10011',
-        date: '12 July 2025',
-        time: '10:00 AM',
-        service: 'House Cleaning',
-        amount: '\$550',
-        status: 'completed',
-      ),
-      ProviderBooking(
-        id: '5',
-        clientName: 'Priyanka Rs',
-        clientImage: 'assets/images/profile_avatar.png',
-        location: '13th Street. 47 W 13th St, New York, NY 10011',
-        date: '12 July 2025',
-        time: '10:00 AM',
-        service: 'House Cleaning',
-        amount: '\$550',
-        status: 'completed',
-      ),
-      ProviderBooking(
-        id: '6',
-        clientName: 'Priyanka Rs',
-        clientImage: 'assets/images/profile_avatar.png',
-        location: '13th Street. 47 W 13th St, New York, NY 10011',
-        date: '12 July 2025',
-        time: '10:00 AM',
-        service: 'House Cleaning',
-        amount: '\$550',
-        status: 'completed',
-      ),
-    ],
-    'cancelled': [
-      ProviderBooking(
-        id: '7',
-        clientName: 'Priyanka Rs',
-        clientImage: 'assets/images/profile_avatar.png',
-        location: '13th Street. 47 W 13th St, New York, NY 10011',
-        date: '12 July 2025',
-        time: '10:00 AM',
-        service: 'House Cleaning',
-        amount: '\$550',
-        status: 'cancelled',
-        isCancelled: true,
-      ),
-      ProviderBooking(
-        id: '8',
-        clientName: 'Priyanka Rs',
-        clientImage: 'assets/images/profile_avatar.png',
-        location: '13th Street. 47 W 13th St, New York, NY 10011',
-        date: '12 July 2025',
-        time: '10:00 AM',
-        service: 'House Cleaning',
-        amount: '\$550',
-        status: 'cancelled',
-        isCancelled: true,
-      ),
-    ],
-  };
+  @override
+  void initState() {
+    super.initState();
+    // Get or create ProviderBookingController
+    if (Get.isRegistered<ProviderBookingController>()) {
+      _controller = Get.find<ProviderBookingController>();
+    } else {
+      _controller = Get.put(ProviderBookingController());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      // appBar: AppBar(
-      //   backgroundColor: Colors.white,
-      //   elevation: 0,
-      //   // leading: IconButton(
-      //   //   icon: const Icon(Icons.arrow_back, color: Colors.black),
-      //   //   onPressed: () => Navigator.pop(context),
-      //   // ),
-      // ),
       body: Column(
         children: [
           const SizedBox(height: 50),
@@ -154,27 +53,64 @@ class _ProviderBookingScreenState extends State<ProviderBookingScreen> {
 
           // Bookings List
           Expanded(
-            child: bookingsByFilter[_selectedFilter]?.isEmpty ?? true
-                ? Center(
-                    child: Text(
-                      'No ${_selectedFilter} bookings',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    itemCount: bookingsByFilter[_selectedFilter]?.length ?? 0,
-                    itemBuilder: (context, index) {
-                      final booking = bookingsByFilter[_selectedFilter]![index];
-                      return ProviderBookingCard(
-                        booking: booking,
-                        filterType: _selectedFilter,
-                      );
-                    },
+            child: Obx(() {
+              if (_controller.isLoading.value) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.homePrimary),
                   ),
+                );
+              }
+
+              final currentBookings = _controller.currentFilteredBookings;
+
+              if (currentBookings.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.inbox_outlined,
+                        size: 64,
+                        color: Colors.grey.shade300,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No ${_controller.selectedFilter.value} bookings',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey.shade600,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () => _controller.refreshCurrentFilter(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.homePrimary,
+                        ),
+                        child: const Text(
+                          'Refresh',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                itemCount: currentBookings.length,
+                itemBuilder: (context, index) {
+                  final booking = currentBookings[index];
+                  return ProviderBookingCard(
+                    booking: booking,
+                    filterType: _controller.selectedFilter.value,
+                  );
+                },
+              );
+            }),
           ),
         ],
       ),
@@ -182,32 +118,32 @@ class _ProviderBookingScreenState extends State<ProviderBookingScreen> {
   }
 
   Widget _buildFilterTab(String label, String value) {
-    final isSelected = _selectedFilter == value;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedFilter = value;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? ProviderColors.liveBlueFilled : Colors.white,
-          border: Border.all(
-            color: isSelected ? ProviderColors.liveBlueFilled : ProviderColors.nextOrangeOutline,
-            width: 2,
+    return Obx(() {
+      final isSelected = _controller.selectedFilter.value == value;
+      return GestureDetector(
+        onTap: () {
+          _controller.fetchBookingsByStatus(value);
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? ProviderColors.liveBlueFilled : Colors.white,
+            border: Border.all(
+              color: isSelected ? ProviderColors.liveBlueFilled : ProviderColors.nextOrangeOutline,
+              width: 2,
+            ),
+            borderRadius: BorderRadius.circular(24),
           ),
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: isSelected ? Colors.white : ProviderColors.textBlack,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: isSelected ? Colors.white : ProviderColors.textBlack,
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 }
