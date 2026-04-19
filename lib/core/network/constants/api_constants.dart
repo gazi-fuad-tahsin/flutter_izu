@@ -346,4 +346,8 @@ class ProviderEndpoints {
   /// Get pending requests
   /// GET /providers/pending-requests
   final String pendingRequests = '$_base/pending-requests';
+
+  /// Accept booking request
+  /// PATCH /providers/accept-request/:bookingId
+  String acceptRequest(String bookingId) => '$_base/accept-request/$bookingId';
 }
