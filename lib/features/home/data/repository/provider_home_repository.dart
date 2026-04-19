@@ -37,4 +37,31 @@ class ProviderHomeRepository {
       );
     }
   }
+
+  Future<Either<NetworkFailure, NetworkSuccess<PendingRequest>>> acceptRequest(String bookingId) async {
+    try {
+      final result = await _apiClient.patch<Map<String, dynamic>>(
+        ApiConstants.provider.acceptRequest(bookingId),
+        fromJsonT: (json) => json is Map<String, dynamic> ? json : {},
+      );
+
+      return result.fold(
+        (failure) => Left(failure),
+        (success) {
+          final acceptedRequest = PendingRequest.fromJson(success.data);
+          return Right(
+            NetworkSuccess<PendingRequest>(
+              data: acceptedRequest,
+              message: success.message,
+              statusCode: success.statusCode,
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      return Left(
+        UnknownFailure(message: 'Failed to accept request: $e'),
+      );
+    }
+  }
 }
