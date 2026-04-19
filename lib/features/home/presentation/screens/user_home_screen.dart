@@ -13,10 +13,12 @@ import '../../../notifications/presentation/screens/notifications_screen.dart';
 import '../../../profile/presentation/screens/user_profile_screen.dart';
 import '../../../service/presentation/controller/service_controller.dart';
 import '../../../service/presentation/screens/services_list_screen.dart';
+import '../controllers/home_controller.dart';
 import '../widgets/categories_list.dart';
 import '../widgets/featured_artisans_section.dart';
 import '../widgets/home_header.dart';
 import '../widgets/nearby_artisans_section.dart';
+import '../widgets/provider_ready_dialog.dart';
 import '../widgets/section_header.dart';
 import '../widgets/super_deals_banner.dart';
 
@@ -29,23 +31,49 @@ class UserHomeScreen extends StatefulWidget {
 
 class _UserHomeScreenState extends State<UserHomeScreen> {
   int _currentIndex = 0;
+  late HomeController _homeController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Get or create HomeController
+    if (Get.isRegistered<HomeController>()) {
+      _homeController = Get.find<HomeController>();
+    } else {
+      _homeController = Get.put(HomeController());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.homeBackground,
-      body: _currentIndex == 0
-          ? _buildHomeContent()
-          : _currentIndex == 1
-              ? const BookingListScreen()
-              : _currentIndex == 2
-                  ? const MessageScreen()
-                  : Scaffold(
-                      backgroundColor: AppColors.primaryWhite,
-                      body: Center(
-                        child: Text(IzuHomeTexts.navMessage),
-                      ),
-                    ),
+      body: Stack(
+        children: [
+          _currentIndex == 0
+              ? _buildHomeContent()
+              : _currentIndex == 1
+                  ? const BookingListScreen()
+                  : _currentIndex == 2
+                      ? const MessageScreen()
+                      : Scaffold(
+                          backgroundColor: AppColors.primaryWhite,
+                          body: Center(
+                            child: Text(IzuHomeTexts.navMessage),
+                          ),
+                        ),
+          // Listen for request-accepted event and show dialog
+          Obx(() {
+            final requestData = _homeController.requestAcceptedData.value;
+            if (requestData != null && _homeController.showAcceptanceDialog.value) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _showProviderReadyDialog(requestData);
+              });
+            }
+            return const SizedBox.shrink();
+          }),
+        ],
+      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppColors.primaryWhite,
@@ -269,6 +297,28 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Show provider ready confirmation dialog
+  void _showProviderReadyDialog(Map<String, dynamic> requestData) {
+    // Extract provider data from request
+    final providerName = requestData['providerName'] ?? 'Provider';
+    final providerImage = requestData['providerImage'] as String?;
+    
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => ProviderReadyConfirmationDialog(
+        providerName: providerName,
+        providerImage: providerImage,
+        onAccept: () {
+          _homeController.acceptProviderRequest();
+        },
+        onCancel: () {
+          _homeController.cancelProviderRequest();
+        },
       ),
     );
   }
