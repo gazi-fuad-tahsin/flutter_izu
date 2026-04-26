@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../../notifications/presentation/controller/notification_controller.dart';
 
 class HomeHeader extends StatelessWidget {
   final String userName;
   final String greeting;
-  final int notificationCount;
   final String avatarAsset;
   final VoidCallback? onNotificationTap;
 
@@ -11,7 +13,6 @@ class HomeHeader extends StatelessWidget {
     super.key,
     required this.userName,
     required this.greeting,
-    required this.notificationCount,
     required this.avatarAsset,
     this.onNotificationTap,
   });
@@ -37,26 +38,36 @@ class HomeHeader extends StatelessWidget {
           ),
           GestureDetector(
             onTap: onNotificationTap,
-            child: Stack(
-              children: [
-                const Icon(Icons.notifications_none, size: 28, color: Colors.black87),
-                if (notificationCount > 0)
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(3),
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Text(
-                        notificationCount.toString(),
-                        style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-              ],
+            child: GetBuilder<NotificationController>(
+              init: NotificationController(),
+              builder: (controller) {
+                return Obx(
+                  () {
+                    final unreadCount = controller.unreadCount;
+                    return Stack(
+                      children: [
+                        const Icon(Icons.notifications_none, size: 28, color: Colors.black87),
+                        if (unreadCount > 0)
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(3),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Text(
+                                unreadCount > 99 ? '99+' : unreadCount.toString(),
+                                style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                );
+              },
             ),
           ),
         ],
