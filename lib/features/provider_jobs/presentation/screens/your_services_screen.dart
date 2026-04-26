@@ -129,6 +129,56 @@ class YourServicesScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildServiceImage(String imageUrl) {
+    // Check if it's a network URL
+    if (imageUrl.startsWith('http')) {
+      return Image.network(
+        imageUrl,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey.shade300,
+            child: Icon(
+              Icons.image_not_supported,
+              color: Colors.grey.shade600,
+              size: 48,
+            ),
+          );
+        },
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Container(
+            color: Colors.grey.shade200,
+            child: Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+              ),
+            ),
+          );
+        },
+      );
+    }
+    
+    // Otherwise treat as asset
+    return Image.asset(
+      imageUrl,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return Container(
+          color: Colors.grey.shade300,
+          child: Icon(
+            Icons.image_not_supported,
+            color: Colors.grey.shade600,
+            size: 48,
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildServiceCard(
     BuildContext context,
     ProviderServiceModel service,
@@ -155,20 +205,7 @@ class YourServicesScreen extends StatelessWidget {
                   width: double.infinity,
                   height: 200,
                   color: Colors.grey.shade200,
-                  child: Image.asset(
-                    service.image,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey.shade300,
-                        child: Icon(
-                          Icons.image_not_supported,
-                          color: Colors.grey.shade600,
-                          size: 48,
-                        ),
-                      );
-                    },
-                  ),
+                  child: _buildServiceImage(service.image),
                 ),
               ),
               // Category Badge
@@ -211,10 +248,21 @@ class YourServicesScreen extends StatelessWidget {
                         shape: BoxShape.circle,
                         color: Colors.grey.shade300,
                       ),
-                      child: Icon(
-                        Icons.person,
-                        color: Colors.grey.shade600,
-                        size: 24,
+                      child: ClipOval(
+                        child: service.providerName.isNotEmpty
+                            ? Container(
+                                color: Colors.grey.shade300,
+                                child: Icon(
+                                  Icons.person,
+                                  color: Colors.grey.shade600,
+                                  size: 24,
+                                ),
+                              )
+                            : Icon(
+                                Icons.person,
+                                color: Colors.grey.shade600,
+                                size: 24,
+                              ),
                       ),
                     ),
                     const SizedBox(width: 12),

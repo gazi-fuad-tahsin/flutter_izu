@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../constants/service_constants.dart';
+import '../../data/model/service_category_model.dart';
+import '../../data/repo/service_category_repository.dart';
 import '../widgets/additional_image_picker_card.dart';
 import '../widgets/image_picker_card.dart';
 
@@ -21,16 +22,40 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   String? selectedCategory;
   bool isLoading = false;
   bool showAdditionalImages = false;
+  bool isCategoriesLoading = true;
+  List<ServiceCategoryModel> categories = [];
   List<File?> additionalImages = [null, null];
   File? selectedImage;
   final ImagePicker _imagePicker = ImagePicker();
+  final ServiceCategoryRepository _categoryRepository = ServiceCategoryRepository();
 
   @override
   void initState() {
     super.initState();
     serviceAmountController = TextEditingController();
     serviceDetailsController = TextEditingController();
-    selectedCategory = ServiceCategoryConstants.categories[0];
+    _fetchCategories();
+  }
+
+  Future<void> _fetchCategories() async {
+    try {
+      final fetchedCategories = await _categoryRepository.getServiceCategories();
+      setState(() {
+        categories = fetchedCategories;
+        // Set first category as default if available
+        if (categories.isNotEmpty) {
+          selectedCategory = categories[0].name;
+        }
+        isCategoriesLoading = false;
+      });
+    } catch (e) {
+      setState(() => isCategoriesLoading = false);
+      Get.snackbar(
+        'Error',
+        'Failed to load categories',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
   }
 
   @override
@@ -103,36 +128,60 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.grey.shade300,
-                        width: 1,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: DropdownButton<String>(
-                      value: selectedCategory,
-                      isExpanded: true,
-                      underline: const SizedBox(),
-                      items: ServiceCategoryConstants.categories
-                          .map((category) => DropdownMenuItem(
-                                value: category,
-                                child: Text(
-                                  category,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ))
-                          .toList(),
-                      onChanged: (value) {
-                        setState(() => selectedCategory = value);
-                      },
-                    ),
-                  ),
+                  isCategoriesLoading
+                      ? Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.grey.shade300,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Color(0xFF2870BC),
+                              ),
+                            ),
+                          ),
+                        )
+                      : Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.grey.shade300,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: DropdownButton<String>(
+                            value: selectedCategory,
+                            isExpanded: true,
+                            underline: const SizedBox(),
+                            items: categories
+                                .map((category) => DropdownMenuItem(
+                                      value: category.name,
+                                      child: Text(
+                                        category.name,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ))
+                                .toList(),
+                            onChanged: (value) {
+                              setState(() => selectedCategory = value);
+                            },
+                          ),
+                        ),
                 ],
               ),
 
