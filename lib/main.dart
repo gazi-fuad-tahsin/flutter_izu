@@ -22,11 +22,10 @@ void main() async {
   // Now initialize the app
   await AppInitializer.initializeApp();
   
-  runApp(const MyApp());
+  runApp( MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
 
   // This widget is the root of your application.
   @override
