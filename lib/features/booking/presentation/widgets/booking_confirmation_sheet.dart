@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutx_core/flutx_core.dart';
 
 class BookingConfirmationSheet extends StatefulWidget {
   final String providerName;
