@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../../../core/common/constants/feature_texts.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../message/presentation/screens/message_screen.dart';
+import '../../../notifications/presentation/controller/notification_controller.dart';
 import '../../../notifications/presentation/screens/notifications_screen.dart';
 import '../../../profile_provider/presentation/controller/provider_profile_controller.dart';
 import '../../../profile_provider/presentation/screens/provider_profile_screen.dart';
@@ -204,11 +205,45 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
                     },
                     icon: const Icon(Icons.message, color: Colors.black, size: 24),
                   ),
-                  IconButton(
-                    onPressed: () {
-                      Get.to(() => const NotificationsScreen());
+                  GetBuilder<NotificationController>(
+                    init: NotificationController(),
+                    builder: (notificationController) {
+                      return IconButton(
+                        onPressed: () {
+                          Get.to(() => const NotificationsScreen());
+                        },
+                        icon: Obx(
+                          () {
+                            final unreadCount = notificationController.unreadCount;
+                            return Stack(
+                              children: [
+                                const Icon(Icons.notifications, color: Colors.black, size: 24),
+                                if (unreadCount > 0)
+                                  Positioned(
+                                    right: 0,
+                                    top: 0,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(3),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Text(
+                                        unreadCount > 99 ? '99+' : unreadCount.toString(),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 8,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            );
+                          },
+                        ),
+                      );
                     },
-                    icon: const Icon(Icons.notifications, color: Colors.black, size: 24),
                   ),
                 ],
               ),
