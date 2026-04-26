@@ -42,64 +42,91 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       ),
       body: Obx(
         () {
+          if (_controller.isLoading.value) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          if (_controller.error.value.isNotEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Error: ${_controller.error.value}'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => _controller.refreshNotifications(),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
+
           if (_controller.notifications.isEmpty) {
             return const Center(
               child: Text('No notifications yet'),
             );
           }
 
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // New Notifications Section
-                if (_controller.newNotifications.isNotEmpty) ...[
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
-                    child: Text(
-                      'New',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black,
+          return RefreshIndicator(
+            onRefresh: () async {
+              _controller.refreshNotifications();
+            },
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // New Notifications Section
+                  if (_controller.newNotifications.isNotEmpty) ...[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+                      child: Text(
+                        'New',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      children: _controller.newNotifications
-                          .map((notification) =>
-                              _buildNotificationTile(notification))
-                          .toList(),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        children: _controller.newNotifications
+                            .map((notification) =>
+                                _buildNotificationTile(notification))
+                            .toList(),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
 
-                // Earlier Notifications Section
-                if (_controller.earlierNotifications.isNotEmpty) ...[
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
-                    child: Text(
-                      'Earlier',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black,
+                  // Earlier Notifications Section
+                  if (_controller.earlierNotifications.isNotEmpty) ...[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
+                      child: Text(
+                        'Earlier',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      children: _controller.earlierNotifications
-                          .map((notification) =>
-                              _buildNotificationTile(notification))
-                          .toList(),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        children: _controller.earlierNotifications
+                            .map((notification) =>
+                                _buildNotificationTile(notification))
+                            .toList(),
+                      ),
                     ),
-                  ),
+                  ],
                 ],
-              ],
+              ),
             ),
           );
         },
@@ -110,50 +137,90 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget _buildNotificationTile(NotificationModel notification) {
     return GestureDetector(
       onTap: () {
-        _controller.markAsRead(notification.id);
+        // Only mark as read if it's currently unread
+        if (!notification.read) {
+          _controller.markAsReadAndRefresh(notification.id);
+        }
       },
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+      child: Obx(
+        () {
+          final isMarking = _controller.isMarkingAsRead.value;
+          return Opacity(
+            opacity: isMarking ? 0.6 : 1.0,
+            child: Column(
               children: [
-                // Icon
-                _buildNotificationIcon(notification.type),
-                const SizedBox(width: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Icon
+                      _buildNotificationIcon(notification.notificationType),
+                      const SizedBox(width: 12),
 
-                // Title
-                Expanded(
-                  child: Text(
-                    notification.title,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                    ),
+                      // Title and Message
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              notification.title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            if (!notification.read)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF43A047).withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: const Text(
+                                    'Unread',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF43A047),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+
+                      // Time
+                      Text(
+                        _controller.getTimeAgo(notification.createdAt),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 12),
-
-                // Time
-                Text(
-                  _controller.getTimeAgo(notification.timestamp),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.grey,
-                  ),
+                Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: Colors.grey.withOpacity(0.15),
                 ),
               ],
             ),
-          ),
-          Divider(
-            height: 1,
-            thickness: 1,
-            color: Colors.grey.withOpacity(0.15),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
