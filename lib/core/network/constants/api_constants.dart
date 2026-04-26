@@ -126,11 +126,12 @@ class VehicleEndpoints {
 }
 
 class NotificationEndpoints {
-  static const String _base = '${ApiConstants.baseUrl}/notification';
+  static const String _base = '${ApiConstants.baseUrl}/notifications';
 
   final String getNotifications = _base;
   String getNotificationsWithPage(int page, int limit) =>
       '$_base?page=$page&limit=$limit';
+  String markAsRead(String notificationId) => '$_base/$notificationId/read';
 }
 
 class TeamEndpointcs {
