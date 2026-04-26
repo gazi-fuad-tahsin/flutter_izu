@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../data/model/conversation_model.dart';
 import '../../data/model/message_model.dart';
@@ -13,13 +14,16 @@ class MessageScreen extends StatefulWidget {
 
 class _MessageScreenState extends State<MessageScreen> {
   late List<Conversation> conversations;
+  late List<Conversation> filteredConversations;
   late TextEditingController _searchController;
+  bool _isSearching = false;
 
   @override
   void initState() {
     super.initState();
     _searchController = TextEditingController();
     _initializeConversations();
+    filteredConversations = conversations;
   }
 
   @override
@@ -149,7 +153,24 @@ class _MessageScreenState extends State<MessageScreen> {
 
   void _onSearchChanged(String value) {
     setState(() {
-      // Search functionality can be implemented here
+      if (value.isEmpty) {
+        filteredConversations = conversations;
+      } else {
+        filteredConversations = conversations
+            .where((conversation) =>
+                conversation.userName.toLowerCase().contains(value.toLowerCase()))
+            .toList();
+      }
+    });
+  }
+
+  void _toggleSearch() {
+    setState(() {
+      _isSearching = !_isSearching;
+      if (!_isSearching) {
+        _searchController.clear();
+        filteredConversations = conversations;
+      }
     });
   }
 
@@ -166,30 +187,100 @@ class _MessageScreenState extends State<MessageScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // User greeting
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Messages',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black,
+                  // Left side: Back button + Greeting or Search
+                  Expanded(
+                    child: Row(
+                      children: [
+                        // Back button
+                        IconButton(
+                          onPressed: () => Get.back(),
+                          icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 40,
+                            minHeight: 40,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Hi, Good Morning',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                    ],
+                        // User greeting (hidden when searching)
+                        if (!_isSearching)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Messages',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Hi, Good Morning',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        // Expanded search bar (shown when searching)
+                        if (_isSearching)
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              onChanged: _onSearchChanged,
+                              autofocus: true,
+                              decoration: InputDecoration(
+                                hintText: 'Search conversations...',
+                                hintStyle: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey.shade400,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey.shade300,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFF2870BC),
+                                    width: 2,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey.shade300,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                                prefixIcon: const Icon(
+                                  Icons.search,
+                                  color: Color(0xFF2870BC),
+                                  size: 20,
+                                ),
+                              ),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
-                  // Search icon button
+                  const SizedBox(width: 8),
+                  // Right side: Search icon button
                   Container(
                     width: 48,
                     height: 48,
@@ -198,11 +289,9 @@ class _MessageScreenState extends State<MessageScreen> {
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
-                      onPressed: () {
-                        _showSearchDialog();
-                      },
-                      icon: const Icon(
-                        Icons.search,
+                      onPressed: _toggleSearch,
+                      icon: Icon(
+                        _isSearching ? Icons.close : Icons.search,
                         color: Colors.white,
                         size: 24,
                       ),
@@ -213,51 +302,44 @@ class _MessageScreenState extends State<MessageScreen> {
             ),
             // Conversations List
             Expanded(
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                itemCount: conversations.length,
-                itemBuilder: (context, index) {
-                  final conversation = conversations[index];
-                  return ConversationTile(
-                    conversation: conversation,
-                  );
-                },
-              ),
+              child: filteredConversations.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.inbox_outlined,
+                            size: 64,
+                            color: Colors.grey.shade300,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            _isSearching
+                                ? 'No conversations found'
+                                : 'No conversations',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey.shade600,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: EdgeInsets.zero,
+                      itemCount: filteredConversations.length,
+                      itemBuilder: (context, index) {
+                        final conversation = filteredConversations[index];
+                        return ConversationTile(
+                          conversation: conversation,
+                        );
+                      },
+                    ),
             ),
           ],
         ),
       ),
-    );
-  }
-
-  void _showSearchDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Search Messages'),
-          content: TextField(
-            controller: _searchController,
-            decoration: const InputDecoration(
-              hintText: 'Search conversations...',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                _onSearchChanged(_searchController.text);
-                Navigator.pop(context);
-              },
-              child: const Text('Search'),
-            ),
-          ],
-        );
-      },
     );
   }
 }

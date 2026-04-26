@@ -79,7 +79,7 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> {
 
   void _pickFile() async {
     try {
-      final FilePickerResult? result = await FilePicker.platform.pickFiles(
+      final FilePickerResult? result = await FilePicker.pickFiles(
         type: FileType.any,
         allowMultiple: false,
       );
