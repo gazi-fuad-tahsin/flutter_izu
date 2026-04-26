@@ -1,123 +1,89 @@
+import 'package:flutter/material.dart';
+import 'package:flutx_core/flutx_core.dart';
 import 'package:get/get.dart';
 
 import '../../data/models/notification_model.dart';
+import '../../data/repository/notification_repository.dart';
 
 class NotificationController extends GetxController {
   final RxList<NotificationModel> notifications = <NotificationModel>[].obs;
   final RxList<NotificationModel> newNotifications = <NotificationModel>[].obs;
   final RxList<NotificationModel> earlierNotifications = <NotificationModel>[].obs;
+  final RxBool isLoading = false.obs;
+  final RxBool isMarkingAsRead = false.obs;
+  final RxString error = ''.obs;
+
+  late final NotificationRepository _repository;
 
   @override
   void onInit() {
     super.onInit();
+    _repository = NotificationRepository();
     _loadNotifications();
   }
 
-  void _loadNotifications() {
-    // Sample data - in real app, this would come from API/database
-    final sampleNotifications = [
-      NotificationModel(
-        id: '1',
-        title: 'booking Cancelled,',
-        message: 'Your booking has been cancelled',
-        type: NotificationType.bookingCancelled,
-        timestamp: DateTime.now().subtract(const Duration(minutes: 1)),
-        isRead: false,
-      ),
-      NotificationModel(
-        id: '2',
-        title: 'Request Confirmed',
-        message: 'Your request has been confirmed',
-        type: NotificationType.requestConfirmed,
-        timestamp: DateTime.now().subtract(const Duration(minutes: 1)),
-        isRead: false,
-      ),
-      NotificationModel(
-        id: '3',
-        title: 'Service Review Submitted',
-        message: 'Your service review has been submitted',
-        type: NotificationType.serviceReview,
-        timestamp: DateTime.now().subtract(const Duration(minutes: 1)),
-        isRead: false,
-      ),
-      NotificationModel(
-        id: '4',
-        title: 'Booking Ongoing',
-        message: 'Your booking is currently ongoing',
-        type: NotificationType.bookingOngoing,
-        timestamp: DateTime.now().subtract(const Duration(minutes: 1)),
-        isRead: false,
-      ),
-      NotificationModel(
-        id: '5',
-        title: 'Lorem ipsum is a dummy or placeholder text commonly used in graphic',
-        message: 'Lorem ipsum is a dummy or placeholder text commonly used in graphic',
-        type: NotificationType.info,
-        timestamp: DateTime.now().subtract(const Duration(minutes: 15)),
-        isRead: false,
-      ),
-      NotificationModel(
-        id: '6',
-        title: 'Lorem ipsum is a dummy or placeholder text commonly used in graphic',
-        message: 'Lorem ipsum is a dummy or placeholder text commonly used in graphic',
-        type: NotificationType.info,
-        timestamp: DateTime.now().subtract(const Duration(minutes: 15)),
-        isRead: false,
-      ),
-      NotificationModel(
-        id: '7',
-        title: 'Lorem ipsum is a dummy or placeholder text commonly used in graphic',
-        message: 'Lorem ipsum is a dummy or placeholder text commonly used in graphic',
-        type: NotificationType.info,
-        timestamp: DateTime.now().subtract(const Duration(minutes: 15)),
-        isRead: false,
-      ),
-      NotificationModel(
-        id: '8',
-        title: 'Lorem ipsum is a dummy or placeholder text commonly used in graphic',
-        message: 'Lorem ipsum is a dummy or placeholder text commonly used in graphic',
-        type: NotificationType.info,
-        timestamp: DateTime.now().subtract(const Duration(minutes: 20)),
-        isRead: true,
-      ),
-      NotificationModel(
-        id: '9',
-        title: 'Lorem ipsum is a dummy or placeholder text commonly used in graphic',
-        message: 'Lorem ipsum is a dummy or placeholder text commonly used in graphic',
-        type: NotificationType.info,
-        timestamp: DateTime.now().subtract(const Duration(minutes: 31)),
-        isRead: true,
-      ),
-      NotificationModel(
-        id: '10',
-        title: 'Lorem ipsum is a dummy or placeholder text commonly used in graphic',
-        message: 'Lorem ipsum is a dummy or placeholder text commonly used in graphic',
-        type: NotificationType.info,
-        timestamp: DateTime.now().subtract(const Duration(minutes: 31)),
-        isRead: true,
-      ),
-      NotificationModel(
-        id: '11',
-        title: 'Lorem ipsum is a dummy or placeholder text commonly used in graphic',
-        message: 'Lorem ipsum is a dummy or placeholder text commonly used in graphic',
-        type: NotificationType.info,
-        timestamp: DateTime.now().subtract(const Duration(minutes: 31)),
-        isRead: true,
-      ),
-      NotificationModel(
-        id: '12',
-        title: 'Lorem ipsum is a dummy or placeholder text commonly used in graphic',
-        message: 'Lorem ipsum is a dummy or placeholder text commonly used in graphic',
-        type: NotificationType.info,
-        timestamp: DateTime.now().subtract(const Duration(minutes: 31)),
-        isRead: true,
-      ),
-    ];
+  /// Load notifications from API
+  void _loadNotifications() async {
+    isLoading.value = true;
+    error.value = '';
 
-    notifications.assignAll(sampleNotifications);
-    _categorizeNotifications();
+    final result = await _repository.getNotifications();
+
+    result.fold(
+      (failure) {
+        error.value = failure.message;
+        DPrint.error('Error loading notifications: ${failure.message}');
+        isLoading.value = false;
+      },
+      (notificationList) {
+        notifications.assignAll(notificationList);
+        _categorizeNotifications();
+        isLoading.value = false;
+        DPrint.info('Loaded ${notificationList.length} notifications');
+      },
+    );
   }
 
+  /// Mark notification as read and refetch notifications
+  Future<void> markAsReadAndRefresh(String notificationId) async {
+    isMarkingAsRead.value = true;
+    try {
+      final result = await _repository.markNotificationAsRead(notificationId);
+
+      result.fold(
+        (failure) {
+          DPrint.error('Error marking notification as read: ${failure.message}');
+          Get.snackbar(
+            'Error',
+            'Failed to mark notification as read',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            duration: const Duration(seconds: 2),
+          );
+        },
+        (updatedNotification) {
+          DPrint.info('Notification marked as read: ${updatedNotification.id}');
+          // Refetch notifications to get updated list
+          _loadNotifications();
+        },
+      );
+    } catch (e) {
+      DPrint.error('Exception marking notification as read: $e');
+      Get.snackbar(
+        'Error',
+        'An error occurred while marking notification as read',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
+    } finally {
+      isMarkingAsRead.value = false;
+    }
+  }
+
+  /// Categorize notifications into new and earlier
   void _categorizeNotifications() {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -126,7 +92,11 @@ class NotificationController extends GetxController {
     earlierNotifications.clear();
 
     for (var notification in notifications) {
-      final notifDate = DateTime(notification.timestamp.year, notification.timestamp.month, notification.timestamp.day);
+      final notifDate = DateTime(
+        notification.createdAt.year,
+        notification.createdAt.month,
+        notification.createdAt.day,
+      );
       
       if (notifDate == today) {
         newNotifications.add(notification);
@@ -134,8 +104,16 @@ class NotificationController extends GetxController {
         earlierNotifications.add(notification);
       }
     }
+
+    // Sort by date (most recent first)
+    newNotifications.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    earlierNotifications.sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
 
+  /// Get unread notifications count
+  int get unreadCount => notifications.where((n) => !n.read).length;
+
+  /// Format time ago
   String getTimeAgo(DateTime timestamp) {
     final now = DateTime.now();
     final difference = now.difference(timestamp);
@@ -153,24 +131,34 @@ class NotificationController extends GetxController {
     }
   }
 
+  /// Mark notification as read (local operation - deprecated, use markAsReadAndRefresh)
   void markAsRead(String notificationId) {
     final index = notifications.indexWhere((n) => n.id == notificationId);
     if (index != -1) {
+      final notification = notifications[index];
       notifications[index] = NotificationModel(
-        id: notifications[index].id,
-        title: notifications[index].title,
-        message: notifications[index].message,
-        type: notifications[index].type,
-        timestamp: notifications[index].timestamp,
-        isRead: true,
+        id: notification.id,
+        userId: notification.userId,
+        providerId: notification.providerId,
+        bookingId: notification.bookingId,
+        type: notification.type,
+        message: notification.message,
+        read: true,
+        createdAt: notification.createdAt,
       );
       notifications.refresh();
       _categorizeNotifications();
     }
   }
 
+  /// Delete notification (local operation for now)
   void deleteNotification(String notificationId) {
     notifications.removeWhere((n) => n.id == notificationId);
     _categorizeNotifications();
+  }
+
+  /// Refresh notifications
+  void refreshNotifications() {
+    _loadNotifications();
   }
 }
