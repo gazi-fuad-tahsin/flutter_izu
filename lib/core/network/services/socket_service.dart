@@ -1,12 +1,16 @@
 import 'package:flutter/foundation.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutx_core/flutx_core.dart';
+import 'package:get/get.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
-class SocketService {
+class SocketService extends GetxService {
   static final SocketService _instance = SocketService._internal();
   late IO.Socket _socket;
   bool _isConnected = false;
   String? _currentUserId;
+
+  // Observable for request-accepted event
+  final Rxn<Map<String, dynamic>> requestAccepted = Rxn<Map<String, dynamic>>();
 
   factory SocketService() {
     return _instance;
@@ -14,7 +18,13 @@ class SocketService {
 
   SocketService._internal();
 
-  bool get isConnected => _isConnected;
+  bool get isConnected {
+    try {
+      return _isConnected && _socket.connected;
+    } catch (e) {
+      return false;
+    }
+  }
   String? get currentUserId => _currentUserId;
   IO.Socket get socket => _socket;
 
@@ -58,7 +68,15 @@ class SocketService {
     _socket.on('connect', (_) {
       _isConnected = true;
       if (kDebugMode) {
-        DPrint.log('✅ Socket connected: ${_socket.id}');
+        DPrint.log(
+            "\n╔═══════════════════════════════════════════════════════════════");
+        DPrint.log("║ ✅ SOCKET CONNECTED");
+        DPrint.log(
+            "╠═══════════════════════════════════════════════════════════════");
+        DPrint.log("║ Socket ID: ${_socket.id}");
+        DPrint.log("║ Current User ID: $_currentUserId");
+        DPrint.log(
+            "╚═══════════════════════════════════════════════════════════════\n");
       }
     });
 
@@ -122,19 +140,51 @@ class SocketService {
         DPrint.log('🔔 Service request: $data');
       }
     });
+
+    // Request accepted by provider
+    _socket.on('request-accepted', (data) {
+      DPrint.log(
+          "\n╔═══════════════════════════════════════════════════════════════");
+      DPrint.log("║ 📬 REQUEST-ACCEPTED EVENT RECEIVED");
+      DPrint.log(
+          "╠═══════════════════════════════════════════════════════════════");
+      DPrint.log("║ Raw Data: $data");
+      DPrint.log("║ Data Type: ${data.runtimeType}");
+      DPrint.log(
+          "╚═══════════════════════════════════════════════════════════════\n");
+      
+      if (data != null && data is Map) {
+        final mappedData = Map<String, dynamic>.from(data);
+        DPrint.log('✅ Updating requestAccepted observable with: $mappedData');
+        requestAccepted.value = mappedData;
+        DPrint.log(
+            '✅ Observable value is now: ${requestAccepted.value}');
+      } else {
+        DPrint.log('⚠️ Data is null or not a Map: $data');
+      }
+    });
   }
 
   /// Emit event to server
   void emit(String event, dynamic data) {
+    DPrint.log(
+        "\n╔═══════════════════════════════════════════════════════════════");
+    DPrint.log("║ 📤 SOCKET EMIT");
+    DPrint.log(
+        "╠═══════════════════════════════════════════════════════════════");
+    DPrint.log("║ Event: $event");
+    DPrint.log("║ Data: $data");
+    DPrint.log("║ Connected: $_isConnected");
+    DPrint.log(
+        "╚═══════════════════════════════════════════════════════════════\n");
+    
     if (_isConnected) {
       _socket.emit(event, data);
-      if (kDebugMode) {
-        DPrint.log('📤 Emitted event: $event with data: $data');
-      }
+      DPrint.log('✅ Event emitted successfully');
     } else {
-      if (kDebugMode) {
-        DPrint.warn('⚠️  Socket not connected, cannot emit: $event');
-      }
+      DPrint.log('❌ Socket not connected, cannot emit: $event');
+      DPrint.log('   Socket state - _isConnected: $_isConnected');
+      DPrint.log('   Socket state - connected: ${_socket.connected}');
     }
   }
 
