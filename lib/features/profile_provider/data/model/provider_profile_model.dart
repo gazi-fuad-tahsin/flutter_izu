@@ -4,10 +4,10 @@ class ProviderProfileModel {
   final String email;
   final String phone;
   final String? profileImage;
-  final double rating;
-  final int completedServices;
-  final double earnings;
-  final String handle;
+  final String language;
+  final String overallAverageRating;
+  final List<dynamic> services;
+  final bool isActive;
 
   ProviderProfileModel({
     required this.id,
@@ -15,37 +15,37 @@ class ProviderProfileModel {
     required this.email,
     required this.phone,
     this.profileImage,
-    required this.rating,
-    required this.completedServices,
-    required this.earnings,
-    required this.handle,
+    required this.language,
+    required this.overallAverageRating,
+    required this.services,
+    required this.isActive,
   });
 
   factory ProviderProfileModel.fromJson(Map<String, dynamic> json) {
     return ProviderProfileModel(
-      id: json['id'] as String? ?? '',
+      id: json['_id'] as String? ?? '',
       name: json['name'] as String? ?? '',
       email: json['email'] as String? ?? '',
       phone: json['phone'] as String? ?? '',
       profileImage: json['profileImage'] as String?,
-      rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
-      completedServices: json['completedServices'] as int? ?? 0,
-      earnings: (json['earnings'] as num?)?.toDouble() ?? 0.0,
-      handle: json['handle'] as String? ?? '',
+      language: json['language'] as String? ?? 'English',
+      overallAverageRating: json['overallAverageRating'] as String? ?? '0.0',
+      services: json['services'] as List<dynamic>? ?? [],
+      isActive: json['isActive'] as bool? ?? false,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      '_id': id,
       'name': name,
       'email': email,
       'phone': phone,
       'profileImage': profileImage,
-      'rating': rating,
-      'completedServices': completedServices,
-      'earnings': earnings,
-      'handle': handle,
+      'language': language,
+      'overallAverageRating': overallAverageRating,
+      'services': services,
+      'isActive': isActive,
     };
   }
 
@@ -55,10 +55,10 @@ class ProviderProfileModel {
     String? email,
     String? phone,
     String? profileImage,
-    double? rating,
-    int? completedServices,
-    double? earnings,
-    String? handle,
+    String? language,
+    String? overallAverageRating,
+    List<dynamic>? services,
+    bool? isActive,
   }) {
     return ProviderProfileModel(
       id: id ?? this.id,
@@ -66,10 +66,10 @@ class ProviderProfileModel {
       email: email ?? this.email,
       phone: phone ?? this.phone,
       profileImage: profileImage ?? this.profileImage,
-      rating: rating ?? this.rating,
-      completedServices: completedServices ?? this.completedServices,
-      earnings: earnings ?? this.earnings,
-      handle: handle ?? this.handle,
+      language: language ?? this.language,
+      overallAverageRating: overallAverageRating ?? this.overallAverageRating,
+      services: services ?? this.services,
+      isActive: isActive ?? this.isActive,
     );
   }
 }
