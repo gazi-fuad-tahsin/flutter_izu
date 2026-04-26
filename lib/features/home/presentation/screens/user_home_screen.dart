@@ -138,7 +138,6 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                     userName: userController.userName,
                     greeting: 'Hi, Good Morning',
                     avatarAsset: userController.userProfileImage ?? 'assets/images/home_assets/profile.jpg',
-                    notificationCount: 3,
                     onNotificationTap: () {
                       Get.to(() => const NotificationsScreen());
                     },
