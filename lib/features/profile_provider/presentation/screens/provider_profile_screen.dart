@@ -9,10 +9,24 @@ import '../../../profile/presentation/screens/choose_language_screen.dart';
 import '../../../profile_static_screens/presentation/screens/privacy_policy_screen.dart';
 import '../../../profile_static_screens/presentation/screens/terms_conditions_screen.dart';
 import '../../../provider_jobs/presentation/screens/your_services_screen.dart';
+import '../../presentation/controller/provider_profile_controller.dart';
 import 'provider_edit_profile_screen.dart';
 
-class ProviderProfileScreen extends StatelessWidget {
+class ProviderProfileScreen extends StatefulWidget {
   const ProviderProfileScreen({super.key});
+
+  @override
+  State<ProviderProfileScreen> createState() => _ProviderProfileScreenState();
+}
+
+class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
+  late ProviderProfileController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = Get.put(ProviderProfileController());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,72 +68,100 @@ class ProviderProfileScreen extends StatelessWidget {
               const SizedBox(height: 12),
 
               // Profile Picture Section
-              Column(
-                children: [
-                  // Profile Image
-                  Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: ProviderColors.profileAvatarBG,
-                      image: const DecorationImage(
-                        image: AssetImage('assets/images/profile_avatar.png'),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Star Rating
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(
-                      int.parse(ProviderProfileTexts.ratingValue),
-                      (index) => const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 4),
-                        child: Icon(
-                          Icons.star,
-                          color: ProviderColors.secondaryOrange,
-                          size: 24,
+              Obx(
+                () {
+                  if (_controller.isLoading.value) {
+                    return const SizedBox(
+                      height: 280,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Color(0xFF2870BC),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
+                    );
+                  }
 
-                  // Name
-                  Text(
-                    ProviderProfileTexts.providerName,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: ProviderColors.textBlack,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
+                  final profile = _controller.profileData.value;
+                  return Column(
+                    children: [
+                      // Profile Image
+                      Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: ProviderColors.profileAvatarBG,
+                        ),
+                        child: _buildProfileImage(profile?.profileImage ?? ''),
+                      ),
+                      const SizedBox(height: 16),
 
-                  // Email
-                  Text(
-                    ProviderProfileTexts.providerEmail,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      color: ProviderColors.textGrey,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
+                      // Star Rating
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(
+                          5,
+                          (index) {
+                            int rating = 0;
+                            try {
+                              if (profile?.overallAverageRating != null) {
+                                rating = (double.tryParse(
+                                        profile!.overallAverageRating.toString()) ??
+                                    0.0)
+                                  .toInt();
+                              }
+                            } catch (e) {
+                              rating = 0;
+                            }
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              child: Icon(
+                                index < rating ? Icons.star : Icons.star_border,
+                                color: ProviderColors.secondaryOrange,
+                                size: 24,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 12),
 
-                  // Phone
-                  Text(
-                    ProviderProfileTexts.providerPhone,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      color: ProviderColors.textGrey,
-                    ),
-                  ),
-                ],
+                      // Name
+                      Text(
+                        profile?.name ?? 'Provider',
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                          color: ProviderColors.textBlack,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+
+                      // Email
+                      Text(
+                        profile?.email ?? 'email@example.com',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: ProviderColors.textGrey,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+
+                      // Phone
+                      Text(
+                        profile?.phone ?? 'No phone',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: ProviderColors.textGrey,
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
 
               const SizedBox(height: 24),
@@ -358,6 +400,60 @@ class ProviderProfileScreen extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildProfileImage(String imageUrl) {
+    // Check if it's a network URL
+    if (imageUrl.startsWith('http')) {
+      return ClipOval(
+        child: Image.network(
+          imageUrl,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              color: Colors.grey.shade300,
+              child: Icon(
+                Icons.person,
+                color: Colors.grey.shade600,
+                size: 60,
+              ),
+            );
+          },
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Container(
+              color: Colors.grey.shade200,
+              child: Center(
+                child: CircularProgressIndicator(
+                  value: loadingProgress.expectedTotalBytes != null
+                      ? loadingProgress.cumulativeBytesLoaded /
+                          loadingProgress.expectedTotalBytes!
+                      : null,
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    }
+
+    // Otherwise treat as asset
+    return ClipOval(
+      child: Image.asset(
+        imageUrl.isEmpty ? 'assets/images/profile_avatar.png' : imageUrl,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey.shade300,
+            child: Icon(
+              Icons.person,
+              color: Colors.grey.shade600,
+              size: 60,
+            ),
+          );
+        },
+      ),
     );
   }
 }
