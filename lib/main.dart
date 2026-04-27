@@ -13,6 +13,7 @@ class AppTranslations extends Translations {
     'es': AppLanguages.es,
     'it': AppLanguages.it,
     'de': AppLanguages.de,
+    'fr': AppLanguages.fr,
   };
 }
 
