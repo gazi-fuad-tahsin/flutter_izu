@@ -81,21 +81,21 @@ class _ChatbotChatScreenState extends State<ChatbotChatScreen> {
               child: Icon(Icons.person, color: AppColors.primaryWhite, size: 16),
             ),
             const SizedBox(width: 8),
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   IzuChatbotTexts.chatbotUserName,
-                  style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold),
+                  style: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 Text(
                   IzuChatbotTexts.chatbotGreeting,
-                  style: TextStyle(color: AppColors.subText, fontSize: 10),
+                  style: const TextStyle(color: AppColors.subText, fontSize: 10),
                 ),
               ],
             ),
-            const Spacer(),
-            const Icon(Icons.notifications_none, color: AppColors.subText),
+            // const Spacer(),
+            // const Icon(Icons.notifications_none, color: AppColors.subText),
           ],
         ),
       ),
@@ -129,10 +129,10 @@ class _ChatbotChatScreenState extends State<ChatbotChatScreen> {
                       ),
                       child: TextField(
                         controller: _msgController,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: IzuChatbotTexts.chatInputHint,
                           border: InputBorder.none,
-                          hintStyle: TextStyle(color: AppColors.subText),
+                          hintStyle: const TextStyle(color: AppColors.subText),
                         ),
                       ),
                     ),

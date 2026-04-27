@@ -45,10 +45,10 @@ class ChatbotOverlayScreen extends StatelessWidget {
                   children: [
                     Expanded(
                       child: TextField(
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: IzuChatbotTexts.searchWithAi,
                           border: InputBorder.none,
-                          hintStyle: TextStyle(color: AppColors.subText),
+                          hintStyle: const TextStyle(color: AppColors.subText),
                         ),
                         onSubmitted: (value) {
                           Get.off(() => const ChatbotChatScreen());
