@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../core/common/constants/texts.dart';
 
 import '../../data/models/notification_model.dart';
 import '../controller/notification_controller.dart';
@@ -31,9 +32,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
           onPressed: () => Get.back(),
         ),
-        title: const Text(
-          'Notifications',
-          style: TextStyle(
+        title: Text(
+          appTexts.notifications.tr,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: Colors.black,
@@ -57,7 +58,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => _controller.refreshNotifications(),
-                    child: const Text('Retry'),
+                    child: Text(appTexts.retry.tr),
                   ),
                 ],
               ),
@@ -65,8 +66,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           }
 
           if (_controller.notifications.isEmpty) {
-            return const Center(
-              child: Text('No notifications yet'),
+            return Center(
+              child: Text(appTexts.noNotificationsYet.tr),
             );
           }
 
@@ -83,7 +84,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
                       child: Text(
-                        'New',
+                        appTexts.newText.tr,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -107,7 +108,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
                       child: Text(
-                        'Earlier',
+                        appTexts.earlier.tr,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -185,9 +186,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     color: const Color(0xFF43A047).withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(4),
                                   ),
-                                  child: const Text(
-                                    'Unread',
-                                    style: TextStyle(
+                                  child: Text(
+                                    appTexts.unread.tr,
+                                    style: const TextStyle(
                                       fontSize: 10,
                                       fontWeight: FontWeight.w600,
                                       color: Color(0xFF43A047),
