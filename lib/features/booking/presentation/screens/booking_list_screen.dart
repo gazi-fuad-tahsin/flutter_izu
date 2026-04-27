@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../core/common/constants/texts.dart';
 
 import '../controller/user_booking_controller.dart';
 import '../widgets/user_booking_card.dart';
@@ -34,13 +35,13 @@ class _BookingListScreenState extends State<BookingListScreen> {
               builder: (controller) {
                 return Row(
                   children: [
-                    _buildFilterTab('Live', 'live', controller),
+                    _buildFilterTab(appTexts.live.tr, 'live', controller),
                     const SizedBox(width: 12),
-                    _buildFilterTab('Upcoming', 'upcoming', controller),
+                    _buildFilterTab(appTexts.upcoming.tr, 'upcoming', controller),
                     const SizedBox(width: 12),
-                    _buildFilterTab('Completed', 'completed', controller),
+                    _buildFilterTab(appTexts.completed.tr, 'completed', controller),
                     const SizedBox(width: 12),
-                    _buildFilterTab('Cancelled', 'cancelled', controller),
+                    _buildFilterTab(appTexts.cancelled.tr, 'cancelled', controller),
                   ],
                 );
               },
@@ -84,9 +85,9 @@ class _BookingListScreenState extends State<BookingListScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF2870BC),
                           ),
-                          child: const Text(
-                            'Retry',
-                            style: TextStyle(color: Colors.white),
+                          child: Text(
+                            appTexts.retry.tr,
+                            style: const TextStyle(color: Colors.white),
                           ),
                         ),
                       ],
@@ -108,7 +109,7 @@ class _BookingListScreenState extends State<BookingListScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'No ${controller.selectedFilter.value} bookings',
+                          '${appTexts.noBookingsYet.tr} (${controller.selectedFilter.value})',
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.grey.shade600,

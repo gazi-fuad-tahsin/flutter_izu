@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../../../../core/common/constants/texts.dart';
 
 import '../../data/model/user_booking_model.dart';
 
@@ -156,7 +158,7 @@ class _UserBookingCardState extends State<UserBookingCard> {
               ),
               const SizedBox(width: 12),
               Text(
-                'Date: ${widget.booking.formattedDate}',
+                '${appTexts.date.tr}: ${widget.booking.formattedDate}',
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.grey,
@@ -177,7 +179,7 @@ class _UserBookingCardState extends State<UserBookingCard> {
               ),
               const SizedBox(width: 12),
               Text(
-                'Time: ${widget.booking.formattedTime}',
+                '${appTexts.time.tr}: ${widget.booking.formattedTime}',
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.grey,
@@ -198,7 +200,7 @@ class _UserBookingCardState extends State<UserBookingCard> {
               ),
               const SizedBox(width: 12),
               Text(
-                'Service: ${widget.booking.serviceName}',
+                '${appTexts.service.tr}: ${widget.booking.serviceName}',
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.grey,
@@ -220,7 +222,7 @@ class _UserBookingCardState extends State<UserBookingCard> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Amount: \$${widget.booking.totalPrice.toStringAsFixed(2)}',
+                  '${appTexts.amount.tr}: \$${widget.booking.totalPrice.toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontSize: 14,
                     color: Colors.grey,
@@ -251,9 +253,9 @@ class _UserBookingCardState extends State<UserBookingCard> {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                    child: const Text(
-                      'Contact',
-                      style: TextStyle(
+                    child: Text(
+                      appTexts.contact.tr,
+                      style: const TextStyle(
                         color: Color(0xFFFCA048),
                         fontWeight: FontWeight.w600,
                       ),
@@ -266,7 +268,7 @@ class _UserBookingCardState extends State<UserBookingCard> {
                   child: ElevatedButton.icon(
                     onPressed: () {},
                     icon: const Icon(Icons.location_on, size: 18),
-                    label: const Text('Location'),
+                    label: Text(appTexts.location.tr),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2870BC),
                       shape: RoundedRectangleBorder(
@@ -295,14 +297,14 @@ class _UserBookingCardState extends State<UserBookingCard> {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.close, color: Color(0xFFFCA048), size: 18),
-                        SizedBox(width: 8),
+                        const Icon(Icons.close, color: Color(0xFFFCA048), size: 18),
+                        const SizedBox(width: 8),
                         Text(
-                          'Cancel',
-                          style: TextStyle(
+                          appTexts.cancel.tr,
+                          style: const TextStyle(
                             color: Color(0xFFFCA048),
                             fontWeight: FontWeight.w600,
                           ),
@@ -324,9 +326,9 @@ class _UserBookingCardState extends State<UserBookingCard> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       elevation: 0,
                     ),
-                    child: const Text(
-                      'Reschedule',
-                      style: TextStyle(
+                    child: Text(
+                      appTexts.reschedule.tr,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
@@ -350,9 +352,9 @@ class _UserBookingCardState extends State<UserBookingCard> {
           color: const Color(0xFF2870BC),
           borderRadius: BorderRadius.circular(20),
         ),
-        child: const Text(
-          'Live',
-          style: TextStyle(
+        child: Text(
+          appTexts.live.tr,
+          style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,
             fontSize: 12,
@@ -364,9 +366,9 @@ class _UserBookingCardState extends State<UserBookingCard> {
         children: [
           const Icon(Icons.check_circle, color: Colors.green, size: 20),
           const SizedBox(width: 4),
-          const Text(
-            'Completed',
-            style: TextStyle(
+          Text(
+            appTexts.completed.tr,
+            style: const TextStyle(
               color: Colors.green,
               fontWeight: FontWeight.w600,
               fontSize: 12,
@@ -379,9 +381,9 @@ class _UserBookingCardState extends State<UserBookingCard> {
         children: [
           const Icon(Icons.cancel, color: Colors.red, size: 20),
           const SizedBox(width: 4),
-          const Text(
-            'Cancelled',
-            style: TextStyle(
+          Text(
+            appTexts.cancelled.tr,
+            style: const TextStyle(
               color: Colors.red,
               fontWeight: FontWeight.w600,
               fontSize: 12,
@@ -401,9 +403,9 @@ class _UserBookingCardState extends State<UserBookingCard> {
         ),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: const Text(
-        'Upcoming',
-        style: TextStyle(
+      child: Text(
+        appTexts.upcoming.tr,
+        style: const TextStyle(
           color: Color(0xFFFCA048),
           fontWeight: FontWeight.w600,
           fontSize: 12,
