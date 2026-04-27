@@ -202,19 +202,19 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                     ),
                     elevation: 0,
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         IzuAuthTexts.continueBtn,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: AppColors.primaryWhite,
                         ),
                       ),
-                      SizedBox(width: 8),
-                      Icon(Icons.arrow_forward, color: AppColors.primaryWhite, size: 20),
+                      const SizedBox(width: 8),
+                      const Icon(Icons.arrow_forward, color: AppColors.primaryWhite, size: 20),
                     ],
                   ),
                 ),
