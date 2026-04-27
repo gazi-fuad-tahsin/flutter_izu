@@ -31,18 +31,18 @@ class SuperDealsBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
+                Text(
                   IzuHomeTexts.superDeals,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: AppColors.primaryWhite,
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   IzuHomeTexts.superDealsSubtitle,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: AppColors.primaryWhite,
                     fontSize: 12,
                     height: 1.4,
@@ -61,9 +61,9 @@ class SuperDealsBanner extends StatelessWidget {
                     minimumSize: const Size(110, 36),
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                   ),
-                  child: const Text(
+                  child: Text(
                     IzuHomeTexts.allServices,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),

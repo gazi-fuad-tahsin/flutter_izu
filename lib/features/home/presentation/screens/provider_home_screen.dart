@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../core/common/constants/texts.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../../core/common/constants/feature_texts.dart';
@@ -108,21 +109,21 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
         backgroundColor: AppColors.primaryWhite,
         selectedItemColor: AppColors.homePrimary,
         unselectedItemColor: AppColors.subText,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: const Icon(Icons.home),
             label: IzuHomeTexts.navHome,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
+            icon: const Icon(Icons.calendar_today),
             label: IzuHomeTexts.navBooking,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.build),
+            icon: const Icon(Icons.build),
             label: IzuHomeTexts.navService,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: const Icon(Icons.person),
             label: IzuHomeTexts.navProfile,
           ),
         ],
@@ -302,9 +303,9 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.homePrimary,
                         ),
-                        child: const Text(
-                          'Retry',
-                          style: TextStyle(color: Colors.white),
+                        child: Text(
+                          appTexts.retry.tr,
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ),
                     ],
@@ -324,7 +325,7 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'No pending requests',
+                        appTexts.noNotificationsYet.tr, // Or add "No requests yet"
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey.shade600,

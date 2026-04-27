@@ -95,25 +95,25 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
           selectedItemColor: AppColors.homePrimary,
           unselectedItemColor: AppColors.subText,
           elevation: 0,
-          items: const [
+          items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
+              icon: const Icon(Icons.home_outlined),
+              activeIcon: const Icon(Icons.home),
               label: IzuHomeTexts.navHome,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_month_outlined),
-              activeIcon: Icon(Icons.calendar_month),
+              icon: const Icon(Icons.calendar_month_outlined),
+              activeIcon: const Icon(Icons.calendar_month),
               label: IzuHomeTexts.navBooking,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.message_outlined),
-              activeIcon: Icon(Icons.message),
+              icon: const Icon(Icons.message_outlined),
+              activeIcon: const Icon(Icons.message),
               label: IzuHomeTexts.navMessage,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
+              icon: const Icon(Icons.person_outline),
+              activeIcon: const Icon(Icons.person),
               label: IzuHomeTexts.navProfile,
             ),
           ],
@@ -136,7 +136,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                   final userController = Get.find<UserController>();
                   return HomeHeader(
                     userName: userController.userName,
-                    greeting: 'Hi, Good Morning',
+                    greeting: IzuChatbotTexts.chatbotGreeting,
                     avatarAsset: userController.userProfileImage ?? 'assets/images/home_assets/profile.jpg',
                     onNotificationTap: () {
                       Get.to(() => const NotificationsScreen());

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../../../../core/common/constants/texts.dart';
 
 class NearbyArtisanTile extends StatelessWidget {
   final Map<String, dynamic> artisanData;
@@ -115,7 +117,7 @@ class NearbyArtisanTile extends StatelessWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         elevation: 0,
                       ),
-                      child: const Text('Book Now', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
+                      child: Text(appTexts.bookNow.tr, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
                     ),
                   ),
                 ],

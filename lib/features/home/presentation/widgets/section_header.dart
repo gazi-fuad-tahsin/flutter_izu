@@ -30,9 +30,9 @@ class SectionHeader extends StatelessWidget {
           ),
           GestureDetector(
             onTap: onViewAll,
-            child: const Text(
+            child: Text(
               IzuHomeTexts.viewAll,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
                 color: AppColors.homeViewAllOrange,
                 fontWeight: FontWeight.w500,
