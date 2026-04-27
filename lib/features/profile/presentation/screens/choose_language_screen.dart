@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../core/common/constants/texts.dart';
 
 class ChooseLanguageScreen extends StatefulWidget {
   const ChooseLanguageScreen({super.key});
@@ -10,6 +11,17 @@ class ChooseLanguageScreen extends StatefulWidget {
 
 class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
   String _selectedLanguage = 'English';
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize based on current locale
+    if (Get.locale?.languageCode == 'fr') {
+      _selectedLanguage = 'France';
+    } else {
+      _selectedLanguage = 'English';
+    }
+  }
 
   final List<Map<String, String>> languages = [
     {
@@ -33,9 +45,9 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
           onPressed: () => Get.back(),
         ),
-        title: const Text(
-          'Choose Language',
-          style: TextStyle(
+        title: Text(
+          appTexts.changeLanguage.tr,
+          style: const TextStyle(
             color: Colors.black,
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -131,7 +143,12 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
                 height: 52,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Handle save
+                    // Update app language
+                    if (_selectedLanguage == 'English') {
+                      Get.updateLocale(const Locale('en'));
+                    } else if (_selectedLanguage == 'France') {
+                      Get.updateLocale(const Locale('fr'));
+                    }
                     Get.back();
                   },
                   style: ElevatedButton.styleFrom(
@@ -141,9 +158,9 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
-                    'Save',
-                    style: TextStyle(
+                  child: Text(
+                    appTexts.update.tr, // Using 'Update' for 'Save' as it's available
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,

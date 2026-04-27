@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../core/common/constants/texts.dart';
 import '../../../../core/common/widgets/logout_confirmation_dialog.dart';
 import '../../../auth/presentation/controller/user_controller.dart';
 import '../../../profile_static_screens/presentation/screens/about_app_screen.dart';
@@ -11,6 +12,7 @@ import '../widgets/profile_menu_item.dart';
 import 'change_password_screen.dart';
 import 'choose_language_screen.dart';
 import 'edit_profile_screen.dart';
+
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
 
@@ -30,9 +32,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
           onPressed: () => Get.back(),
         ),
-        title: const Text(
-          'Profile',
-          style: TextStyle(
+        title: Text(
+          appTexts.profile.tr,
+          style: const TextStyle(
             color: Colors.black,
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -63,7 +65,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     // About App
                     ProfileMenuItem(
                       iconPath: 'assets/icons/chart-breakout-circle.png',
-                      title: 'About App',
+                      title: appTexts.aboutApp.tr,
                       onTap: () {
                         Get.to(() => const AboutAppScreen());
                       },
@@ -71,7 +73,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     // Privacy Policy
                     ProfileMenuItem(
                       iconPath: 'assets/icons/file-shield-02.png',
-                      title: 'Privacy Policy',
+                      title: appTexts.privacyPolicy.tr,
                       onTap: () {
                         Get.to(() => const PrivacyPolicyScreen());
                       },
@@ -79,7 +81,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     // Term & Condition
                     ProfileMenuItem(
                       icon: Icons.receipt_outlined,
-                      title: 'Term & Condition',
+                      title: appTexts.generalTerms.tr,
                       onTap: () {
                         Get.to(() => const TermsConditionsScreen());
                       },
@@ -87,7 +89,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     // Change Password
                     ProfileMenuItem(
                       icon: Icons.lock_outline,
-                      title: 'Change Password',
+                      title: appTexts.changePassword.tr,
                       onTap: () {
                         Get.to(() => const ChangePasswordScreen());
                       },
@@ -95,7 +97,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     // Language
                     ProfileMenuItem(
                       icon: Icons.language_outlined,
-                      title: 'Language',
+                      title: appTexts.languages.tr,
                       onTap: () {
                         Get.to(() => const ChooseLanguageScreen());
                       },
@@ -103,7 +105,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     // Log Out
                     ProfileMenuItem(
                       iconPath: 'assets/icons/log-out-03.png',
-                      title: 'Log Out',
+                      title: appTexts.logout.tr,
                       isLogOut: true,
                       onTap: () {
                         showLogoutConfirmationDialog(context);
