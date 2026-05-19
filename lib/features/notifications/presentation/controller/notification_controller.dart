@@ -83,6 +83,44 @@ class NotificationController extends GetxController {
     }
   }
 
+  /// Mark all notifications as read and refetch notifications
+  Future<void> markAllAsReadAndRefresh() async {
+    isMarkingAsRead.value = true;
+    try {
+      final result = await _repository.markAllNotificationsAsRead();
+
+      result.fold(
+        (failure) {
+          DPrint.error('Error marking all notifications as read: ${failure.message}');
+          Get.snackbar(
+            'Error',
+            'Failed to mark all notifications as read',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            duration: const Duration(seconds: 2),
+          );
+        },
+        (response) {
+          DPrint.info('All notifications marked as read: $response');
+          _loadNotifications();
+        },
+      );
+    } catch (e) {
+      DPrint.error('Exception marking all notifications as read: $e');
+      Get.snackbar(
+        'Error',
+        'An error occurred while marking all notifications as read',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
+    } finally {
+      isMarkingAsRead.value = false;
+    }
+  }
+
   /// Categorize notifications into new and earlier
   void _categorizeNotifications() {
     final now = DateTime.now();

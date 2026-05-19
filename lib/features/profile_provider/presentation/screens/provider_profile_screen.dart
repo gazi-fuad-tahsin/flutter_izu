@@ -28,48 +28,52 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
     _controller = Get.put(ProviderProfileController());
   }
 
+  Future<void> _refreshProfile() async {
+    await _controller.fetchProfileData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ProviderColors.screenBackground,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Header with edit button
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const SizedBox(width: 40),
-                    Text(
-                      ProviderProfileTexts.profileTitle,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: ProviderColors.textBlack,
+        child: RefreshIndicator(
+          onRefresh: _refreshProfile,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const SizedBox(width: 40),
+                      Text(
+                        ProviderProfileTexts.profileTitle,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: ProviderColors.textBlack,
+                        ),
                       ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Get.to(() => const ProviderEditProfileScreen());
-                      },
-                      child: Image.asset(
-                        'assets/icons/edit-05.png',
-                        width: 24,
-                        height: 24,
+                      GestureDetector(
+                        onTap: () {
+                          Get.to(() => const ProviderEditProfileScreen());
+                        },
+                        child: Image.asset(
+                          'assets/icons/edit-05.png',
+                          width: 24,
+                          height: 24,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
 
-              const SizedBox(height: 12),
+                const SizedBox(height: 12),
 
-              // Profile Picture Section
-              Obx(
-                () {
+                Obx(() {
                   if (_controller.isLoading.value) {
                     return const SizedBox(
                       height: 280,
@@ -86,7 +90,6 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                   final profile = _controller.profileData.value;
                   return Column(
                     children: [
-                      // Profile Image
                       Container(
                         width: 120,
                         height: 120,
@@ -97,8 +100,6 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                         child: _buildProfileImage(profile?.profileImage ?? ''),
                       ),
                       const SizedBox(height: 16),
-
-                      // Star Rating
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: List.generate(
@@ -108,9 +109,10 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                             try {
                               if (profile?.overallAverageRating != null) {
                                 rating = (double.tryParse(
-                                        profile!.overallAverageRating.toString()) ??
+                                      profile!.overallAverageRating.toString(),
+                                    ) ??
                                     0.0)
-                                  .toInt();
+                                    .toInt();
                               }
                             } catch (e) {
                               rating = 0;
@@ -127,8 +129,6 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-
-                      // Name
                       Text(
                         profile?.name ?? 'Provider',
                         style: const TextStyle(
@@ -138,8 +138,6 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 4),
-
-                      // Email
                       Text(
                         profile?.email ?? 'email@example.com',
                         style: const TextStyle(
@@ -149,8 +147,6 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 4),
-
-                      // Phone
                       Text(
                         profile?.phone ?? 'No phone',
                         style: const TextStyle(
@@ -161,144 +157,138 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                       ),
                     ],
                   );
-                },
-              ),
+                }),
 
-              const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-              // Stats Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Row(
-                  children: [
-                    // Work Completion
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 20,
-                          horizontal: 24,
-                        ),
-                        decoration: BoxDecoration(
-                          color: ProviderColors.workCompletionOrange,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              ProviderProfileTexts.workCompletion,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 20,
+                            horizontal: 24,
+                          ),
+                          decoration: BoxDecoration(
+                            color: ProviderColors.workCompletionOrange,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                ProviderProfileTexts.workCompletion,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              ProviderProfileTexts.workCompletionValue,
-                              style: const TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
+                              const SizedBox(height: 8),
+                              Text(
+                                ProviderProfileTexts.workCompletionValue,
+                                style: const TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-
-                    // Your Earning
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 20,
-                          horizontal: 24,
-                        ),
-                        decoration: BoxDecoration(
-                          color: ProviderColors.earningBlue,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              ProviderProfileTexts.yourEarning,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white,
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 20,
+                            horizontal: 24,
+                          ),
+                          decoration: BoxDecoration(
+                            color: ProviderColors.earningBlue,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                ProviderProfileTexts.yourEarning,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              ProviderProfileTexts.earningValue,
-                              style: const TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
+                              const SizedBox(height: 8),
+                              Text(
+                                ProviderProfileTexts.earningValue,
+                                style: const TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
 
-              const SizedBox(height: 32),
+                const SizedBox(height: 32),
 
-              // Menu Items
-              _buildMenuItem(
-                icon: Icons.work_outline,
-                title: ProviderProfileTexts.yourServices,
-                onTap: () {
-                  Get.to(() => const YourServicesScreen());
-                },
-              ),
-              _buildMenuItem(
-                icon: Icons.lock_outline,
-                title: ProviderProfileTexts.changePassword,
-                onTap: () {
-                  Get.to(() => const ChangePasswordScreen());
-                },
-              ),
-              _buildMenuItem(
-                icon: Icons.privacy_tip_outlined,
-                title: ProviderProfileTexts.privacyPolicy,
-                onTap: () {
-                  Get.to(() => const PrivacyPolicyScreen());
-                },
-              ),
-              _buildMenuItem(
-                icon: Icons.description_outlined,
-                title: ProviderProfileTexts.termAndCondition,
-                onTap: () {
-                  Get.to(() => const TermsConditionsScreen());
-                },
-              ),
-              _buildMenuItem(
-                icon: Icons.language,
-                title: ProviderProfileTexts.language,
-                onTap: () {
-                  Get.to(() => const ChooseLanguageScreen());
-                },
-              ),
+                _buildMenuItem(
+                  icon: Icons.work_outline,
+                  title: ProviderProfileTexts.yourServices,
+                  onTap: () {
+                    Get.to(() => const YourServicesScreen(showBackButton: true));
+                  },
+                ),
+                _buildMenuItem(
+                  icon: Icons.lock_outline,
+                  title: ProviderProfileTexts.changePassword,
+                  onTap: () {
+                    Get.to(() => const ChangePasswordScreen());
+                  },
+                ),
+                _buildMenuItem(
+                  icon: Icons.privacy_tip_outlined,
+                  title: ProviderProfileTexts.privacyPolicy,
+                  onTap: () {
+                    Get.to(() => const PrivacyPolicyScreen());
+                  },
+                ),
+                _buildMenuItem(
+                  icon: Icons.description_outlined,
+                  title: ProviderProfileTexts.termAndCondition,
+                  onTap: () {
+                    Get.to(() => const TermsConditionsScreen());
+                  },
+                ),
+                _buildMenuItem(
+                  icon: Icons.language,
+                  title: ProviderProfileTexts.language,
+                  onTap: () {
+                    Get.to(() => const ChooseLanguageScreen());
+                  },
+                ),
 
-              const SizedBox(height: 8),
+                const SizedBox(height: 8),
 
-              // Log Out Button
-              _buildMenuItemRed(
-                icon: Icons.logout_outlined,
-                title: ProviderProfileTexts.logOut,
-                onTap: () {
-                  showLogoutConfirmationDialog(context);
-                },
-              ),
+                _buildMenuItemRed(
+                  icon: Icons.logout_outlined,
+                  title: ProviderProfileTexts.logOut,
+                  onTap: () {
+                    showLogoutConfirmationDialog(context);
+                  },
+                ),
 
-              const SizedBox(height: 24),
-            ],
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),
@@ -404,7 +394,6 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
   }
 
   Widget _buildProfileImage(String imageUrl) {
-    // Check if it's a network URL
     if (imageUrl.startsWith('http')) {
       return ClipOval(
         child: Image.network(
@@ -438,10 +427,9 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
       );
     }
 
-    // Otherwise treat as asset
     return ClipOval(
       child: Image.asset(
-        imageUrl.isEmpty ? 'assets/images/profile_avatar.png' : imageUrl,
+        imageUrl.isEmpty ? 'assets/images/profile_image.png' : imageUrl,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
           return Container(

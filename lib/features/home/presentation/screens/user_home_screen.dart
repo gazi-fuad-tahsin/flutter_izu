@@ -122,143 +122,159 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
     );
   }
 
+  Future<void> _refreshHomeData() async {
+    final userController = Get.find<UserController>();
+    final categoryController = Get.find<CategoryController>();
+    final serviceController = Get.find<ServiceController>();
+
+    await Future.wait([
+      userController.fetchUserProfile(),
+      categoryController.fetchCategories(),
+      serviceController.fetchServices(),
+    ]);
+  }
+
   Widget _buildHomeContent() {
     return SafeArea(
       child: Stack(
         children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 100),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header with user greeting
-                Obx(() {
-                  final userController = Get.find<UserController>();
-                  return HomeHeader(
-                    userName: userController.userName,
-                    greeting: IzuChatbotTexts.chatbotGreeting,
-                    avatarAsset: userController.userProfileImage ?? 'assets/images/home_assets/profile.jpg',
-                    onNotificationTap: () {
-                      Get.to(() => const NotificationsScreen());
+          RefreshIndicator(
+            onRefresh: _refreshHomeData,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.only(bottom: 100),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header with user greeting
+                  Obx(() {
+                    final userController = Get.find<UserController>();
+                    return HomeHeader(
+                      userName: userController.userName,
+                      greeting: IzuChatbotTexts.chatbotGreeting,
+                      avatarAsset: userController.userProfileImage ?? 'assets/images/home_assets/profile.jpg',
+                      onNotificationTap: () {
+                        Get.to(() => const NotificationsScreen());
+                      },
+                    );
+                  }),
+                  const SizedBox(height: 24),
+
+                  // Super Deals Banner
+                  SuperDealsBanner(
+                    onPressed: () {
+                      Get.to(() => const ServicesListScreen(sourceScreen: 'super_deals'));
                     },
-                  );
-                }),
-                const SizedBox(height: 24),
+                  ),
+                  const SizedBox(height: 24),
 
-                // Super Deals Banner
-                SuperDealsBanner(
-                  onPressed: () {
-                    Get.to(() => const ServicesListScreen(sourceScreen: 'super_deals'));
-                  },
-                ),
-                const SizedBox(height: 24),
+                  // Categories Section
+                  SectionHeader(
+                    title: IzuHomeTexts.selectCategory,
+                    onViewAll: () {
+                      Get.to(() => const AllCategoriesScreen());
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Obx(() {
+                    final categoryController = Get.find<CategoryController>();
+                    final topCategories = categoryController.topFiveCategories;
 
-                // Categories Section
-                SectionHeader(
-                  title: IzuHomeTexts.selectCategory,
-                  onViewAll: () {
-                    Get.to(() => const AllCategoriesScreen());
-                  },
-                ),
-                const SizedBox(height: 16),
-                Obx(() {
-                  final categoryController = Get.find<CategoryController>();
-                  final topCategories = categoryController.topFiveCategories;
-                  
-                  // Convert CategoryModel to Map format for CategoriesList widget
-                  final categoriesList = topCategories.map((cat) {
-                    return {
-                      'name': cat.name,
-                      'image': cat.catImage,
-                    };
-                  }).toList();
-                  
-                  return CategoriesList(
-                    categories: categoriesList,
-                    onCategoryTap: (index) {},
-                  );
-                }),
-                const SizedBox(height: 24),
+                    // Convert CategoryModel to Map format for CategoriesList widget
+                    final categoriesList = topCategories.map((cat) {
+                      return {
+                        'name': cat.name,
+                        'image': cat.catImage,
+                      };
+                    }).toList();
 
-                // Featured Artisans Section
-                SectionHeader(
-                  title: IzuHomeTexts.featuredArtisans,
-                  onViewAll: () {
-                    Get.to(() => const ServicesListScreen(sourceScreen: 'featured'));
-                  },
-                ),
-                const SizedBox(height: 16),
-                Obx(() {
-                  final serviceController = Get.find<ServiceController>();
-                  final featured = serviceController.featuredArtisans;
-                  
-                  final artisans = featured.map((svc) {
-                    // Get service image - use first thumbnail if available
-                    final serviceImage = svc.serviceDetails.serviceThumbnails.isNotEmpty
-                        ? svc.serviceDetails.serviceThumbnails[0] as String
-                        : 'assets/images/home_assets/artisan_1.jpg';
-                    
-                    return {
-                      'bgImage': serviceImage,
-                      'jobTitle': svc.category.name,
-                      'profileImage': svc.provider.profileImage,
-                      'name': svc.provider.name,
-                      'username': '@Service Provider',
-                      'rating': svc.averageRating.toStringAsFixed(1),
-                      'distance': svc.serviceDetails.address,
-                      'price': '${svc.serviceDetails.hourlyPrice}/hr',
-                    };
-                  }).toList();
-                  
-                  final serviceIds = featured.map((svc) => svc.id).toList();
-                  
-                  return FeaturedArtisansSection(
-                    artisans: artisans,
-                    serviceIds: serviceIds,
-                    onArtisanTap: (index) {},
-                  );
-                }),
-                const SizedBox(height: 24),
+                    return CategoriesList(
+                      categories: categoriesList,
+                      onCategoryTap: (index) {},
+                    );
+                  }),
+                  const SizedBox(height: 24),
 
-                // Nearby Artisans Section
-                SectionHeader(
-                  title: IzuHomeTexts.artisansNearBy,
-                  onViewAll: () {
-                    Get.to(() => const ServicesListScreen(sourceScreen: 'nearby'));
-                  },
-                ),
-                const SizedBox(height: 16),
-                Obx(() {
-                  final serviceController = Get.find<ServiceController>();
-                  final nearby = serviceController.nearbyArtisans;
-                  
-                  final artisans = nearby.map((svc) {
-                    // Get service image - use first thumbnail if available
-                    final serviceImage = svc.serviceDetails.serviceThumbnails.isNotEmpty
-                        ? svc.serviceDetails.serviceThumbnails[0] as String
-                        : 'assets/images/home_assets/artisan_1.jpg';
-                    
-                    return {
-                      'bgImage': serviceImage,
-                      'jobTitle': svc.category.name,
-                      'profileImage': svc.provider.profileImage,
-                      'name': svc.provider.name,
-                      'username': '@Service Provider',
-                      'rating': svc.averageRating.toStringAsFixed(1),
-                      'distance': svc.serviceDetails.address,
-                      'price': '${svc.serviceDetails.hourlyPrice}/hr',
-                    };
-                  }).toList();
-                  
-                  final serviceIds = nearby.map((svc) => svc.id).toList();
-                  
-                  return NearbyArtisansSection(
-                    artisans: artisans,
-                    serviceIds: serviceIds,
-                    onArtisanTap: (index) {},
-                  );
-                }),
-              ],
+                  // Featured Artisans Section
+                  SectionHeader(
+                    title: IzuHomeTexts.featuredArtisans,
+                    onViewAll: () {
+                      Get.to(() => const ServicesListScreen(sourceScreen: 'featured'));
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Obx(() {
+                    final serviceController = Get.find<ServiceController>();
+                    final featured = serviceController.featuredArtisans;
+
+                    final artisans = featured.map((svc) {
+                      // Get service image - use first thumbnail if available
+                      final serviceImage = svc.serviceDetails.serviceThumbnails.isNotEmpty
+                          ? svc.serviceDetails.serviceThumbnails[0] as String
+                          : 'assets/images/home_assets/artisan_1.jpg';
+
+                      return {
+                        'bgImage': serviceImage,
+                        'jobTitle': svc.category.name,
+                        'profileImage': svc.provider.profileImage,
+                        'name': svc.provider.name,
+                        'username': '@Service Provider',
+                        'rating': svc.averageRating.toStringAsFixed(1),
+                        'distance': svc.serviceDetails.address,
+                        'price': '${svc.serviceDetails.hourlyPrice}/hr',
+                      };
+                    }).toList();
+
+                    final serviceIds = featured.map((svc) => svc.id).toList();
+
+                    return FeaturedArtisansSection(
+                      artisans: artisans,
+                      serviceIds: serviceIds,
+                      onArtisanTap: (index) {},
+                    );
+                  }),
+                  const SizedBox(height: 24),
+
+                  // Nearby Artisans Section
+                  SectionHeader(
+                    title: IzuHomeTexts.artisansNearBy,
+                    onViewAll: () {
+                      Get.to(() => const ServicesListScreen(sourceScreen: 'nearby'));
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Obx(() {
+                    final serviceController = Get.find<ServiceController>();
+                    final nearby = serviceController.nearbyArtisans;
+
+                    final artisans = nearby.map((svc) {
+                      // Get service image - use first thumbnail if available
+                      final serviceImage = svc.serviceDetails.serviceThumbnails.isNotEmpty
+                          ? svc.serviceDetails.serviceThumbnails[0] as String
+                          : 'assets/images/home_assets/artisan_1.jpg';
+
+                      return {
+                        'bgImage': serviceImage,
+                        'jobTitle': svc.category.name,
+                        'profileImage': svc.provider.profileImage,
+                        'name': svc.provider.name,
+                        'username': '@Service Provider',
+                        'rating': svc.averageRating.toStringAsFixed(1),
+                        'distance': svc.serviceDetails.address,
+                        'price': '${svc.serviceDetails.hourlyPrice}/hr',
+                      };
+                    }).toList();
+
+                    final serviceIds = nearby.map((svc) => svc.id).toList();
+
+                    return NearbyArtisansSection(
+                      artisans: artisans,
+                      serviceIds: serviceIds,
+                      onArtisanTap: (index) {},
+                    );
+                  }),
+                ],
+              ),
             ),
           ),
 

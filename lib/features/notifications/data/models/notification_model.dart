@@ -21,11 +21,19 @@ class NotificationModel {
 
   /// Factory constructor to parse from API JSON
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
+    final dynamic bookingIdRaw = json['bookingId'];
+    String? parsedBookingId;
+    if (bookingIdRaw is Map<String, dynamic>) {
+      parsedBookingId = bookingIdRaw['_id'] as String?;
+    } else if (bookingIdRaw is String) {
+      parsedBookingId = bookingIdRaw;
+    }
+
     return NotificationModel(
       id: json['_id'] ?? '',
       userId: json['userId'] ?? '',
       providerId: json['providerId'] ?? '',
-      bookingId: json['bookingId'] != null ? json['bookingId']['_id'] ?? '' : null,
+      bookingId: parsedBookingId,
       type: json['type'] ?? 'info',
       message: json['message'] ?? '',
       read: json['read'] ?? false,

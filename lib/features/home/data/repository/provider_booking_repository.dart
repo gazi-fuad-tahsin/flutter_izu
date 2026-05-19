@@ -13,12 +13,14 @@ class ProviderBookingRepository {
       String endpoint;
       
       // Determine which endpoint to use based on status
-      if (status == 'next') {
+      if (status == 'live') {
+        endpoint = '/api/v1/providers/live-bookings';
+      } else if (status == 'next') {
         endpoint = '/api/v1/providers/upcoming-bookings';
       } else if (status == 'completed' || status == 'cancelled') {
         endpoint = '/api/v1/providers/completed-cancelled-bookings';
       } else {
-        // live or any other status
+        // Fallback for any other status
         endpoint = '/api/v1/bookings/$status';
       }
 

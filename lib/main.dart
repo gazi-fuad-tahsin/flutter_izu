@@ -5,7 +5,6 @@ import 'core/common/constants/language.dart';
 import 'core/init/app_initializer.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/screens/splash_screen.dart';
-
 class AppTranslations extends Translations {
   @override
   Map<String, Map<String, String>> get keys => {

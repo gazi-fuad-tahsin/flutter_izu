@@ -22,7 +22,7 @@ class UserController extends GetxController {
     fetchUserProfile();
   }
 
-  /// Fetch user profile from /api/v1/profile endpoint
+  /// Fetch the authenticated user profile from /profile
   Future<void> fetchUserProfile() async {
     try {
       isLoadingProfile.value = true;
@@ -30,7 +30,7 @@ class UserController extends GetxController {
 
       final apiClient = ApiClient();
       final result = await apiClient.get<UserProfileModel>(
-        '/api/v1/profile',
+        '/profile',
         fromJsonT: (json) => UserProfileModel.fromJson(json as Map<String, dynamic>),
       );
 

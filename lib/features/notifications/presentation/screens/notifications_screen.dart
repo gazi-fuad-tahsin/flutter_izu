@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../core/common/constants/texts.dart';
 
+import '../../../../core/common/constants/texts.dart';
 import '../../data/models/notification_model.dart';
 import '../controller/notification_controller.dart';
 
@@ -40,6 +40,30 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             color: Colors.black,
           ),
         ),
+        actions: [
+          Obx(
+            () => TextButton(
+              onPressed: _controller.notifications.isEmpty || _controller.isMarkingAsRead.value
+                  ? null
+                  : () => _controller.markAllAsReadAndRefresh(),
+              child: _controller.isMarkingAsRead.value
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(
+                      'Read all',
+                      style: TextStyle(
+                        color: _controller.notifications.isEmpty
+                            ? Colors.grey
+                            : const Color(0xFF1E88E5),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+            ),
+          ),
+        ],
       ),
       body: Obx(
         () {
@@ -138,10 +162,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget _buildNotificationTile(NotificationModel notification) {
     return GestureDetector(
       onTap: () {
-        // Only mark as read if it's currently unread
-        if (!notification.read) {
-          _controller.markAsReadAndRefresh(notification.id);
-        }
+        _controller.markAsReadAndRefresh(notification.id);
       },
       child: Obx(
         () {

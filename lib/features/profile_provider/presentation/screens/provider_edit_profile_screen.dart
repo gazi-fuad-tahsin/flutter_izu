@@ -72,7 +72,7 @@ class _ProviderEditProfileScreenState extends State<ProviderEditProfileScreen> {
                       shape: BoxShape.circle,
                       color: ProviderColors.profileAvatarBG,
                       image: const DecorationImage(
-                        image: AssetImage('assets/images/profile_avatar.png'),
+                        image: AssetImage('assets/images/profile_image.png'),
                         fit: BoxFit.cover,
                       ),
                     ),

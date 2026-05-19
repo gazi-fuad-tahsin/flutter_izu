@@ -132,6 +132,7 @@ class NotificationEndpoints {
   String getNotificationsWithPage(int page, int limit) =>
       '$_base?page=$page&limit=$limit';
   String markAsRead(String notificationId) => '$_base/$notificationId/read';
+  final String markAllAsRead = '$_base/read-all';
 }
 
 class TeamEndpointcs {

@@ -45,7 +45,7 @@ class ProviderBooking {
     final time = DateFormat('hh:mm a').format(bookingTime);
 
     final clientName = json['userId']?['name'] ?? 'Unknown Client';
-    final clientImage = json['userId']?['profileImage'] ?? 'assets/images/profile_avatar.png';
+    final clientImage = json['userId']?['profileImage'] ?? 'assets/images/profile_image.png';
     final location = json['location']?['address'] ?? 'Unknown Location';
     
     final serviceTitle = json['serviceId']?['serviceDetails']?['title'] ?? 'Service';

@@ -25,11 +25,9 @@ class NotificationRepository {
         (failure) => Left(failure),
         (success) {
           final notificationList = <NotificationModel>[];
-          if (success.data is List) {
-            for (var item in success.data as List) {
-              if (item is Map<String, dynamic>) {
-                notificationList.add(NotificationModel.fromJson(item));
-              }
+          for (final item in success.data) {
+            if (item is Map<String, dynamic>) {
+              notificationList.add(NotificationModel.fromJson(item));
             }
           }
           return Right(notificationList);
@@ -59,11 +57,9 @@ class NotificationRepository {
         (failure) => Left(failure),
         (success) {
           final notificationList = <NotificationModel>[];
-          if (success.data is List) {
-            for (var item in success.data as List) {
-              if (item is Map<String, dynamic>) {
-                notificationList.add(NotificationModel.fromJson(item));
-              }
+          for (final item in success.data) {
+            if (item is Map<String, dynamic>) {
+              notificationList.add(NotificationModel.fromJson(item));
             }
           }
           return Right(notificationList);
@@ -114,6 +110,37 @@ class NotificationRepository {
     } catch (e) {
       return Left(
         UnknownFailure(message: 'Error marking notification as read: $e'),
+      );
+    }
+  }
+
+  /// Mark all notifications as read
+  Future<Either<NetworkFailure, Map<String, dynamic>>> markAllNotificationsAsRead() async {
+    try {
+      final endpoint = ApiConstants.notification.markAllAsRead;
+
+      final result = await _apiClient.put<dynamic>(
+        endpoint,
+        data: {},
+        fromJsonT: (json) => json,
+      );
+
+      return result.fold(
+        (failure) => Left(failure),
+        (success) {
+          final data = success.data;
+          if (data is Map<String, dynamic>) {
+            return Right(data);
+          }
+
+          return Left(
+            UnknownFailure(message: 'Invalid response format: ${data.runtimeType}'),
+          );
+        },
+      );
+    } catch (e) {
+      return Left(
+        UnknownFailure(message: 'Error marking all notifications as read: $e'),
       );
     }
   }

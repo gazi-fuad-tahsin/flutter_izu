@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../core/common/constants/texts.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../../core/common/constants/feature_texts.dart';
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../core/common/constants/texts.dart';
 import '../../../message/presentation/screens/message_screen.dart';
 import '../../../notifications/presentation/controller/notification_controller.dart';
 import '../../../notifications/presentation/screens/notifications_screen.dart';
@@ -91,6 +91,13 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
     );
   }
 
+  Future<void> _refreshHomeData() async {
+    await Future.wait([
+      _controller.fetchPendingRequests(),
+      _profileController.fetchProfileData(),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -139,7 +146,7 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
           Obx(() {
             final providerData = _profileController.profileData.value;
             final isLoading = _profileController.isLoading.value;
-            final profileImage = providerData?.profileImage ?? 'assets/images/profile_avatar.png';
+            final profileImage = providerData?.profileImage ?? 'assets/images/profile_image.png';
             final providerName = providerData?.name ?? 'Provider';
 
             return Padding(
@@ -269,87 +276,115 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
 
           // Requests List
           Expanded(
-            child: Obx(() {
-              if (_controller.isLoading.value) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.homePrimary),
-                  ),
-                );
-              }
-
-              if (_controller.errorMessage.isNotEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+            child: RefreshIndicator(
+              onRefresh: _refreshHomeData,
+              child: Obx(() {
+                if (_controller.isLoading.value) {
+                  return ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     children: [
-                      const Icon(
-                        Icons.error_outline,
-                        color: Colors.red,
-                        size: 48,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        _controller.errorMessage.value,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.red,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      ElevatedButton(
-                        onPressed: () => _controller.fetchPendingRequests(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.homePrimary,
-                        ),
-                        child: Text(
-                          appTexts.retry.tr,
-                          style: const TextStyle(color: Colors.white),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.45,
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(AppColors.homePrimary),
+                          ),
                         ),
                       ),
                     ],
-                  ),
-                );
-              }
-
-              if (_controller.pendingRequests.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.inbox_outlined,
-                        size: 64,
-                        color: Colors.grey.shade300,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        appTexts.noNotificationsYet.tr, // Or add "No requests yet"
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey.shade600,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }
-
-              return ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                itemCount: _controller.pendingRequests.length,
-                itemBuilder: (context, index) {
-                  final serviceRequest = _convertPendingRequestToServiceRequest(index);
-                  return RequestCard(
-                    request: serviceRequest,
-                    onAccept: () => _handleAccept(index),
-                    onCancel: () => _handleCancel(index),
                   );
-                },
-              );
-            }),
+                }
+
+                if (_controller.errorMessage.isNotEmpty) {
+                  return ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.45,
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.error_outline,
+                                color: Colors.red,
+                                size: 48,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                _controller.errorMessage.value,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.red,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              ElevatedButton(
+                                onPressed: () => _controller.fetchPendingRequests(),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.homePrimary,
+                                ),
+                                child: Text(
+                                  appTexts.retry.tr,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+
+                if (_controller.pendingRequests.isEmpty) {
+                  return ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.45,
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.inbox_outlined,
+                                size: 64,
+                                color: Colors.grey.shade300,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                appTexts.noNotificationsYet.tr,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey.shade600,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+
+                return ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  itemCount: _controller.pendingRequests.length,
+                  itemBuilder: (context, index) {
+                    final serviceRequest = _convertPendingRequestToServiceRequest(index);
+                    return RequestCard(
+                      request: serviceRequest,
+                      onAccept: () => _handleAccept(index),
+                      onCancel: () => _handleCancel(index),
+                    );
+                  },
+                );
+              }),
+            ),
           ),
         ],
       ),

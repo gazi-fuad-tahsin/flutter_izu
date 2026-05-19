@@ -6,7 +6,13 @@ import '../controller/provider_jobs_controller.dart';
 import 'add_service_screen.dart';
 
 class YourServicesScreen extends StatelessWidget {
-  const YourServicesScreen({super.key});
+  final bool showBackButton;
+
+  const YourServicesScreen({super.key, this.showBackButton = false});
+
+  Future<void> _refreshServices() async {
+    await Get.find<ProviderJobsController>().fetchProviderServices();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,117 +20,132 @@ class YourServicesScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      // appBar: AppBar(
-      //   backgroundColor: Colors.white,
-      //   scrolledUnderElevation: 0,
-      //   elevation: 0,
-      //   title: const Text(
-      //     'Your Services',
-      //     style: TextStyle(
-      //       color: Colors.black,
-      //       fontSize: 18,
-      //       fontWeight: FontWeight.w600,
-      //     ),
-      //   ),
-      //   centerTitle: false,
-      // ),
-      body: Column(
-        children: [
-          const SizedBox(height: 45),
-          // Header with Add New button
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Your Services',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Get.to(() => const AddServiceScreen());
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2870BC),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: Row(
-                      children: const [
-                        Icon(
-                          Icons.add,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                        SizedBox(width: 6),
-                        Text(
-                          'Add New',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: _refreshServices,
+          child: Obx(
+            () {
+              final widgets = <Widget>[
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          if (showBackButton) ...[
+                            GestureDetector(
+                              onTap: () => Get.back(),
+                              child: const Icon(
+                                Icons.arrow_back,
+                                color: Colors.black,
+                                size: 24,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                          ],
+                          const Text(
+                            'Your Services',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Get.to(() => const AddServiceScreen());
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2870BC),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: Row(
+                            children: const [
+                              Icon(
+                                Icons.add,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              SizedBox(width: 6),
+                              Text(
+                                'Add New',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          ),
+              ];
 
-          // Services List
-          Expanded(
-            child: Obx(
-              () {
-                if (controller.isLoading.value) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF2870BC)),
-                  );
-                }
-
-                if (controller.services.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.work_outline,
-                          size: 64,
-                          color: Colors.grey.shade300,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No services yet',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey.shade600,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
+              if (controller.isLoading.value) {
+                widgets.add(
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.65,
+                    child: const Center(
+                      child: CircularProgressIndicator(color: Color(0xFF2870BC)),
                     ),
-                  );
-                }
-
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: controller.services.length,
-                  itemBuilder: (context, index) {
-                    final service = controller.services[index];
-                    return _buildServiceCard(context, service, controller);
-                  },
+                  ),
                 );
-              },
-            ),
+              } else if (controller.services.isEmpty) {
+                widgets.add(
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.65,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.work_outline,
+                            size: 64,
+                            color: Colors.grey.shade300,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No services yet',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey.shade600,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              } else {
+                widgets.addAll(
+                  List.generate(controller.services.length, (index) {
+                    final service = controller.services[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: _buildServiceCard(context, service, controller),
+                    );
+                  }),
+                );
+              }
+
+              return ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.only(bottom: 24),
+                children: widgets,
+              );
+            },
           ),
-        ],
+        ),
       ),
     );
   }

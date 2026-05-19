@@ -22,7 +22,7 @@ class ProviderBookingController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchAllBookings();
+    fetchBookingsByStatus('live');
   }
 
   /// Fetch bookings for a specific status
@@ -54,10 +54,14 @@ class ProviderBookingController extends GetxController {
 
       DPrint.log('📋 Fetching all bookings...');
 
-      final allBookings = await _repository.getAllBookings();
-      bookings.assignAll(allBookings);
+      final liveBookings = await _repository.getBookingsByStatus('live');
+      bookings['live'] = liveBookings;
+
+      final nextBookings = await _repository.getBookingsByStatus('next');
+      bookings['next'] = nextBookings;
 
       DPrint.log('✅ All bookings fetched successfully');
+
     } catch (e) {
       DPrint.log('❌ Error fetching all bookings: $e');
       errorMessage.value = 'Failed to load bookings';
