@@ -1,5 +1,6 @@
 class UserBooking {
   final String id;
+  final String providerId;
   final String providerName;
   final String providerImage;
   final String location;
@@ -17,6 +18,7 @@ class UserBooking {
 
   UserBooking({
     required this.id,
+    required this.providerId,
     required this.providerName,
     required this.providerImage,
     required this.location,

@@ -11,8 +11,7 @@ class ProviderBookingRepository {
   Future<List<ProviderBooking>> getBookingsByStatus(String status) async {
     try {
       String endpoint;
-      
-      // Determine which endpoint to use based on status
+
       if (status == 'live') {
         endpoint = '/api/v1/providers/live-bookings';
       } else if (status == 'next') {
@@ -20,7 +19,6 @@ class ProviderBookingRepository {
       } else if (status == 'completed' || status == 'cancelled') {
         endpoint = '/api/v1/providers/completed-cancelled-bookings';
       } else {
-        // Fallback for any other status
         endpoint = '/api/v1/bookings/$status';
       }
 
@@ -31,34 +29,28 @@ class ProviderBookingRepository {
         fromJsonT: (json) => json,
       );
 
-      return result.fold(
-        (failure) {
-          DPrint.log('❌ Failed to fetch $status bookings: ${failure.message}');
-          throw Exception(failure.message);
-        },
-        (success) {
-          List<dynamic> dataList = [];
+      return result.fold((failure) {
+        DPrint.log('❌ Failed to fetch $status bookings: ${failure.message}');
+        throw Exception(failure.message);
+      }, (success) {
+        List<dynamic> dataList = [];
 
-          // Handle different response structures
-          if (status == 'completed' || status == 'cancelled') {
-            // Response is wrapped as { "completed": [...], "cancelled": [...] }
-            final responseMap = success.data as Map<String, dynamic>;
-            dataList = (responseMap[status] as List<dynamic>?) ?? [];
-          } else {
-            // Response is a direct array
-            dataList = success.data as List<dynamic>;
-          }
+        if (status == 'completed' || status == 'cancelled') {
+          final responseMap = success.data as Map<String, dynamic>;
+          dataList = (responseMap[status] as List<dynamic>?) ?? [];
+        } else {
+          dataList = success.data as List<dynamic>;
+        }
 
-          DPrint.log('✅ Bookings fetched: ${dataList.length} items');
-          
-          final bookings = dataList
-              .map((item) => ProviderBooking.fromJson(item as Map<String, dynamic>))
-              .toList();
-          
-          DPrint.log('✅ Parsed $status bookings: ${bookings.length}');
-          return bookings;
-        },
-      );
+        DPrint.log('✅ Bookings fetched: ${dataList.length} items');
+
+        final bookings = dataList
+            .map((item) => ProviderBooking.fromJson(item as Map<String, dynamic>))
+            .toList();
+
+        DPrint.log('✅ Parsed $status bookings: ${bookings.length}');
+        return bookings;
+      });
     } catch (e) {
       DPrint.log('❌ Exception fetching $status bookings: $e');
       return [];
@@ -88,6 +80,31 @@ class ProviderBookingRepository {
         'completed': [],
         'cancelled': [],
       };
+    }
+  }
+
+  /// Start service for a booking (provider action)
+  /// Returns true on success, false otherwise
+  Future<bool> startService(String bookingId) async {
+    try {
+      final endpoint = '/api/v1/providers/start-service/$bookingId';
+      DPrint.log('🔄 Starting service for booking $bookingId');
+
+      final result = await _apiClient.patch<Map<String, dynamic>>(
+        endpoint,
+        fromJsonT: (json) => json as Map<String, dynamic>,
+      );
+
+      return result.fold((failure) {
+        DPrint.log('❌ Failed to start service: ${failure.message}');
+        return false;
+      }, (success) {
+        DPrint.log('✅ Start service response: ${success.data}');
+        return true;
+      });
+    } catch (e) {
+      DPrint.log('❌ Exception starting service: $e');
+      return false;
     }
   }
 }

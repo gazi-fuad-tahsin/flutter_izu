@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../data/model/conversation_model.dart';
-import '../../data/model/message_model.dart';
+import '../../data/repository/message_repository.dart';
 import '../widgets/conversation_tile.dart';
 
 class MessageScreen extends StatefulWidget {
@@ -16,14 +16,19 @@ class _MessageScreenState extends State<MessageScreen> {
   late List<Conversation> conversations;
   late List<Conversation> filteredConversations;
   late TextEditingController _searchController;
+  late MessageRepository _messageRepository;
   bool _isSearching = false;
+  bool _isLoading = false;
+  String _error = '';
 
   @override
   void initState() {
     super.initState();
     _searchController = TextEditingController();
-    _initializeConversations();
+    _messageRepository = MessageRepository();
+    conversations = [];
     filteredConversations = conversations;
+    _loadConversations();
   }
 
   @override
@@ -32,123 +37,31 @@ class _MessageScreenState extends State<MessageScreen> {
     super.dispose();
   }
 
-  void _initializeConversations() {
-    conversations = [
-      Conversation(
-        id: '1',
-        userId: 'user_alex_1',
-        userName: 'Alex Linderson',
-        userImage: 'assets/images/profile_image.png',
-        lastMessage: 'How are you today?',
-        lastMessageTime: DateTime.now().subtract(const Duration(minutes: 2)),
-        unreadCount: 1,
-        messages: [
-          Message(
-            id: '1',
-            content: 'Hey! How are you?',
-            timestamp: DateTime.now().subtract(const Duration(minutes: 10)),
-            isFromUser: false,
-          ),
-          Message(
-            id: '2',
-            content: 'I am good, thanks!',
-            timestamp: DateTime.now().subtract(const Duration(minutes: 5)),
-            isFromUser: true,
-          ),
-          Message(
-            id: '3',
-            content: 'How are you today?',
-            timestamp: DateTime.now().subtract(const Duration(minutes: 2)),
-            isFromUser: false,
-          ),
-        ],
-        isActive: true,
-      ),
-      Conversation(
-        id: '2',
-        userId: 'user_alex_2',
-        userName: 'Alex Linderson',
-        userImage: 'assets/images/profile_image.png',
-        lastMessage: 'How are you today?',
-        lastMessageTime: DateTime.now().subtract(const Duration(minutes: 2)),
-        unreadCount: 1,
-        messages: [
-          Message(
-            id: '4',
-            content: 'Hey again!',
-            timestamp: DateTime.now().subtract(const Duration(minutes: 5)),
-            isFromUser: false,
-          ),
-          Message(
-            id: '5',
-            content: 'How are you today?',
-            timestamp: DateTime.now().subtract(const Duration(minutes: 2)),
-            isFromUser: false,
-          ),
-        ],
-        isActive: true,
-      ),
-      Conversation(
-        id: '3',
-        userId: 'user_john',
-        userName: 'John Smith',
-        userImage: 'assets/images/profile_image.png',
-        lastMessage: 'Looking forward to it!',
-        lastMessageTime: DateTime.now().subtract(const Duration(hours: 2)),
-        unreadCount: 0,
-        messages: [
-          Message(
-            id: '6',
-            content: 'Are you coming tomorrow?',
-            timestamp: DateTime.now().subtract(const Duration(hours: 3)),
-            isFromUser: false,
-          ),
-          Message(
-            id: '7',
-            content: 'Yes, I will be there!',
-            timestamp: DateTime.now().subtract(const Duration(hours: 2, minutes: 30)),
-            isFromUser: true,
-          ),
-          Message(
-            id: '8',
-            content: 'Looking forward to it!',
-            timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-            isFromUser: false,
-          ),
-        ],
-        isActive: false,
-      ),
-      Conversation(
-        id: '4',
-        userId: 'user_sarah',
-        userName: 'Sarah Johnson',
-        userImage: 'assets/images/profile_image.png',
-        lastMessage: 'Thank you so much!',
-        lastMessageTime: DateTime.now().subtract(const Duration(days: 1)),
-        unreadCount: 0,
-        messages: [
-          Message(
-            id: '9',
-            content: 'Thanks for your help',
-            timestamp: DateTime.now().subtract(const Duration(days: 1, hours: 2)),
-            isFromUser: false,
-          ),
-          Message(
-            id: '10',
-            content: 'Anytime!',
-            timestamp: DateTime.now().subtract(const Duration(days: 1)),
-            isFromUser: true,
-          ),
-          Message(
-            id: '11',
-            content: 'Thank you so much!',
-            timestamp: DateTime.now().subtract(const Duration(days: 1)),
-            isFromUser: false,
-          ),
-        ],
-        isActive: false,
-      ),
-    ];
+  Future<void> _loadConversations() async {
+    setState(() {
+      _isLoading = true;
+      _error = '';
+    });
+
+    final result = await _messageRepository.getConversations();
+
+    result.fold(
+      (failure) {
+        if (!mounted) return;
+        setState(() {
+          _error = failure.message;
+          _isLoading = false;
+        });
+      },
+      (data) {
+        if (!mounted) return;
+        setState(() {
+          conversations = data;
+          filteredConversations = data;
+          _isLoading = false;
+        });
+      },
+    );
   }
 
   void _onSearchChanged(String value) {
@@ -302,7 +215,28 @@ class _MessageScreenState extends State<MessageScreen> {
             ),
             // Conversations List
             Expanded(
-              child: filteredConversations.isEmpty
+              child: _isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : _error.isNotEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Error: $_error',
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: _loadConversations,
+                                child: const Text('Retry'),
+                              ),
+                            ],
+                          ),
+                        )
+                      : filteredConversations.isEmpty
                   ? Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,

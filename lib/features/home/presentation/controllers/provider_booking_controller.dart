@@ -35,6 +35,19 @@ class ProviderBookingController extends GetxController {
       DPrint.log('📋 Fetching $status bookings...');
 
       final fetchedBookings = await _repository.getBookingsByStatus(status);
+      
+      // Sort live bookings so 'waiting-for-start' comes first
+      if (status == 'live') {
+        fetchedBookings.sort((a, b) {
+          if (a.status == 'waiting-for-start' && b.status != 'waiting-for-start') {
+            return -1;
+          } else if (a.status != 'waiting-for-start' && b.status == 'waiting-for-start') {
+            return 1;
+          }
+          return 0;
+        });
+      }
+      
       bookings[status] = fetchedBookings;
 
       DPrint.log('✅ $status bookings fetched: ${fetchedBookings.length}');
@@ -55,6 +68,15 @@ class ProviderBookingController extends GetxController {
       DPrint.log('📋 Fetching all bookings...');
 
       final liveBookings = await _repository.getBookingsByStatus('live');
+      // Sort live bookings so 'waiting-for-start' comes first
+      liveBookings.sort((a, b) {
+        if (a.status == 'waiting-for-start' && b.status != 'waiting-for-start') {
+          return -1;
+        } else if (a.status != 'waiting-for-start' && b.status == 'waiting-for-start') {
+          return 1;
+        }
+        return 0;
+      });
       bookings['live'] = liveBookings;
 
       final nextBookings = await _repository.getBookingsByStatus('next');

@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../data/model/conversation_model.dart';
 import '../../data/model/message_model.dart';
+import '../../data/repository/message_repository.dart';
 import '../widgets/message_bubble.dart';
 
 class MessageDetailScreen extends StatefulWidget {
@@ -23,12 +24,21 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> {
   late List<Message> _messages;
   final ImagePicker _imagePicker = ImagePicker();
   final ScrollController _scrollController = ScrollController();
+  late MessageRepository _messageRepository;
+  bool _isLoading = false;
+  bool _isSending = false;
+  String _error = '';
+  String? _selectedFilePath;
+  String? _selectedFileName;
+  String _selectedContentType = 'text';
 
   @override
   void initState() {
     super.initState();
     _messageController = TextEditingController();
     _messages = List.from(widget.conversation.messages);
+    _messageRepository = MessageRepository();
+    _loadMessages();
   }
 
   @override
@@ -51,24 +61,78 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> {
     }
   }
 
-  void _sendMessage() {
-    final content = _messageController.text.trim();
-    if (content.isEmpty) return;
-
-    final newMessage = Message(
-      id: DateTime.now().toString(),
-      content: content,
-      timestamp: DateTime.now(),
-      isFromUser: true,
-    );
-
+  Future<void> _loadMessages() async {
     setState(() {
-      _messages.add(newMessage);
-      _messageController.clear();
+      _isLoading = true;
+      _error = '';
     });
 
-    // Scroll to bottom
+    final result = await _messageRepository.getChatMessages(widget.conversation.id);
+
+    result.fold(
+      (failure) {
+        if (!mounted) return;
+        setState(() {
+          _isLoading = false;
+          _error = failure.message;
+        });
+      },
+      (messages) {
+        if (!mounted) return;
+        setState(() {
+          _isLoading = false;
+          _messages = messages;
+        });
+
+        _scrollToBottom();
+      },
+    );
+  }
+
+  Future<void> _sendMessage() async {
+    final content = _messageController.text.trim();
+    if (content.isEmpty && _selectedFilePath == null) return;
+    if (_isSending) return;
+
+    setState(() {
+      _isSending = true;
+    });
+
+    final result = await _messageRepository.sendMessage(
+      chatId: widget.conversation.id,
+      content: content,
+      contentType: _selectedFilePath == null ? 'text' : _selectedContentType,
+      filePath: _selectedFilePath,
+    );
+
+    result.fold(
+      (failure) {
+        if (!mounted) return;
+        setState(() {
+          _isSending = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(failure.message)),
+        );
+      },
+      (newMessage) {
+        if (!mounted) return;
+        setState(() {
+          _messages.add(newMessage);
+          _messageController.clear();
+          _selectedFilePath = null;
+          _selectedFileName = null;
+          _selectedContentType = 'text';
+          _isSending = false;
+        });
+        _scrollToBottom();
+      },
+    );
+  }
+
+  void _scrollToBottom() {
     Future.delayed(const Duration(milliseconds: 300), () {
+      if (!_scrollController.hasClients) return;
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 300),
@@ -86,6 +150,16 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> {
 
       if (result != null && result.files.isNotEmpty) {
         final PlatformFile file = result.files.first;
+        if (file.path == null) return;
+
+        final extension = file.extension?.toLowerCase() ?? '';
+        final contentType = _contentTypeFromExtension(extension);
+        setState(() {
+          _selectedFilePath = file.path;
+          _selectedFileName = file.name;
+          _selectedContentType = contentType;
+        });
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('File selected: ${file.name}'),
@@ -108,6 +182,12 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> {
         source: ImageSource.gallery,
       );
       if (pickedFile != null) {
+        setState(() {
+          _selectedFilePath = pickedFile.path;
+          _selectedFileName = pickedFile.name;
+          _selectedContentType = 'image';
+        });
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Image selected: ${pickedFile.name}'),
@@ -148,7 +228,7 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> {
             ),
             const SizedBox(height: 2),
             Text(
-              'Active now',
+              widget.conversation.isActive ? 'Active now' : 'Offline',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -175,14 +255,33 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> {
         children: [
           // Messages List
           Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              itemCount: _messages.length + _getDateHeaderCount(),
-              itemBuilder: (context, index) {
-                return _buildMessageItem(index);
-              },
-            ),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _error.isNotEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Error: $_error',
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: _loadMessages,
+                              child: const Text('Retry'),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        itemCount: _messages.length + _getDateHeaderCount(),
+                        itemBuilder: (context, index) {
+                          return _buildMessageItem(index);
+                        },
+                      ),
           ),
           // Message Input Area
           Container(
@@ -242,50 +341,87 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> {
                 const SizedBox(width: 12),
                 // Message Input Field
                 Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: InputDecoration(
-                      hintText: 'Write your message',
-                      hintStyle: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.grey.shade400,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(
-                          color: const Color(0xFF2870BC),
-                          width: 1.5,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_selectedFileName != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Selected: $_selectedFileName',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade700,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _selectedFilePath = null;
+                                    _selectedFileName = null;
+                                    _selectedContentType = 'text';
+                                  });
+                                },
+                                child: const Icon(
+                                  Icons.close,
+                                  size: 16,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: const BorderSide(
-                          color: Color(0xFF2870BC),
-                          width: 2,
+                      TextField(
+                        controller: _messageController,
+                        decoration: InputDecoration(
+                          hintText: 'Write your message',
+                          hintStyle: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.grey.shade400,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            borderSide: BorderSide(
+                              color: const Color(0xFF2870BC),
+                              width: 1.5,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF2870BC),
+                              width: 2,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade300,
+                              width: 1.5,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                         ),
+                        minLines: 1,
+                        maxLines: 3,
+                        onSubmitted: (_) => _sendMessage(),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade300,
-                          width: 1.5,
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                    ),
-                    minLines: 1,
-                    maxLines: 3,
-                    onSubmitted: (_) => _sendMessage(),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 12),
                 // Send Button
                 GestureDetector(
-                  onTap: _sendMessage,
+                  onTap: _isSending ? null : _sendMessage,
                   child: Container(
                     width: 40,
                     height: 40,
@@ -296,11 +432,21 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> {
                       ),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Icon(
-                      Icons.send,
-                      color: Color(0xFF2870BC),
-                      size: 20,
-                    ),
+                    child: _isSending
+                        ? const Padding(
+                            padding: EdgeInsets.all(10),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Color(0xFF2870BC),
+                              ),
+                            ),
+                          )
+                        : const Icon(
+                            Icons.send,
+                            color: Color(0xFF2870BC),
+                            size: 20,
+                          ),
                   ),
                 ),
               ],
@@ -309,6 +455,29 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> {
         ],
       ),
     );
+  }
+
+  String _contentTypeFromExtension(String extension) {
+    switch (extension) {
+      case 'png':
+      case 'jpg':
+      case 'jpeg':
+      case 'webp':
+      case 'gif':
+        return 'image';
+      case 'mp4':
+      case 'mov':
+      case 'avi':
+      case 'mkv':
+        return 'video';
+      case 'mp3':
+      case 'wav':
+      case 'aac':
+      case 'm4a':
+        return 'audio';
+      default:
+        return 'file';
+    }
   }
 
   int _getDateHeaderCount() {
@@ -324,12 +493,12 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> {
   }
 
   Widget _buildMessageItem(int index) {
-    // Calculate actual message index accounting for date headers
     int messageCount = 0;
     int dateHeaderCount = 0;
 
     for (int i = 0; i < _messages.length; i++) {
-      if (i == 0 || _formatDateHeader(_messages[i].timestamp) !=
+      if (i == 0 ||
+          _formatDateHeader(_messages[i].timestamp) !=
               _formatDateHeader(_messages[i - 1].timestamp)) {
         if (dateHeaderCount == index) {
           return Padding(
@@ -351,7 +520,10 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> {
 
       messageCount++;
       if (messageCount + dateHeaderCount == index + 1) {
-        return MessageBubble(message: _messages[i]);
+        return MessageBubble(
+          message: _messages[i],
+          receiverAvatarUrl: widget.conversation.userImage,
+        );
       }
     }
 

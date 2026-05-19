@@ -2,6 +2,7 @@ import 'package:intl/intl.dart';
 
 class ProviderBooking {
   final String id;
+  final String clientId;
   final String clientName;
   final String clientImage;
   final String location;
@@ -19,6 +20,7 @@ class ProviderBooking {
 
   ProviderBooking({
     required this.id,
+    required this.clientId,
     required this.clientName,
     required this.clientImage,
     required this.location,
@@ -44,6 +46,7 @@ class ProviderBooking {
     final date = DateFormat('d MMM yyyy').format(bookingTime);
     final time = DateFormat('hh:mm a').format(bookingTime);
 
+    final clientId = json['userId']?['_id'] ?? '';
     final clientName = json['userId']?['name'] ?? 'Unknown Client';
     final clientImage = json['userId']?['profileImage'] ?? 'assets/images/profile_image.png';
     final location = json['location']?['address'] ?? 'Unknown Location';
@@ -57,6 +60,7 @@ class ProviderBooking {
 
     return ProviderBooking(
       id: json['_id'] as String? ?? '',
+      clientId: clientId,
       clientName: clientName,
       clientImage: clientImage,
       location: location,
@@ -75,6 +79,7 @@ class ProviderBooking {
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
+      'clientId': clientId,
       'clientName': clientName,
       'clientImage': clientImage,
       'location': location,

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/common/constants/texts.dart';
 
+import '../../../message/data/repository/message_repository.dart';
+import '../../../message/presentation/screens/message_detail_screen.dart';
 import '../../data/model/user_booking_model.dart';
 
 class UserBookingCard extends StatefulWidget {
@@ -22,6 +24,7 @@ class _UserBookingCardState extends State<UserBookingCard> {
   late Duration _remainingTime;
   late DateTime _endTime;
   bool _timerStarted = false;
+  bool _isContactingLoading = false;
 
   @override
   void initState() {
@@ -65,6 +68,35 @@ class _UserBookingCardState extends State<UserBookingCard> {
     final minutes = duration.inMinutes.remainder(60);
     final seconds = duration.inSeconds.remainder(60);
     return '${hours.toString().padLeft(2, '0')}h ${minutes.toString().padLeft(2, '0')}m ${seconds.toString().padLeft(2, '0')}s';
+  }
+
+  Future<void> _handleContact() async {
+    setState(() {
+      _isContactingLoading = true;
+    });
+
+    final messageRepository = MessageRepository();
+    final result = await messageRepository.createConversation(widget.booking.providerId);
+
+    setState(() {
+      _isContactingLoading = false;
+    });
+
+    result.fold(
+      (failure) {
+        Get.snackbar(
+          'Error',
+          'Failed to start conversation',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 2),
+        );
+      },
+      (conversation) {
+        Get.to(() => MessageDetailScreen(conversation: conversation));
+      },
+    );
   }
 
   @override
@@ -242,7 +274,7 @@ class _UserBookingCardState extends State<UserBookingCard> {
                 // Contact Button
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () {},
+                    onPressed: _isContactingLoading ? null : _handleContact,
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(
                         color: Color(0xFFFCA048),
@@ -253,13 +285,22 @@ class _UserBookingCardState extends State<UserBookingCard> {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                    child: Text(
-                      appTexts.contact.tr,
-                      style: const TextStyle(
-                        color: Color(0xFFFCA048),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    child: _isContactingLoading
+                        ? const SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFCA048)),
+                            ),
+                          )
+                        : Text(
+                            appTexts.contact.tr,
+                            style: const TextStyle(
+                              color: Color(0xFFFCA048),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                   ),
                 ),
                 const SizedBox(width: 12),

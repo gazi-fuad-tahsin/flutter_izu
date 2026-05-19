@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
+import '../../../message/data/repository/message_repository.dart';
+import '../../../message/presentation/screens/message_detail_screen.dart';
 import '../../data/model/booking_model.dart';
 
-class BookingCard extends StatelessWidget {
+class BookingCard extends StatefulWidget {
   final UserBooking booking;
   final String filterType; // live, upcoming, completed, cancelled
 
@@ -13,7 +16,46 @@ class BookingCard extends StatelessWidget {
   });
 
   @override
+  State<BookingCard> createState() => _BookingCardState();
+}
+
+class _BookingCardState extends State<BookingCard> {
+  bool _isContactingLoading = false;
+
+  Future<void> _handleContact() async {
+    setState(() {
+      _isContactingLoading = true;
+    });
+
+    final messageRepository = MessageRepository();
+    final result = await messageRepository.createConversation(widget.booking.providerId);
+
+    setState(() {
+      _isContactingLoading = false;
+    });
+
+    result.fold(
+      (failure) {
+        Get.snackbar(
+          'Error',
+          'Failed to start conversation',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 2),
+        );
+      },
+      (conversation) {
+        Get.to(() => MessageDetailScreen(conversation: conversation));
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final booking = widget.booking;
+    final filterType = widget.filterType;
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 12),
       padding: const EdgeInsets.all(16),
@@ -210,7 +252,7 @@ class BookingCard extends StatelessWidget {
                 // Contact Button
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () {},
+                    onPressed: _isContactingLoading ? null : _handleContact,
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(
                         color: Color(0xFFFCA048),
@@ -221,13 +263,22 @@ class BookingCard extends StatelessWidget {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                    child: const Text(
-                      'Contact',
-                      style: TextStyle(
-                        color: Color(0xFFFCA048),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    child: _isContactingLoading
+                        ? const SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFCA048)),
+                            ),
+                          )
+                        : const Text(
+                            'Contact',
+                            style: TextStyle(
+                              color: Color(0xFFFCA048),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -313,7 +364,7 @@ class BookingCard extends StatelessWidget {
   }
 
   Widget _buildStatusBadge() {
-    if (filterType == 'live') {
+    if (widget.filterType == 'live') {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
@@ -329,7 +380,7 @@ class BookingCard extends StatelessWidget {
           ),
         ),
       );
-    } else if (filterType == 'completed') {
+    } else if (widget.filterType == 'completed') {
       return Row(
         children: [
           const Icon(Icons.check_circle, color: Colors.green, size: 20),
@@ -344,7 +395,7 @@ class BookingCard extends StatelessWidget {
           ),
         ],
       );
-    } else if (filterType == 'cancelled') {
+    } else if (widget.filterType == 'cancelled') {
       return Row(
         children: [
           const Icon(Icons.cancel, color: Colors.red, size: 20),

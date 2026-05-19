@@ -2,6 +2,7 @@ import 'package:intl/intl.dart';
 
 class UserBookingModel {
   final String id;
+  final String providerId;
   final String providerName;
   final String providerImage;
   final String providerEmail;
@@ -18,6 +19,7 @@ class UserBookingModel {
 
   UserBookingModel({
     required this.id,
+    required this.providerId,
     required this.providerName,
     required this.providerImage,
     required this.providerEmail,
@@ -46,10 +48,11 @@ class UserBookingModel {
   /// Factory constructor to parse API response
   factory UserBookingModel.fromJson(Map<String, dynamic> json) {
     // Extract provider info
-    final Map<String, dynamic> providerId = json['providerId'] ?? {};
-    final String providerName = providerId['name'] ?? 'Provider';
-    final String providerImage = providerId['profileImage'] ?? '';
-    final String providerEmail = providerId['email'] ?? '';
+    final Map<String, dynamic> providerIdMap = json['providerId'] ?? {};
+    final String providerIdStr = providerIdMap['_id'] ?? '';
+    final String providerName = providerIdMap['name'] ?? 'Provider';
+    final String providerImage = providerIdMap['profileImage'] ?? '';
+    final String providerEmail = providerIdMap['email'] ?? '';
 
     // Extract client info
     final Map<String, dynamic> userId = json['userId'] ?? {};
@@ -73,6 +76,7 @@ class UserBookingModel {
 
     return UserBookingModel(
       id: json['_id'] ?? '',
+      providerId: providerIdStr,
       providerName: providerName,
       providerImage: providerImage,
       providerEmail: providerEmail,

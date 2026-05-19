@@ -35,6 +35,7 @@ dependencies:
   socket_io_client: ^2.0.2
   flutter_map: ^6.1.2
   latlong2: ^0.9.1
+  video_player: ^2.9.5
 
 
 dev_dependencies:

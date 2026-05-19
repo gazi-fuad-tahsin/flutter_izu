@@ -4,10 +4,14 @@ import 'package:intl/intl.dart';
 
 import '../../../location/data/model/location_model.dart';
 import '../../../location/presentation/screens/location_screen.dart';
+import '../../../message/data/repository/message_repository.dart';
+import '../../../message/presentation/screens/message_detail_screen.dart';
 import '../../data/model/provider_booking_model.dart';
+import '../../data/repository/provider_booking_repository.dart';
+import '../controllers/provider_booking_controller.dart';
 import 'ready_confirmation_dialog.dart';
 
-class ProviderBookingCard extends StatelessWidget {
+class ProviderBookingCard extends StatefulWidget {
   final ProviderBooking booking;
   final String filterType; // live, next, completed, cancelled
 
@@ -17,18 +21,22 @@ class ProviderBookingCard extends StatelessWidget {
     required this.filterType,
   });
 
+  @override
+  State<ProviderBookingCard> createState() => _ProviderBookingCardState();
+}
+
+class _ProviderBookingCardState extends State<ProviderBookingCard> {
+  bool _isStarting = false;
+  bool _isContactingLoading = false;
+
   Widget _buildClientImage(String imagePath) {
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
-      // Network image
       return CircleAvatar(
         radius: 24,
         backgroundImage: NetworkImage(imagePath),
-        onBackgroundImageError: (exception, stackTrace) {
-          // Fallback to placeholder
-        },
+        onBackgroundImageError: (exception, stackTrace) {},
       );
     } else {
-      // Asset image
       return CircleAvatar(
         radius: 24,
         backgroundImage: AssetImage(imagePath),
@@ -36,8 +44,78 @@ class ProviderBookingCard extends StatelessWidget {
     }
   }
 
+  Future<void> _handleStartService() async {
+    setState(() {
+      _isStarting = true;
+    });
+
+    final repository = ProviderBookingRepository();
+    final success = await repository.startService(widget.booking.id);
+
+    setState(() {
+      _isStarting = false;
+    });
+
+    if (success) {
+      Get.snackbar(
+        'Success',
+        'Service started!',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
+
+      if (Get.isRegistered<ProviderBookingController>()) {
+        final controller = Get.find<ProviderBookingController>();
+        controller.fetchBookingsByStatus('live');
+      }
+    } else {
+      Get.snackbar(
+        'Error',
+        'Failed to start service',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
+    }
+  }
+
+  Future<void> _handleContact() async {
+    setState(() {
+      _isContactingLoading = true;
+    });
+
+    final messageRepository = MessageRepository();
+    final result = await messageRepository.createConversation(widget.booking.clientId);
+
+    setState(() {
+      _isContactingLoading = false;
+    });
+
+    result.fold(
+      (failure) {
+        Get.snackbar(
+          'Error',
+          'Failed to start conversation',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 2),
+        );
+      },
+      (conversation) {
+        Get.to(() => MessageDetailScreen(conversation: conversation));
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final booking = widget.booking;
+    final filterType = widget.filterType;
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 12),
       padding: const EdgeInsets.all(16),
@@ -52,7 +130,6 @@ class ProviderBookingCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with name and status badge
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -70,18 +147,16 @@ class ProviderBookingCard extends StatelessWidget {
                   ),
                 ],
               ),
-              _buildStatusBadge(),
+              _buildStatusBadge(filterType, booking),
             ],
           ),
           const SizedBox(height: 16),
 
-          // Live booking - show countdown timer
           if (filterType == 'live') ...[
             _CountdownTimer(booking: booking),
             const SizedBox(height: 16),
           ],
 
-          // Location
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -105,7 +180,6 @@ class ProviderBookingCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
-          // Date
           Row(
             children: [
               const Icon(
@@ -126,7 +200,6 @@ class ProviderBookingCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
-          // Time
           Row(
             children: [
               const Icon(
@@ -147,7 +220,6 @@ class ProviderBookingCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
-          // Services
           Row(
             children: [
               const Icon(
@@ -167,7 +239,6 @@ class ProviderBookingCard extends StatelessWidget {
             ],
           ),
 
-          // Amount (for next, completed)
           if (filterType != 'live') ...[
             const SizedBox(height: 12),
             Row(
@@ -190,7 +261,6 @@ class ProviderBookingCard extends StatelessWidget {
             ),
           ],
 
-          // Status (for next)
           if (filterType == 'next') ...[
             const SizedBox(height: 12),
             Row(
@@ -217,11 +287,9 @@ class ProviderBookingCard extends StatelessWidget {
 
           const SizedBox(height: 20),
 
-          // Action Buttons based on filter type
           if (filterType == 'live') ...[
             Row(
               children: [
-                // Location Button
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () {
@@ -246,10 +314,9 @@ class ProviderBookingCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                // Contact Button
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () {},
+                    onPressed: _isContactingLoading ? null : _handleContact,
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(
                         color: Color(0xFFFCA048),
@@ -260,71 +327,82 @@ class ProviderBookingCard extends StatelessWidget {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                    child: const Text(
-                      'Contact',
-                      style: TextStyle(
-                        color: Color(0xFFFCA048),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    child: _isContactingLoading
+                        ? const SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFCA048)),
+                            ),
+                          )
+                        : const Text(
+                            'Contact',
+                            style: TextStyle(
+                              color: Color(0xFFFCA048),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            // Start Servicing Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => ReadyConfirmationDialog(
-                      onAccept: () {
-                        Get.snackbar(
-                          'Success',
-                          'Service started!',
-                          snackPosition: SnackPosition.BOTTOM,
-                          backgroundColor: Colors.green,
-                          colorText: Colors.white,
-                          duration: const Duration(seconds: 2),
-                        );
-                      },
-                      onCancel: () {
-                        Get.snackbar(
-                          'Cancelled',
-                          'Service start cancelled',
-                          snackPosition: SnackPosition.BOTTOM,
-                          backgroundColor: Colors.orange,
-                          colorText: Colors.white,
-                          duration: const Duration(seconds: 2),
-                        );
-                      },
+            if (booking.status == 'waiting-for-start') ...[
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                    onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => ReadyConfirmationDialog(
+                        onAccept: () async {
+                          await _handleStartService();
+                        },
+                        onCancel: () {
+                          Get.snackbar(
+                            'Cancelled',
+                            'Service start cancelled',
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor: Colors.orange,
+                            colorText: Colors.white,
+                            duration: Duration(seconds: 2),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2870BC),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(28),
                     ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2870BC),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    elevation: 0,
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  elevation: 0,
-                ),
-                child: const Text(
-                  'Start servicing',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
+                  child: _isStarting
+                      ? const SizedBox(
+                          height: 18,
+                          width: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Text(
+                          'Start servicing',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ),
-            ),
+            ],
           ] else if (filterType == 'next') ...[
             Row(
               children: [
-                // Cancel Button
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () {},
@@ -355,7 +433,6 @@ class ProviderBookingCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                // Reschedule Button
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {},
@@ -385,7 +462,7 @@ class ProviderBookingCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusBadge() {
+  Widget _buildStatusBadge(String filterType, ProviderBooking booking) {
     if (filterType == 'live') {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -397,6 +474,22 @@ class ProviderBookingCard extends StatelessWidget {
           'Live',
           style: TextStyle(
             color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
+          ),
+        ),
+      );
+    } else if (filterType == 'next') {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.orange.shade50,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          booking.paymentStatus ?? 'Pending',
+          style: TextStyle(
+            color: const Color(0xFFFCA048),
             fontWeight: FontWeight.w600,
             fontSize: 12,
           ),
@@ -486,14 +579,12 @@ class _CountdownTimerState extends State<_CountdownTimer> {
 
   Duration _calculateRemainingTime() {
     try {
-      // Parse the date and time from booking
       final dateFormat = DateFormat('d MMM yyyy');
       final timeFormat = DateFormat('hh:mm a');
 
       final bookingDate = dateFormat.parse(widget.booking.date);
       final bookingTime = timeFormat.parse(widget.booking.time);
 
-      // Combine date and time
       final bookingDateTime = DateTime(
         bookingDate.year,
         bookingDate.month,
@@ -502,17 +593,15 @@ class _CountdownTimerState extends State<_CountdownTimer> {
         bookingTime.minute,
       );
 
-      // Add estimated hours to get end time
       final estimatedHours = widget.booking.estimatedHours ?? 1;
       final endDateTime = bookingDateTime.add(Duration(hours: estimatedHours));
 
-      // Calculate remaining time
       final now = DateTime.now();
       final remaining = endDateTime.difference(now);
 
       return remaining.isNegative ? Duration.zero : remaining;
     } catch (e) {
-      return const Duration(hours: 1); // Default fallback
+      return const Duration(hours: 1);
     }
   }
 
@@ -543,4 +632,3 @@ class _CountdownTimerState extends State<_CountdownTimer> {
     );
   }
 }
-

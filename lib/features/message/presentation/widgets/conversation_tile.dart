@@ -29,7 +29,9 @@ class ConversationTile extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 28,
-                  backgroundImage: AssetImage(conversation.userImage),
+                  backgroundImage: conversation.userImage.startsWith('http')
+                      ? NetworkImage(conversation.userImage) as ImageProvider
+                      : AssetImage(conversation.userImage),
                 ),
                 // Active indicator (green dot)
                 if (conversation.isActive)
