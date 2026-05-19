@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../core/common/constants/texts.dart';
 
+import '../../../../core/common/constants/texts.dart';
 import '../../../message/data/repository/message_repository.dart';
 import '../../../message/presentation/screens/message_detail_screen.dart';
 import '../../data/model/user_booking_model.dart';
