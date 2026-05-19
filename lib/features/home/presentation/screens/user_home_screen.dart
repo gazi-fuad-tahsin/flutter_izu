@@ -18,6 +18,7 @@ import '../widgets/categories_list.dart';
 import '../widgets/featured_artisans_section.dart';
 import '../widgets/home_header.dart';
 import '../widgets/nearby_artisans_section.dart';
+import '../widgets/cancel_booking_dialog.dart';
 import '../widgets/provider_ready_dialog.dart';
 import '../widgets/section_header.dart';
 import '../widgets/super_deals_banner.dart';
@@ -318,10 +319,9 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
 
   /// Show provider ready confirmation dialog
   void _showProviderReadyDialog(Map<String, dynamic> requestData) {
-    // Extract provider data from request
     final providerName = requestData['providerName'] ?? 'Provider';
     final providerImage = requestData['providerImage'] as String?;
-    
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -332,8 +332,29 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
           _homeController.acceptProviderRequest();
         },
         onCancel: () {
-          _homeController.cancelProviderRequest();
+          // Close the first popup then show the cancel confirmation
+          Navigator.of(context).pop();
+          _showCancelConfirmationDialog();
         },
+      ),
+    );
+  }
+
+  /// Show cancel booking confirmation dialog
+  void _showCancelConfirmationDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Obx(
+        () => CancelBookingDialog(
+          isLoading: _homeController.isCancelLoading.value,
+          onConfirmCancel: () {
+            _homeController.confirmCancelBooking();
+          },
+          onDismiss: () {
+            Navigator.of(context).pop();
+          },
+        ),
       ),
     );
   }

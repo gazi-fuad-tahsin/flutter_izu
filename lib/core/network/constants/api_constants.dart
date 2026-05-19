@@ -330,6 +330,8 @@ class BookingEndpoints {
   final String createBooking = _base;
   String getWasherBookings(String providerId) => '$_base/my-bookings?providerId=$providerId';
   String getBookingDetails(String bookingId) => '$_base/$bookingId';
+  String confirmBooking(String bookingId) => '$_base/confirm/$bookingId';
+  String cancelBooking(String bookingId) => '$_base/cancel/$bookingId';
 }
 
 /// [Rating Endpoints]

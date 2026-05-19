@@ -1,61 +1,92 @@
 import 'package:get/get.dart';
 import 'package:izu/core/network/services/socket_service.dart';
 import 'package:izu/core/utils/debug_print.dart';
+import 'package:izu/features/booking/data/repository/user_booking_repository.dart';
 
 class HomeController extends GetxController {
-  /// Getter for SocketService - retrieves when needed
   SocketService get _socketService => Get.find<SocketService>();
+  final _bookingRepository = UserBookingRepository();
 
-  // Observable for request-accepted event
   final Rxn<Map<String, dynamic>> requestAcceptedData =
       Rxn<Map<String, dynamic>>();
   final RxBool showAcceptanceDialog = RxBool(false);
+  final RxBool isConfirmLoading = RxBool(false);
+  final RxBool isCancelLoading = RxBool(false);
 
   @override
   void onInit() {
     super.onInit();
     DPrint.log('🏠 HomeController initialized');
-    _listenToRequestAccepted();
+    _listenToRequestConfirmation();
   }
 
-  /// Listen to request-accepted event from socket
-  void _listenToRequestAccepted() {
-    DPrint.log('👂 Setting up listener for request-accepted events');
-    
-    // Listen to socket service's requestAccepted observable
-    ever(_socketService.requestAccepted, (data) {
-      DPrint.log(
-          '📥 [OBSERVABLE TRIGGERED] Request accepted event received: $data');
+  void _listenToRequestConfirmation() {
+    DPrint.log('👂 Setting up listener for request-confirmation events');
+    ever(_socketService.requestConfirmation, (data) {
+      DPrint.log('📥 Request confirmation event received: $data');
       if (data != null) {
-        DPrint.log(
-            '✅ [DIALOG TRIGGER] Showing acceptance dialog for: ${data['providerName']}');
         requestAcceptedData.value = data;
         showAcceptanceDialog.value = true;
-        
-        // Log to confirm state changed
-        DPrint.log('🔔 Dialog visibility: ${showAcceptanceDialog.value}');
-      } else {
-        DPrint.log('⚠️ Received null data in request-accepted event');
       }
     });
   }
 
-  /// Handle user accepting the provider's request
-  void acceptProviderRequest() {
-    DPrint.log(
-        '✅ User accepted provider request: ${requestAcceptedData.value?['bookingId']}');
-    showAcceptanceDialog.value = false;
-    // TODO: Implement API call to confirm user acceptance
-    Get.back();
+  String? get _bookingId {
+    final data = requestAcceptedData.value;
+    if (data == null) return null;
+    final booking = data['booking'];
+    if (booking is Map) {
+      final id = booking['_id'];
+      if (id is String && id.isNotEmpty) return id;
+    }
+    final fallback = data['bookingId'] ?? data['_id'];
+    return fallback is String ? fallback : null;
   }
 
-  /// Handle user cancelling the provider's request
-  void cancelProviderRequest() {
-    DPrint.log(
-        '❌ User cancelled provider request: ${requestAcceptedData.value?['bookingId']}');
+  /// Confirm booking — PATCH /bookings/confirm/:bookingId
+  Future<void> acceptProviderRequest() async {
+    final bookingId = _bookingId;
+    if (bookingId == null || bookingId.isEmpty) {
+      DPrint.error('❌ No bookingId found in socket data');
+      Get.back();
+      return;
+    }
+
+    isConfirmLoading.value = true;
+    final result = await _bookingRepository.confirmBooking(bookingId);
+    isConfirmLoading.value = false;
+
     showAcceptanceDialog.value = false;
-    // TODO: Implement API call to reject provider's acceptance
     Get.back();
+
+    if (result != null) {
+      DPrint.log('✅ Booking confirmed: ${result.id}');
+    } else {
+      DPrint.error('❌ Failed to confirm booking');
+    }
+  }
+
+  /// Cancel booking — PATCH /bookings/cancel/:bookingId
+  Future<void> confirmCancelBooking() async {
+    final bookingId = _bookingId;
+    if (bookingId == null || bookingId.isEmpty) {
+      DPrint.error('❌ No bookingId found in socket data');
+      Get.back();
+      return;
+    }
+
+    isCancelLoading.value = true;
+    final result = await _bookingRepository.cancelBooking(bookingId);
+    isCancelLoading.value = false;
+
+    Get.back(); // close cancel confirmation dialog
+    requestAcceptedData.value = null;
+
+    if (result != null) {
+      DPrint.log('✅ Booking cancelled: ${result.id}');
+    } else {
+      DPrint.error('❌ Failed to cancel booking');
+    }
   }
 
   @override

@@ -1,9 +1,58 @@
 import '../../../../../core/network/api_client.dart';
+import '../../../../../core/network/constants/api_constants.dart';
 import '../../../../../core/utils/debug_print.dart';
 import '../model/user_booking_model.dart';
 
 class UserBookingRepository {
   final _apiClient = ApiClient();
+
+  /// PATCH /bookings/confirm/:bookingId
+  Future<UserBookingModel?> confirmBooking(String bookingId) async {
+    try {
+      DPrint.log('🔄 Confirming booking: $bookingId');
+      final result = await _apiClient.patch<Map<String, dynamic>>(
+        ApiConstants.booking.confirmBooking(bookingId),
+        fromJsonT: (json) => json is Map<String, dynamic> ? json : {},
+      );
+      return result.fold(
+        (failure) {
+          DPrint.error('❌ Confirm booking failed: ${failure.message}');
+          return null;
+        },
+        (success) {
+          DPrint.log('✅ Booking confirmed');
+          return UserBookingModel.fromJson(success.data);
+        },
+      );
+    } catch (e) {
+      DPrint.error('❌ Exception confirming booking: $e');
+      return null;
+    }
+  }
+
+  /// PATCH /bookings/cancel/:bookingId
+  Future<UserBookingModel?> cancelBooking(String bookingId) async {
+    try {
+      DPrint.log('🔄 Cancelling booking: $bookingId');
+      final result = await _apiClient.patch<Map<String, dynamic>>(
+        ApiConstants.booking.cancelBooking(bookingId),
+        fromJsonT: (json) => json is Map<String, dynamic> ? json : {},
+      );
+      return result.fold(
+        (failure) {
+          DPrint.error('❌ Cancel booking failed: ${failure.message}');
+          return null;
+        },
+        (success) {
+          DPrint.log('✅ Booking cancelled');
+          return UserBookingModel.fromJson(success.data);
+        },
+      );
+    } catch (e) {
+      DPrint.error('❌ Exception cancelling booking: $e');
+      return null;
+    }
+  }
 
   /// Fetch user bookings by status
   /// Endpoints:

@@ -9,8 +9,8 @@ class SocketService extends GetxService {
   bool _isConnected = false;
   String? _currentUserId;
 
-  // Observable for request-accepted event
-  final Rxn<Map<String, dynamic>> requestAccepted = Rxn<Map<String, dynamic>>();
+  // Observable for request-confirmation event
+  final Rxn<Map<String, dynamic>> requestConfirmation = Rxn<Map<String, dynamic>>();
 
   factory SocketService() {
     return _instance;
@@ -45,8 +45,6 @@ class SocketService extends GetxService {
         IO.OptionBuilder()
             .setTransports(['websocket'])
             .disableAutoConnect()
-            .setQuery({'userId': userId})
-            .setAuth({'Authorization': token ?? ''})
             .build(),
       );
 
@@ -77,6 +75,13 @@ class SocketService extends GetxService {
         DPrint.log("║ Current User ID: $_currentUserId");
         DPrint.log(
             "╚═══════════════════════════════════════════════════════════════\n");
+      }
+      // Emit join with userId after connection
+      if (_currentUserId != null && _currentUserId!.isNotEmpty) {
+        _socket.emit('join', _currentUserId);
+        if (kDebugMode) {
+          DPrint.log('📤 Emitted join with userId: $_currentUserId');
+        }
       }
     });
 
@@ -111,6 +116,12 @@ class SocketService extends GetxService {
       if (kDebugMode) {
         DPrint.log('✅ Socket reconnected');
       }
+      if (_currentUserId != null && _currentUserId!.isNotEmpty) {
+        _socket.emit('join', _currentUserId);
+        if (kDebugMode) {
+          DPrint.log('📤 Re-emitted join with userId: $_currentUserId');
+        }
+      }
     });
 
     // User joined notification
@@ -141,24 +152,23 @@ class SocketService extends GetxService {
       }
     });
 
-    // Request accepted by provider
-    _socket.on('request-accepted', (data) {
+    // Provider ready confirmation event
+    _socket.on('request-confirmation', (data) {
       DPrint.log(
           "\n╔═══════════════════════════════════════════════════════════════");
-      DPrint.log("║ 📬 REQUEST-ACCEPTED EVENT RECEIVED");
+      DPrint.log("║ 📬 REQUEST-CONFIRMATION EVENT RECEIVED");
       DPrint.log(
           "╠═══════════════════════════════════════════════════════════════");
       DPrint.log("║ Raw Data: $data");
       DPrint.log("║ Data Type: ${data.runtimeType}");
       DPrint.log(
           "╚═══════════════════════════════════════════════════════════════\n");
-      
+
       if (data != null && data is Map) {
         final mappedData = Map<String, dynamic>.from(data);
-        DPrint.log('✅ Updating requestAccepted observable with: $mappedData');
-        requestAccepted.value = mappedData;
-        DPrint.log(
-            '✅ Observable value is now: ${requestAccepted.value}');
+        DPrint.log('✅ Updating requestConfirmation observable with: $mappedData');
+        requestConfirmation.value = mappedData;
+        DPrint.log('✅ Observable value is now: ${requestConfirmation.value}');
       } else {
         DPrint.log('⚠️ Data is null or not a Map: $data');
       }
