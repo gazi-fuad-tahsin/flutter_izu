@@ -16,6 +16,8 @@ import '../../../provider_jobs/presentation/screens/your_services_screen.dart';
 import '../../data/model/service_request_model.dart';
 import '../controllers/provider_home_controller.dart';
 import '../widgets/request_card.dart';
+import '../widgets/provider_review_received_dialog.dart';
+import 'package:izu/core/utils/debug_print.dart';
 import 'provider_booking_screen.dart';
 
 class ProviderHomeScreen extends StatefulWidget {
@@ -126,13 +128,26 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.primaryWhite,
-      body: _selectedNavIndex == 0
-          ? _buildHomeScreen()
-          : _selectedNavIndex == 1
-              ? const ProviderBookingScreen()
-              : _selectedNavIndex == 2
-                  ? _buildServiceScreen()
-                  : _buildProfileScreen(),
+      body: Stack(
+        children: [
+          _selectedNavIndex == 0
+              ? _buildHomeScreen()
+              : _selectedNavIndex == 1
+                  ? const ProviderBookingScreen()
+                  : _selectedNavIndex == 2
+                      ? _buildServiceScreen()
+                      : _buildProfileScreen(),
+          Obx(() {
+            final reviewData = _controller.serviceReviewData.value;
+            if (reviewData != null && _controller.showReviewDialog.value) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _showReviewReceivedDialog(reviewData);
+              });
+            }
+            return const SizedBox.shrink();
+          }),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedNavIndex,
         onTap: (index) {
@@ -163,6 +178,71 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
         ],
       ),
     );
+  }
+
+  void _showReviewReceivedDialog(Map<String, dynamic> data) {
+    String userName = 'Client';
+    String? userImage;
+    double rating = 5.0;
+    String message = '';
+
+    DPrint.log('🔍 Parsing review data in dialog: $data');
+
+    if (data.containsKey('review')) {
+      final reviewObj = data['review'];
+      if (reviewObj is Map) {
+        if (reviewObj.containsKey('rating')) {
+          rating = double.tryParse(reviewObj['rating'].toString()) ?? 5.0;
+        }
+        if (reviewObj.containsKey('message')) {
+          message = reviewObj['message']?.toString() ?? '';
+        }
+        if (reviewObj.containsKey('submittedBy')) {
+          final userObj = reviewObj['submittedBy'];
+          if (userObj is Map) {
+            userName = userObj['name']?.toString() ?? 'Client';
+            userImage = userObj['profileImage']?.toString();
+          } else if (userObj is String) {
+            userName = 'Client';
+          }
+        }
+      }
+    }
+    
+    if (data.containsKey('userName')) {
+      userName = data['userName']?.toString() ?? userName;
+    } else if (data.containsKey('name')) {
+      userName = data['name']?.toString() ?? userName;
+    }
+    
+    if (data.containsKey('userImage')) {
+      userImage = data['userImage']?.toString() ?? userImage;
+    } else if (data.containsKey('profileImage')) {
+      userImage = data['profileImage']?.toString() ?? userImage;
+    }
+    
+    if (data.containsKey('rating')) {
+      rating = double.tryParse(data['rating'].toString()) ?? rating;
+    }
+    
+    if (data.containsKey('message')) {
+      message = data['message']?.toString() ?? message;
+    } else if (data.containsKey('comment')) {
+      message = data['comment']?.toString() ?? message;
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => ProviderReviewReceivedDialog(
+        userName: userName,
+        userImage: userImage,
+        rating: rating,
+        message: message,
+      ),
+    ).then((_) {
+      _controller.clearReviewData();
+    });
   }
 
   Widget _buildHomeScreen() {

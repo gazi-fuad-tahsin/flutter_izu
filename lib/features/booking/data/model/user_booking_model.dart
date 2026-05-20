@@ -16,6 +16,7 @@ class UserBookingModel {
   final String status;
   final String extraNote;
   final int estimatedHours;
+  final String serviceId;
 
   UserBookingModel({
     required this.id,
@@ -33,6 +34,7 @@ class UserBookingModel {
     required this.status,
     required this.extraNote,
     required this.estimatedHours,
+    required this.serviceId,
   });
 
   /// Format date from DateTime to string
@@ -61,6 +63,7 @@ class UserBookingModel {
 
     // Extract service info
     final Map<String, dynamic> serviceId = json['serviceId'] ?? {};
+    final String serviceIdStr = serviceId['_id'] ?? '';
     final Map<String, dynamic> serviceDetails = serviceId['serviceDetails'] ?? {};
     final Map<String, dynamic> category = serviceId['category'] ?? {};
 
@@ -90,6 +93,7 @@ class UserBookingModel {
       status: json['status'] ?? 'pending',
       extraNote: json['extraNote'] ?? '',
       estimatedHours: json['estimatedHours'] ?? 1,
+      serviceId: serviceIdStr,
     );
   }
 }

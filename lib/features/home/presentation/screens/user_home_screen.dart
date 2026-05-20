@@ -21,6 +21,9 @@ import '../widgets/home_header.dart';
 import '../widgets/nearby_artisans_section.dart';
 import '../widgets/cancel_booking_dialog.dart';
 import '../widgets/provider_ready_dialog.dart';
+import '../widgets/provider_completed_dialog.dart';
+import '../../../booking/data/model/user_booking_model.dart';
+import '../widgets/review_giving_sheet.dart';
 import '../widgets/section_header.dart';
 import '../widgets/super_deals_banner.dart';
 
@@ -70,6 +73,15 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
             if (requestData != null && _homeController.showAcceptanceDialog.value) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 _showProviderReadyDialog(requestData);
+              });
+            }
+            return const SizedBox.shrink();
+          }),
+          Obx(() {
+            final completedData = _homeController.providerCompletedData.value;
+            if (completedData != null && _homeController.showCompletionDialog.value) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _showProviderCompletedDialog(completedData);
               });
             }
             return const SizedBox.shrink();
@@ -354,6 +366,53 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
           Navigator.of(context).pop();
           _showCancelConfirmationDialog();
         },
+      ),
+    );
+  }
+
+  /// Show provider completed service dialog
+  void _showProviderCompletedDialog(Map<String, dynamic> data) {
+    final providerName = data['providerName'] ?? 'Provider';
+    final providerImage = data['providerImage'] as String?;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Obx(
+        () => ProviderCompletedDialog(
+          providerName: providerName,
+          providerImage: providerImage,
+          isLoading: _homeController.isCompletionConfirmLoading.value,
+          onAccept: () async {
+            final booking = await _homeController.acceptProviderCompletion();
+            Navigator.of(context).pop();
+            if (booking != null) {
+              _showReviewGivingSheet(booking);
+            }
+          },
+          onCancel: () {
+            _homeController.cancelProviderCompletion();
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showReviewGivingSheet(UserBookingModel booking) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+      ),
+      builder: (context) => ReviewGivingSheet(
+        bookingId: booking.id,
+        serviceId: booking.serviceId,
+        providerId: booking.providerId,
       ),
     );
   }

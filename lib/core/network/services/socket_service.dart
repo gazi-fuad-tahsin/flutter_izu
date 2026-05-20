@@ -13,6 +13,12 @@ class SocketService extends GetxService {
   // Observable for request-confirmation event
   final Rxn<Map<String, dynamic>> requestConfirmation = Rxn<Map<String, dynamic>>();
 
+  // Observable for provider-completed-request event
+  final Rxn<Map<String, dynamic>> providerCompletedRequest = Rxn<Map<String, dynamic>>();
+
+  // Observable for service-review-submitted event
+  final Rxn<Map<String, dynamic>> serviceReviewSubmitted = Rxn<Map<String, dynamic>>();
+
   // Observables for messaging events
   final Rxn<Map<String, dynamic>> newMessage = Rxn<Map<String, dynamic>>();
   final Rxn<Map<String, dynamic>> messageSent = Rxn<Map<String, dynamic>>();
@@ -208,6 +214,44 @@ class SocketService extends GetxService {
     _socket.on('serviceRequest', (data) {
       if (kDebugMode) {
         DPrint.log('🔔 Service request: $data');
+      }
+    });
+
+    // Provider completed request event
+    _socket.on('provider-completed-request', (data) {
+      DPrint.log(
+          "\n╔═══════════════════════════════════════════════════════════════");
+      DPrint.log("║ 📬 PROVIDER-COMPLETED-REQUEST EVENT RECEIVED");
+      DPrint.log(
+          "╠═══════════════════════════════════════════════════════════════");
+      DPrint.log("║ Raw Data: $data");
+      DPrint.log("║ Data Type: ${data.runtimeType}");
+      DPrint.log(
+          "╚═══════════════════════════════════════════════════════════════\n");
+
+      if (data != null && data is Map) {
+        final mappedData = Map<String, dynamic>.from(data);
+        DPrint.log('✅ Updating providerCompletedRequest observable with: $mappedData');
+        providerCompletedRequest.value = mappedData;
+      }
+    });
+
+    // Service review submitted event
+    _socket.on('service-review-submitted', (data) {
+      DPrint.log(
+          "\n╔═══════════════════════════════════════════════════════════════");
+      DPrint.log("║ 📬 SERVICE-REVIEW-SUBMITTED EVENT RECEIVED");
+      DPrint.log(
+          "╠═══════════════════════════════════════════════════════════════");
+      DPrint.log("║ Raw Data: $data");
+      DPrint.log("║ Data Type: ${data.runtimeType}");
+      DPrint.log(
+          "╚═══════════════════════════════════════════════════════════════\n");
+
+      if (data != null && data is Map) {
+        final mappedData = Map<String, dynamic>.from(data);
+        DPrint.log('✅ Updating serviceReviewSubmitted observable with: $mappedData');
+        serviceReviewSubmitted.value = mappedData;
       }
     });
 

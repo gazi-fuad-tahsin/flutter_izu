@@ -332,6 +332,8 @@ class BookingEndpoints {
   String getWasherBookings(String providerId) => '$_base/my-bookings?providerId=$providerId';
   String getBookingDetails(String bookingId) => '$_base/$bookingId';
   String confirmBooking(String bookingId) => '$_base/confirm/$bookingId';
+  String confirmCompletion(String bookingId) => '$_base/confirm-completion/$bookingId';
+  String submitReview(String bookingId) => '$_base/review/$bookingId';
   String cancelBooking(String bookingId) => '$_base/cancel/$bookingId';
 }
 

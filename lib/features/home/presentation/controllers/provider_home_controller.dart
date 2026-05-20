@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:izu/core/network/services/socket_service.dart';
 
+import 'package:izu/core/utils/debug_print.dart';
+
 import '../../data/model/pending_request_model.dart';
 import '../../data/repository/provider_home_repository.dart';
 
@@ -12,6 +14,10 @@ class ProviderHomeController extends GetxController {
   final RxBool isLoading = RxBool(false);
   final RxString errorMessage = RxString('');
 
+  // Observables for review received popup
+  final Rxn<Map<String, dynamic>> serviceReviewData = Rxn<Map<String, dynamic>>();
+  final RxBool showReviewDialog = RxBool(false);
+
   /// Getter for SocketService - retrieves when needed
   SocketService get _socketService => Get.find<SocketService>();
 
@@ -19,6 +25,23 @@ class ProviderHomeController extends GetxController {
   void onInit() {
     super.onInit();
     fetchPendingRequests();
+    _listenToReviewEvents();
+  }
+
+  void _listenToReviewEvents() {
+    ever(_socketService.serviceReviewSubmitted, (data) {
+      DPrint.log('📥 ProviderHomeController - service-review-submitted received: $data');
+      if (data != null) {
+        serviceReviewData.value = data;
+        showReviewDialog.value = true;
+      }
+    });
+  }
+
+  void clearReviewData() {
+    serviceReviewData.value = null;
+    showReviewDialog.value = false;
+    _socketService.serviceReviewSubmitted.value = null;
   }
 
   Future<void> fetchPendingRequests() async {

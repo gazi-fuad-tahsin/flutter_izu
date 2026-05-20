@@ -30,6 +30,30 @@ class UserBookingRepository {
     }
   }
 
+  /// PATCH /bookings/confirm-completion/:bookingId
+  Future<UserBookingModel?> confirmCompletion(String bookingId) async {
+    try {
+      DPrint.log('🔄 Confirming booking completion: $bookingId');
+      final result = await _apiClient.patch<Map<String, dynamic>>(
+        ApiConstants.booking.confirmCompletion(bookingId),
+        fromJsonT: (json) => json is Map<String, dynamic> ? json : {},
+      );
+      return result.fold(
+        (failure) {
+          DPrint.error('❌ Confirm completion failed: ${failure.message}');
+          return null;
+        },
+        (success) {
+          DPrint.log('✅ Booking completion confirmed');
+          return UserBookingModel.fromJson(success.data);
+        },
+      );
+    } catch (e) {
+      DPrint.error('❌ Exception confirming booking completion: $e');
+      return null;
+    }
+  }
+
   /// PATCH /bookings/cancel/:bookingId
   Future<UserBookingModel?> cancelBooking(String bookingId) async {
     try {
