@@ -4,6 +4,10 @@
 <dict>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Microphone access is required for audio calls</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to your location to show your position and calculate routes to clients.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app needs access to your location to show your position and calculate routes to clients.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>

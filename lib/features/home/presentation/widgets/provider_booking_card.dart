@@ -293,14 +293,16 @@ class _ProviderBookingCardState extends State<ProviderBookingCard> {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      final locationData = LocationData(
-                        address: booking.location,
-                        latitude: 0.0,
-                        longitude: 0.0,
-                        clientName: booking.clientName,
-                        serviceType: booking.service,
-                      );
-                      Get.to(() => LocationScreen(locationData: locationData));
+                      Get.to(() => LocationScreen(
+                        bookingId: booking.id,
+                        locationData: LocationData(
+                          address: booking.location,
+                          latitude: 0.0,
+                          longitude: 0.0,
+                          clientName: booking.clientName,
+                          serviceType: booking.service,
+                        ),
+                      ));
                     },
                     icon: const Icon(Icons.location_on, size: 18),
                     label: const Text('Location'),

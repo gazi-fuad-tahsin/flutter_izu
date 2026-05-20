@@ -32,6 +32,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
         selectedDate: widget.booking.date,
         selectedTime: widget.booking.time,
         location: widget.booking.location,
+        providerId: widget.booking.providerId,
+        serviceTitle: widget.booking.service,
       ),
     );
   }

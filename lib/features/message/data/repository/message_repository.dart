@@ -210,7 +210,11 @@ class MessageRepository {
 							: response;
 
 					return Right(
-						_mapMessage(messageJson, currentUserId: currentUserId),
+						_mapMessage(
+							messageJson,
+							currentUserId: currentUserId,
+							forceIsFromUser: true,
+						),
 					);
 				},
 			);
@@ -224,6 +228,7 @@ class MessageRepository {
 	Message _mapMessage(
 		Map<String, dynamic> messageJson, {
 		required String? currentUserId,
+		bool? forceIsFromUser,
 	}) {
 		DateTime timestamp;
 		try {
@@ -235,12 +240,13 @@ class MessageRepository {
 		final isMe = messageJson['isMe'] as bool?;
 		final senderMap = messageJson['sender'] as Map<String, dynamic>?;
 		final senderId = senderMap?['_id']?.toString();
+		final inferredIsFromUser = isMe ?? (senderId != null && senderId == currentUserId);
 
 		return Message(
 			id: messageJson['_id']?.toString() ?? DateTime.now().toString(),
 			content: (messageJson['content'] as String?) ?? '',
 			timestamp: timestamp,
-			isFromUser: isMe ?? (senderId != null && senderId == currentUserId),
+			isFromUser: forceIsFromUser ?? inferredIsFromUser,
 			attachments: _mapAttachments(messageJson['fileUrl']),
 		);
 	}

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../booking/presentation/widgets/booking_confirmation_sheet.dart';
 import '../controller/service_controller.dart';
+import 'package:izu/features/service/data/models/service_detail_model.dart';
 
 class ServiceDetailsScreen extends StatefulWidget {
   final String serviceId;
@@ -29,7 +30,7 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
     serviceController.fetchServiceDetail(widget.serviceId);
   }
 
-  void _showBookingConfirmation(String providerName, String amount, String address, String price) {
+  void _showBookingConfirmation(ServiceDetailModel serviceDetail) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -40,11 +41,17 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
         ),
       ),
       builder: (context) => BookingConfirmationSheet(
-        providerName: providerName,
-        amount: amount,
+        providerName: serviceDetail.providerId.name,
+        amount: serviceDetail.serviceDetails.serviceType == 'hourly'
+            ? '\$${serviceDetail.serviceDetails.hourlyPrice}'
+            : '\$${serviceDetail.serviceDetails.perSessionPrice}',
         selectedDate: DateTime.now().toString().split(' ')[0],
         selectedTime: '10:00 AM',
-        location: address,
+        location: serviceDetail.serviceDetails.address,
+        serviceId: serviceDetail.id,
+        serviceTitle: serviceDetail.serviceDetails.title,
+        providerId: serviceDetail.providerId.id,
+        bookingType: serviceDetail.serviceDetails.serviceType,
       ),
     );
   }
@@ -393,12 +400,7 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                   height: 56,
                   child: ElevatedButton(
                     onPressed: () {
-                      _showBookingConfirmation(
-                        serviceDetail.providerId.name,
-                        '\$${serviceDetail.serviceDetails.hourlyPrice.toString()}',
-                        serviceDetail.serviceDetails.address,
-                        serviceDetail.serviceDetails.hourlyPrice.toString(),
-                      );
+                      _showBookingConfirmation(serviceDetail);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2870BC),
