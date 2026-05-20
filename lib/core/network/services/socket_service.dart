@@ -12,6 +12,13 @@ class SocketService extends GetxService {
   // Observable for request-confirmation event
   final Rxn<Map<String, dynamic>> requestConfirmation = Rxn<Map<String, dynamic>>();
 
+  // Observables for messaging events
+  final Rxn<Map<String, dynamic>> newMessage = Rxn<Map<String, dynamic>>();
+  final Rxn<Map<String, dynamic>> messageSent = Rxn<Map<String, dynamic>>();
+
+  // Observable for real-time notifications
+  final Rxn<Map<String, dynamic>> liveNotification = Rxn<Map<String, dynamic>>();
+
   factory SocketService() {
     return _instance;
   }
@@ -131,10 +138,33 @@ class SocketService extends GetxService {
       }
     });
 
-    // New message notification
+    // New message received by recipient
     _socket.on('newMessage', (data) {
       if (kDebugMode) {
-        DPrint.log('💬 New message: $data');
+        DPrint.log('💬 newMessage event: $data');
+      }
+      if (data != null && data is Map) {
+        newMessage.value = Map<String, dynamic>.from(data);
+      }
+    });
+
+    // Real-time notification event
+    _socket.on('notification', (data) {
+      if (kDebugMode) {
+        DPrint.log('🔔 notification event: $data');
+      }
+      if (data != null && data is Map) {
+        liveNotification.value = Map<String, dynamic>.from(data);
+      }
+    });
+
+    // Message delivery confirmation to sender
+    _socket.on('messageSent', (data) {
+      if (kDebugMode) {
+        DPrint.log('📨 messageSent event: $data');
+      }
+      if (data != null && data is Map) {
+        messageSent.value = Map<String, dynamic>.from(data);
       }
     });
 
