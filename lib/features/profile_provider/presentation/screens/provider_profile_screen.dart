@@ -25,7 +25,12 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _controller = Get.put(ProviderProfileController());
+    if (Get.isRegistered<ProviderProfileController>()) {
+      _controller = Get.find<ProviderProfileController>();
+      _controller.fetchProfileData();
+    } else {
+      _controller = Get.put(ProviderProfileController());
+    }
   }
 
   Future<void> _refreshProfile() async {

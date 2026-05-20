@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../../../core/common/constants/feature_texts.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../auth/presentation/controller/user_controller.dart';
+import '../../../booking/presentation/controller/user_booking_controller.dart';
 import '../../../booking/presentation/screens/booking_list_screen.dart';
 import '../../../category/presentation/controller/category_controller.dart';
 import '../../../category/presentation/screens/all_categories_screen.dart';
@@ -89,6 +90,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
               Get.to(() => const UserProfileScreen());
             } else {
               setState(() => _currentIndex = index);
+              _refreshTabData(index);
             }
           },
           type: BottomNavigationBarType.fixed,
@@ -121,6 +123,22 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
         ),
       ),
     );
+  }
+
+  void _refreshTabData(int index) {
+    switch (index) {
+      case 0:
+        Get.find<UserController>().fetchUserProfile();
+        Get.find<CategoryController>().fetchCategories();
+        Get.find<ServiceController>().fetchServices();
+        break;
+      case 1:
+        if (Get.isRegistered<UserBookingController>()) {
+          Get.find<UserBookingController>().refreshCurrentFilter();
+        }
+        break;
+      // Tab 2 (MessageScreen) refreshes itself in its own initState
+    }
   }
 
   Future<void> _refreshHomeData() async {

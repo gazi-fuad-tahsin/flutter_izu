@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutx_core/flutx_core.dart';
 import 'package:get/get.dart';
+import 'package:izu/core/network/services/socket_service.dart';
 
 import '../../data/models/notification_model.dart';
 import '../../data/repository/notification_repository.dart';
@@ -20,6 +21,24 @@ class NotificationController extends GetxController {
     super.onInit();
     _repository = NotificationRepository();
     _loadNotifications();
+    _listenToSocketNotifications();
+  }
+
+  void _listenToSocketNotifications() {
+    final socketService = Get.find<SocketService>();
+    ever(socketService.liveNotification, (data) {
+      if (data == null) return;
+      try {
+        final incoming = NotificationModel.fromJson(data);
+        // Deduplicate: skip if already in the list
+        if (notifications.any((n) => n.id == incoming.id)) return;
+        notifications.insert(0, incoming);
+        _categorizeNotifications();
+        DPrint.log('🔔 Live notification added: ${incoming.message}');
+      } catch (e) {
+        DPrint.error('Failed to parse socket notification: $e');
+      }
+    });
   }
 
   /// Load notifications from API

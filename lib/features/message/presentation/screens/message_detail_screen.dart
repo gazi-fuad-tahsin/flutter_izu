@@ -1,6 +1,8 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:izu/core/network/services/socket_service.dart';
 
 import '../../data/model/conversation_model.dart';
 import '../../data/model/message_model.dart';
@@ -31,6 +33,7 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> {
   String? _selectedFilePath;
   String? _selectedFileName;
   String _selectedContentType = 'text';
+  Worker? _newMessageWorker;
 
   @override
   void initState() {
@@ -39,10 +42,32 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> {
     _messages = List.from(widget.conversation.messages);
     _messageRepository = MessageRepository();
     _loadMessages();
+    _setupSocketListeners();
+  }
+
+  void _setupSocketListeners() {
+    final socketService = Get.find<SocketService>();
+
+    // Listen for messages sent by the other participant
+    _newMessageWorker = ever(socketService.newMessage, (data) {
+      if (data == null || !mounted) return;
+      // Only handle messages for this conversation
+      final chatId = Message.chatIdFromSocket(data);
+      if (chatId != widget.conversation.id) return;
+      // Skip if isMe — sender already sees it from the HTTP response
+      final isMe = data['isMe'] as bool? ?? false;
+      if (isMe) return;
+      final incoming = Message.fromSocket(data);
+      // Deduplicate by id
+      if (_messages.any((m) => m.id == incoming.id)) return;
+      setState(() => _messages.add(incoming));
+      _scrollToBottom();
+    });
   }
 
   @override
   void dispose() {
+    _newMessageWorker?.dispose();
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();

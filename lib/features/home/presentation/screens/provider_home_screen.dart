@@ -9,6 +9,8 @@ import '../../../message/presentation/screens/message_screen.dart';
 import '../../../notifications/presentation/controller/notification_controller.dart';
 import '../../../notifications/presentation/screens/notifications_screen.dart';
 import '../../../profile_provider/presentation/controller/provider_profile_controller.dart';
+import '../../../provider_jobs/presentation/controller/provider_jobs_controller.dart';
+import '../controllers/provider_booking_controller.dart';
 import '../../../profile_provider/presentation/screens/provider_profile_screen.dart';
 import '../../../provider_jobs/presentation/screens/your_services_screen.dart';
 import '../../data/model/service_request_model.dart';
@@ -98,6 +100,28 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
     ]);
   }
 
+  void _refreshTabData(int index) {
+    switch (index) {
+      case 0:
+        _controller.fetchPendingRequests();
+        _profileController.fetchProfileData();
+        break;
+      case 1:
+        if (Get.isRegistered<ProviderBookingController>()) {
+          Get.find<ProviderBookingController>().refreshCurrentFilter();
+        }
+        break;
+      case 2:
+        if (Get.isRegistered<ProviderJobsController>()) {
+          Get.find<ProviderJobsController>().fetchProviderServices();
+        }
+        break;
+      case 3:
+        _profileController.fetchProfileData();
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,7 +135,10 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
                   : _buildProfileScreen(),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedNavIndex,
-        onTap: (index) => setState(() => _selectedNavIndex = index),
+        onTap: (index) {
+          setState(() => _selectedNavIndex = index);
+          _refreshTabData(index);
+        },
         type: BottomNavigationBarType.fixed,
         backgroundColor: AppColors.primaryWhite,
         selectedItemColor: AppColors.homePrimary,

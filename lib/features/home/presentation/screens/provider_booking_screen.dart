@@ -22,7 +22,10 @@ class _ProviderBookingScreenState extends State<ProviderBookingScreen> {
     // Get or create ProviderBookingController
     if (Get.isRegistered<ProviderBookingController>()) {
       _controller = Get.find<ProviderBookingController>();
+      // Re-mount: explicitly refresh the current filter
+      _controller.refreshCurrentFilter();
     } else {
+      // First mount: onInit handles the initial fetch
       _controller = Get.put(ProviderBookingController());
     }
   }

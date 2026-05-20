@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:izu/core/network/services/socket_service.dart';
 
 import '../../data/model/conversation_model.dart';
+import '../../data/model/message_model.dart';
 import '../../data/repository/message_repository.dart';
 import '../widgets/conversation_tile.dart';
 
@@ -20,6 +22,7 @@ class _MessageScreenState extends State<MessageScreen> {
   bool _isSearching = false;
   bool _isLoading = false;
   String _error = '';
+  final List<Worker> _socketWorkers = [];
 
   @override
   void initState() {
@@ -29,10 +32,60 @@ class _MessageScreenState extends State<MessageScreen> {
     conversations = [];
     filteredConversations = conversations;
     _loadConversations();
+    _setupSocketListeners();
+  }
+
+  void _setupSocketListeners() {
+    final socketService = Get.find<SocketService>();
+
+    // Update conversation preview when a message is received
+    _socketWorkers.add(ever(socketService.newMessage, (data) {
+      if (data == null || !mounted) return;
+      _updateConversationPreview(data);
+    }));
+
+    // Update conversation preview when we send a message
+    _socketWorkers.add(ever(socketService.messageSent, (data) {
+      if (data == null || !mounted) return;
+      _updateConversationPreview(data);
+    }));
+  }
+
+  void _updateConversationPreview(Map<String, dynamic> data) {
+    final chatId = Message.chatIdFromSocket(data);
+    if (chatId == null) return;
+    final content = (data['content'] as String?) ?? '';
+    DateTime time;
+    try {
+      time = DateTime.parse(data['createdAt'].toString());
+    } catch (_) {
+      time = DateTime.now();
+    }
+    final idx = conversations.indexWhere((c) => c.id == chatId);
+    if (idx == -1) return;
+    final updated = conversations[idx];
+    setState(() {
+      conversations[idx] = Conversation(
+        id: updated.id,
+        userId: updated.userId,
+        userName: updated.userName,
+        userImage: updated.userImage,
+        lastMessage: content.isNotEmpty ? content : updated.lastMessage,
+        lastMessageTime: time,
+        unreadCount: updated.unreadCount,
+        messages: updated.messages,
+        isActive: updated.isActive,
+      );
+      conversations.sort((a, b) => b.lastMessageTime.compareTo(a.lastMessageTime));
+      if (!_isSearching) filteredConversations = List.from(conversations);
+    });
   }
 
   @override
   void dispose() {
+    for (final w in _socketWorkers) {
+      w.dispose();
+    }
     _searchController.dispose();
     super.dispose();
   }

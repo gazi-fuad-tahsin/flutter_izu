@@ -16,8 +16,13 @@ class _BookingListScreenState extends State<BookingListScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize controller
-    Get.put(UserBookingController());
+    if (Get.isRegistered<UserBookingController>()) {
+      // Re-mount: controller exists, refresh the current filter explicitly
+      Get.find<UserBookingController>().refreshCurrentFilter();
+    } else {
+      // First mount: onInit handles the initial fetch
+      Get.put(UserBookingController());
+    }
   }
 
   @override
