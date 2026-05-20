@@ -35,6 +35,7 @@ void setupController() {
     permanent: true,
   );
 
+
   // Get.lazyPut<SignInController>(
   //   () => SignInController(),
   //   fenix: true

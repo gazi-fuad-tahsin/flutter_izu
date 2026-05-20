@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:izu/core/network/services/socket_service.dart';
 
 import '../../data/model/conversation_model.dart';
+import '../controller/call_controller.dart';
 import '../../data/model/message_model.dart';
 import '../../data/repository/message_repository.dart';
 import '../widgets/message_bubble.dart';
@@ -266,10 +267,11 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> {
           IconButton(
             icon: const Icon(Icons.phone, color: Colors.black),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Call feature would be implemented here'),
-                ),
+              Get.find<CallController>().initiateCall(
+                toUserId: widget.conversation.userId,
+                chatId: widget.conversation.id,
+                toUserName: widget.conversation.userName,
+                toUserImage: widget.conversation.userImage,
               );
             },
           ),

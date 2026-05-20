@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutx_core/flutx_core.dart';
 import 'package:get/get.dart';
+import 'package:izu/core/network/constants/api_constants.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class SocketService extends GetxService {
@@ -18,6 +19,13 @@ class SocketService extends GetxService {
 
   // Observable for real-time notifications
   final Rxn<Map<String, dynamic>> liveNotification = Rxn<Map<String, dynamic>>();
+
+  // Observables for WebRTC audio call signaling
+  final Rxn<Map<String, dynamic>> callIncoming = Rxn<Map<String, dynamic>>();
+  final Rxn<Map<String, dynamic>> callAnswered = Rxn<Map<String, dynamic>>();
+  final Rxn<Map<String, dynamic>> callIceCandidate = Rxn<Map<String, dynamic>>();
+  final Rxn<Map<String, dynamic>> callRejected = Rxn<Map<String, dynamic>>();
+  final Rxn<Map<String, dynamic>> callEnded = Rxn<Map<String, dynamic>>();
 
   factory SocketService() {
     return _instance;
@@ -40,8 +48,8 @@ class SocketService extends GetxService {
     try {
       _currentUserId = userId;
 
-      // Get socket URL from your API constants or environment
-      const String socketUrl = 'http://10.10.5.67:5008';
+      // Use same base domain as the API so real devices can connect
+      final String socketUrl = ApiConstants.baseDomain;
 
       if (kDebugMode) {
         DPrint.log('🔌 Connecting to Socket: $socketUrl with userId: $userId');
@@ -146,6 +154,27 @@ class SocketService extends GetxService {
       if (data != null && data is Map) {
         newMessage.value = Map<String, dynamic>.from(data);
       }
+    });
+
+    // WebRTC audio call signaling events
+    _socket.on('call:incoming', (data) {
+      if (kDebugMode) DPrint.log('📞 call:incoming: $data');
+      if (data != null && data is Map) callIncoming.value = Map<String, dynamic>.from(data);
+    });
+    _socket.on('call:answered', (data) {
+      if (kDebugMode) DPrint.log('✅ call:answered: $data');
+      if (data != null && data is Map) callAnswered.value = Map<String, dynamic>.from(data);
+    });
+    _socket.on('call:ice-candidate', (data) {
+      if (data != null && data is Map) callIceCandidate.value = Map<String, dynamic>.from(data);
+    });
+    _socket.on('call:rejected', (data) {
+      if (kDebugMode) DPrint.log('❌ call:rejected: $data');
+      if (data != null && data is Map) callRejected.value = Map<String, dynamic>.from(data);
+    });
+    _socket.on('call:ended', (data) {
+      if (kDebugMode) DPrint.log('🔴 call:ended: $data');
+      if (data != null && data is Map) callEnded.value = Map<String, dynamic>.from(data);
     });
 
     // Real-time notification event

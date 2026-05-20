@@ -14,9 +14,9 @@ Future<void> setupServiceLocator() async {
   // Use Cases
   setupUsecases();
 
+  // Services (must run before controllers — CallController depends on SocketService)
+  setupServices();
+
   // Controllers
   setupController();
-
-  // Services
-  setupServices();
 }

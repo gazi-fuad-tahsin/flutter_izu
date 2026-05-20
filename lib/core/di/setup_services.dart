@@ -1,14 +1,13 @@
 
 import 'package:get/get.dart';
 
+import '../../features/message/presentation/controller/call_controller.dart';
 import '../network/services/socket_service.dart';
 
 void setupServices() {
-  // Get.lazyPut<GetUserProfileService>(() => GetUserProfileService(Get.find()));
-
-  // Register SoundService as a permanent singleton (available app-wide)
-  // Get.put<SoundService>(SoundService(), permanent: true);
-
   // Register SocketService as a singleton (GetxService)
   Get.put<SocketService>(SocketService(), permanent: true);
+
+  // CallController depends on SocketService — must be registered after it
+  Get.put<CallController>(CallController(), permanent: true);
 }

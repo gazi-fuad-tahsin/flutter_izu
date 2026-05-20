@@ -33,6 +33,7 @@ dependencies:
   pin_code_fields: ^7.4.0
   http: ^1.6.0
   socket_io_client: ^2.0.2
+  flutter_webrtc: ^1.4.1
   flutter_map: ^6.1.2
   latlong2: ^0.9.1
   video_player: ^2.9.5
