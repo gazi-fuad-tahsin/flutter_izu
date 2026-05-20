@@ -107,4 +107,29 @@ class ProviderBookingRepository {
       return false;
     }
   }
+
+  /// Complete service for a booking (provider action)
+  /// Returns true on success, false otherwise
+  Future<bool> completeBooking(String bookingId) async {
+    try {
+      final endpoint = '/api/v1/providers/complete-booking/$bookingId';
+      DPrint.log('🔄 Completing booking $bookingId');
+
+      final result = await _apiClient.patch<Map<String, dynamic>>(
+        endpoint,
+        fromJsonT: (json) => json as Map<String, dynamic>,
+      );
+
+      return result.fold((failure) {
+        DPrint.log('❌ Failed to complete booking: ${failure.message}');
+        return false;
+      }, (success) {
+        DPrint.log('✅ Complete booking response: ${success.data}');
+        return true;
+      });
+    } catch (e) {
+      DPrint.log('❌ Exception completing booking: $e');
+      return false;
+    }
+  }
 }

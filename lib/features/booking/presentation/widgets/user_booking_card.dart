@@ -365,29 +365,29 @@ class _UserBookingCardState extends State<UserBookingCard> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                // const SizedBox(width: 12),
                 // Reschedule Button
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2870BC),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      appTexts.reschedule.tr,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
+                // Expanded(
+                //   child: ElevatedButton(
+                //     onPressed: () {},
+                //     style: ElevatedButton.styleFrom(
+                //       backgroundColor: const Color(0xFF2870BC),
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(28),
+                //       ),
+                //       padding: const EdgeInsets.symmetric(vertical: 14),
+                //       elevation: 0,
+                //     ),
+                //     child: Text(
+                //       appTexts.reschedule.tr,
+                //       style: const TextStyle(
+                //         fontSize: 16,
+                //         fontWeight: FontWeight.w600,
+                //         color: Colors.white,
+                //       ),
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ],

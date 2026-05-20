@@ -28,6 +28,7 @@ class ProviderBookingCard extends StatefulWidget {
 class _ProviderBookingCardState extends State<ProviderBookingCard> {
   bool _isStarting = false;
   bool _isContactingLoading = false;
+  bool _isCompletingLoading = false;
 
   Widget _buildClientImage(String imagePath) {
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
@@ -109,6 +110,44 @@ class _ProviderBookingCardState extends State<ProviderBookingCard> {
         Get.to(() => MessageDetailScreen(conversation: conversation));
       },
     );
+  }
+
+  Future<void> _handleCompleteService() async {
+    setState(() {
+      _isCompletingLoading = true;
+    });
+
+    final repository = ProviderBookingRepository();
+    final success = await repository.completeBooking(widget.booking.id);
+
+    setState(() {
+      _isCompletingLoading = false;
+    });
+
+    if (success) {
+      Get.snackbar(
+        'Success',
+        'Booking completed!',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
+
+      if (Get.isRegistered<ProviderBookingController>()) {
+        final controller = Get.find<ProviderBookingController>();
+        controller.fetchBookingsByStatus('live');
+      }
+    } else {
+      Get.snackbar(
+        'Error',
+        'Failed to complete booking',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
+    }
   }
 
   @override
@@ -350,7 +389,9 @@ class _ProviderBookingCardState extends State<ProviderBookingCard> {
               ],
             ),
             const SizedBox(height: 12),
-            if (booking.status == 'waiting-for-start') ...[
+            if (booking.status == 'waiting-for-start') ...
+              [
+
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -401,7 +442,40 @@ class _ProviderBookingCardState extends State<ProviderBookingCard> {
                         ),
                 ),
               ),
-            ],
+            ] else if (booking.status == 'ongoing') ...
+              [
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _isCompletingLoading ? null : _handleCompleteService,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      elevation: 0,
+                    ),
+                    child: _isCompletingLoading
+                        ? const SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text(
+                            'Complete Service',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                  ),
+                ),
+              ],
           ] else if (filterType == 'next') ...[
             Row(
               children: [
@@ -434,28 +508,28 @@ class _ProviderBookingCardState extends State<ProviderBookingCard> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2870BC),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      'Reschedule',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
+                // const SizedBox(width: 12),
+                // Expanded(
+                //   child: ElevatedButton(
+                //     onPressed: () {},
+                //     style: ElevatedButton.styleFrom(
+                //       backgroundColor: const Color(0xFF2870BC),
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(28),
+                //       ),
+                //       padding: const EdgeInsets.symmetric(vertical: 14),
+                //       elevation: 0,
+                //     ),
+                //     child: const Text(
+                //       'Reschedule',
+                //       style: TextStyle(
+                //         fontSize: 16,
+                //         fontWeight: FontWeight.w600,
+                //         color: Colors.white,
+                //       ),
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ],
