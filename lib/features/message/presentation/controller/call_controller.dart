@@ -207,6 +207,7 @@ class CallController extends GetxController {
   }
 
   void _startTimer() {
+    if (_callTimer != null && _callTimer!.isActive) return;
     _callTimer?.cancel();
     callDurationSeconds.value = 0;
     _callTimer = Timer.periodic(const Duration(seconds: 1), (_) {
