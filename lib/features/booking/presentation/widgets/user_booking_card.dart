@@ -303,22 +303,33 @@ class _UserBookingCardState extends State<UserBookingCard> {
                           ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                // const SizedBox(width: 12),
                 // Location Button
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.location_on, size: 18),
-                    label: Text(appTexts.location.tr),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2870BC),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
-                ),
+                // Expanded(
+                //   child: ElevatedButton.icon(
+                //     onPressed: () {
+                //       Get.to(() => LocationScreen(
+                //             bookingId: widget.booking.id,
+                //             locationData: LocationData(
+                //               address: widget.booking.location,
+                //               latitude: 0.0,
+                //               longitude: 0.0,
+                //               clientName: widget.booking.providerName,
+                //               serviceType: widget.booking.serviceName,
+                //             ),
+                //           ));
+                //     },
+                //     icon: const Icon(Icons.location_on, size: 18),
+                //     label: Text(appTexts.location.tr),
+                //     style: ElevatedButton.styleFrom(
+                //       backgroundColor: const Color(0xFF2870BC),
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(28),
+                //       ),
+                //       padding: const EdgeInsets.symmetric(vertical: 12),
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ] else if (widget.filterType == 'upcoming') ...[
