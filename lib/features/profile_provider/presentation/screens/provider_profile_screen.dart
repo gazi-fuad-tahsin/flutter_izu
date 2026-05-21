@@ -160,79 +160,87 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
 
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 20,
-                            horizontal: 24,
-                          ),
-                          decoration: BoxDecoration(
-                            color: ProviderColors.workCompletionOrange,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                ProviderProfileTexts.workCompletion,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white,
+                  child: Obx(() {
+                    final stats = _controller.providerStats.value;
+                    final workCompletion = stats?.totalWorkCompletion ?? 0;
+                    final earnings = stats?.providerEarnings ?? 0;
+
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            height: 128,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 20,
+                              horizontal: 24,
+                            ),
+                            decoration: BoxDecoration(
+                              color: ProviderColors.workCompletionOrange,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  ProviderProfileTexts.workCompletion,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                ProviderProfileTexts.workCompletionValue,
-                                style: const TextStyle(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
+                                Text(
+                                  workCompletion.toString(),
+                                  style: const TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 20,
-                            horizontal: 24,
-                          ),
-                          decoration: BoxDecoration(
-                            color: ProviderColors.earningBlue,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                ProviderProfileTexts.yourEarning,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white,
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Container(
+                            height: 128,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 20,
+                              horizontal: 24,
+                            ),
+                            decoration: BoxDecoration(
+                              color: ProviderColors.earningBlue,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  ProviderProfileTexts.yourEarning,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                ProviderProfileTexts.earningValue,
-                                style: const TextStyle(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
+                                Text(
+                                  '\$${earnings.toStringAsFixed(0)}',
+                                  style: const TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    );
+                  }),
                 ),
 
                 const SizedBox(height: 32),

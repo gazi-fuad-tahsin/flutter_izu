@@ -2,6 +2,7 @@ import 'package:izu/core/network/api_client.dart';
 import 'package:izu/core/utils/debug_print.dart';
 
 import '../model/provider_profile_model.dart';
+import '../model/provider_stats_model.dart';
 import 'provider_profile_repo.dart';
 
 class ProviderProfileRepositoryImpl extends ProviderProfileRepository {
@@ -33,6 +34,35 @@ class ProviderProfileRepositoryImpl extends ProviderProfileRepository {
       );
     } catch (e) {
       DPrint.log('❌ Exception fetching provider profile: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<ProviderStatsModel> getProviderStats() async {
+    try {
+      DPrint.log('🔄 Fetching provider stats from /api/v1/providers/stats...');
+
+      final result = await _apiClient.get<Map<String, dynamic>>(
+        '/api/v1/providers/stats',
+        fromJsonT: (json) => json as Map<String, dynamic>,
+      );
+
+      return result.fold(
+        (failure) {
+          DPrint.log('❌ Failed to fetch provider stats: ${failure.message}');
+          throw Exception(failure.message);
+        },
+        (success) {
+          DPrint.log('✅ Provider stats response: ${success.data}');
+          final statsData = success.data['data'] ?? success.data;
+          final stats = ProviderStatsModel.fromJson(statsData as Map<String, dynamic>);
+          DPrint.log('✅ Provider stats fetched');
+          return stats;
+        },
+      );
+    } catch (e) {
+      DPrint.log('❌ Exception fetching provider stats: $e');
       rethrow;
     }
   }

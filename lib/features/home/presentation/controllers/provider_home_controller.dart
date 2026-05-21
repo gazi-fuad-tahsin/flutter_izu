@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:izu/core/network/services/socket_service.dart';
-
 import 'package:izu/core/utils/debug_print.dart';
 
 import '../../data/model/pending_request_model.dart';

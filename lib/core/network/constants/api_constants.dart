@@ -364,4 +364,8 @@ class ProviderEndpoints {
   /// Cancel booking request
   /// PATCH /providers/cancel-request/:bookingId
   String cancelRequest(String bookingId) => '$_base/cancel-request/$bookingId';
+
+  /// Provider stats
+  /// GET /providers/stats
+  final String stats = '$_base/stats';
 }
