@@ -146,8 +146,56 @@ class ProviderHomeController extends GetxController {
     }
   }
 
-  void rejectRequest(String requestId) {
-    // TODO: Implement reject request API call
-    Get.snackbar('Cancelled', 'Request cancelled successfully');
+  Future<bool> cancelRequest(String requestId) async {
+    try {
+      isLoading.value = true;
+
+      final result = await _repository.cancelRequest(requestId);
+
+      return await result.fold<Future<bool>>(
+        (failure) async {
+          Get.snackbar(
+            'Error',
+            failure.message,
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            margin: const EdgeInsets.all(16),
+            borderRadius: 8,
+            duration: const Duration(seconds: 2),
+          );
+          isLoading.value = false;
+          return false;
+        },
+        (success) async {
+          Get.snackbar(
+            'Cancelled',
+            'Cancellation success',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+            margin: const EdgeInsets.all(16),
+            borderRadius: 8,
+            duration: const Duration(seconds: 2),
+          );
+          isLoading.value = false;
+          await fetchPendingRequests();
+          return true;
+        },
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'An unexpected error occurred: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+        duration: const Duration(seconds: 2),
+      );
+      isLoading.value = false;
+      return false;
+    }
   }
 }

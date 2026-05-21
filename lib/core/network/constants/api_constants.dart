@@ -360,4 +360,8 @@ class ProviderEndpoints {
   /// Accept booking request
   /// PATCH /providers/accept-request/:bookingId
   String acceptRequest(String bookingId) => '$_base/accept-request/$bookingId';
+
+  /// Cancel booking request
+  /// PATCH /providers/cancel-request/:bookingId
+  String cancelRequest(String bookingId) => '$_base/cancel-request/$bookingId';
 }

@@ -50,19 +50,46 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
     _controller.acceptRequest(request.id);
   }
 
-  void _handleCancel(int index) {
+  Future<void> _handleCancel(int index) async {
     final request = _controller.pendingRequests[index];
-    _controller.rejectRequest(request.id);
-    Get.snackbar(
-      IzuHomeTexts.cancelledLabel,
-      IzuHomeTexts.requestCancelled,
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: AppColors.cancelOrange,
-      colorText: AppColors.primaryWhite,
-      margin: const EdgeInsets.all(16),
-      borderRadius: 8,
-      duration: const Duration(seconds: 2),
+
+    final shouldCancel = await showDialog<bool>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text('Cancel request?'),
+          content: const Text(
+            'Are you sure you want to cancel this booking request?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('No'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final success = await _controller.cancelRequest(request.id);
+                if (success && mounted) {
+                  Navigator.of(dialogContext).pop(true);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.cancelOrange,
+              ),
+              child: const Text('Yes, cancel'),
+            ),
+          ],
+        );
+      },
     );
+
+    if (shouldCancel == true && mounted) {
+      setState(() {});
+    }
   }
 
   String _formatDate(String dateTimeString) {
