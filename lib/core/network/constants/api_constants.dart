@@ -272,6 +272,9 @@ class ServiceEndpoints {
   static const String _base = '${ApiConstants.baseUrl}/services';
 
   final String getServices = _base;
+  String getServiceById(String serviceId) => '$_base/$serviceId';
+  String deleteService(String serviceId) => '$_base/delete/$serviceId';
+  String updateService(String serviceId) => '$_base/$serviceId';
 }
 
 /// [Category Endpoints]

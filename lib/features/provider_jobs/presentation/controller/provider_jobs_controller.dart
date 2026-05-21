@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../../core/base/base_controller.dart';
@@ -39,31 +40,67 @@ class ProviderJobsController extends BaseController {
     }
   }
 
-  /// Delete service
+  /// Delete service via API
   Future<void> deleteService(String serviceId) async {
     try {
       isLoading.value = true;
-      errorMessage.value = '';
-
-      DPrint.log('🗑️ Deleting service: $serviceId');
-
-      await _repo.deleteService(serviceId);
-      services.removeWhere((service) => service.id == serviceId);
-
-      DPrint.log('✅ Service deleted successfully');
-      Get.snackbar(
-        'Success',
-        'Service deleted successfully',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      final success = await _repo.deleteServiceById(serviceId);
+      if (success) {
+        services.removeWhere((s) => s.id == serviceId);
+        Get.snackbar(
+          'Deleted',
+          'Service deleted successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+        );
+      } else {
+        Get.snackbar(
+          'Error',
+          'Failed to delete service',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
     } catch (e) {
-      DPrint.log('❌ Error deleting service: $e');
-      errorMessage.value = 'Failed to delete service';
-      Get.snackbar(
-        'Error',
-        'Failed to delete service',
-        snackPosition: SnackPosition.BOTTOM,
+      DPrint.error('❌ Error deleting service: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  /// Fetch single service by id
+  Future<ProviderServiceModel?> getServiceById(String serviceId) =>
+      _repo.getServiceById(serviceId);
+
+  /// Update existing service via API
+  Future<bool> updateExistingService({
+    required String serviceId,
+    required String categoryId,
+    required String title,
+    required double price,
+    required String details,
+    File? primaryImage,
+    List<File> additionalImages = const [],
+  }) async {
+    try {
+      isLoading.value = true;
+      final success = await _repo.updateServiceById(
+        serviceId: serviceId,
+        categoryId: categoryId,
+        title: title,
+        price: price,
+        details: details,
+        primaryImage: primaryImage,
+        additionalImages: additionalImages,
       );
+      if (success) fetchProviderServices().catchError((_) {});
+      return success;
+    } catch (e) {
+      DPrint.error('❌ Error updating service: $e');
+      return false;
     } finally {
       isLoading.value = false;
     }

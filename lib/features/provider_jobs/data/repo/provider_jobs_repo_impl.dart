@@ -45,34 +45,132 @@ class ProviderJobsRepositoryImpl extends ProviderJobsRepository {
   }
 
   @override
-  Future<void> deleteService(String serviceId) async {
+  Future<bool> deleteServiceById(String serviceId) async {
     try {
-      // TODO: Replace with actual API call
-      await Future.delayed(const Duration(milliseconds: 500));
+      DPrint.log('🗑 Deleting service: $serviceId');
+      final result = await _apiClient.delete<Map<String, dynamic>>(
+        ApiConstants.service.deleteService(serviceId),
+        fromJsonT: (json) => json is Map<String, dynamic> ? json : {},
+      );
+      return result.fold(
+        (failure) {
+          DPrint.error('❌ Delete failed: ${failure.message}');
+          return false;
+        },
+        (success) {
+          DPrint.log('✅ Service deleted: ${success.data}');
+          return true;
+        },
+      );
     } catch (e) {
-      rethrow;
+      DPrint.error('❌ Exception deleting service: $e');
+      return false;
     }
   }
 
   @override
-  Future<void> updateService(ProviderServiceModel service) async {
+  Future<ProviderServiceModel?> getServiceById(String serviceId) async {
     try {
-      // TODO: Replace with actual API call
-      await Future.delayed(const Duration(milliseconds: 500));
+      DPrint.log('🔄 Fetching service by id: $serviceId');
+      final result = await _apiClient.get<Map<String, dynamic>>(
+        ApiConstants.service.getServiceById(serviceId),
+        fromJsonT: (json) => json as Map<String, dynamic>,
+      );
+      return result.fold(
+        (failure) {
+          DPrint.error('❌ Get service failed: ${failure.message}');
+          return null;
+        },
+        (success) {
+          DPrint.log('✅ Service fetched: ${success.data}');
+          return ProviderServiceModel.fromJson(success.data);
+        },
+      );
     } catch (e) {
-      rethrow;
+      DPrint.error('❌ Exception getting service: $e');
+      return null;
     }
   }
 
   @override
-  Future<void> addService(ProviderServiceModel service) async {
+  Future<bool> updateServiceById({
+    required String serviceId,
+    required String categoryId,
+    required String title,
+    required double price,
+    required String details,
+    File? primaryImage,
+    List<File> additionalImages = const [],
+  }) async {
     try {
-      // TODO: Replace with actual API call
-      await Future.delayed(const Duration(milliseconds: 500));
+      DPrint.log('✏️ Updating service: $serviceId');
+
+      final detailsMap = {
+        "title": title,
+        "perSessionPrice": price,
+        "hourlyPrice": price,
+        "details": details,
+        "isActive": true,
+        "address": "Downtown",
+        "serviceType": "hourly",
+      };
+
+      final formDataMap = <String, dynamic>{
+        "category": categoryId,
+        "serviceDetails": jsonEncode(detailsMap),
+      };
+
+      // Only add images if new ones are selected
+      final List<MultipartFile> thumbnailFiles = [];
+      if (primaryImage != null) {
+        thumbnailFiles.add(await MultipartFile.fromFile(
+          primaryImage.path,
+          filename: primaryImage.path.split('/').last,
+        ));
+      }
+      for (final img in additionalImages) {
+        thumbnailFiles.add(await MultipartFile.fromFile(
+          img.path,
+          filename: img.path.split('/').last,
+        ));
+      }
+      if (thumbnailFiles.isNotEmpty) {
+        formDataMap["serviceThumbnails"] = thumbnailFiles;
+      }
+
+      final formData = FormData.fromMap(formDataMap);
+
+      final result = await _apiClient.patch<dynamic>(
+        ApiConstants.service.updateService(serviceId),
+        fromJsonT: (json) => json,
+        data: formData,
+        options: Options(headers: ApiConstants.multipartHeaders),
+      );
+
+      return result.fold(
+        (failure) {
+          DPrint.error('❌ Update failed: ${failure.message}');
+          return false;
+        },
+        (success) {
+          DPrint.log('✅ Service updated: ${success.data}');
+          return true;
+        },
+      );
     } catch (e) {
-      rethrow;
+      DPrint.error('❌ Exception updating service: $e');
+      return false;
     }
   }
+
+  @override
+  Future<void> deleteService(String serviceId) async {}
+
+  @override
+  Future<void> updateService(ProviderServiceModel service) async {}
+
+  @override
+  Future<void> addService(ProviderServiceModel service) async {}
 
   @override
   Future<bool> createService({

@@ -2,6 +2,7 @@ class ProviderServiceModel {
   final String id;
   final String title;
   final String category;
+  final String categoryId;
   final String image;
   final String providerName;
   final String providerHandle;
@@ -17,6 +18,7 @@ class ProviderServiceModel {
     required this.id,
     required this.title,
     required this.category,
+    this.categoryId = '',
     required this.image,
     required this.providerName,
     required this.providerHandle,
@@ -30,39 +32,59 @@ class ProviderServiceModel {
   });
 
   factory ProviderServiceModel.fromJson(Map<String, dynamic> json) {
-    // Extract service details from nested structure
-    final serviceDetails = json['serviceDetails'] as Map<String, dynamic>? ?? {};
-    final category = json['category'] as Map<String, dynamic>? ?? {};
+    // Handle serviceDetails as either a Map or a List
+    final serviceDetailsRaw = json['serviceDetails'];
+    final Map<String, dynamic> serviceDetail;
+    if (serviceDetailsRaw is List && serviceDetailsRaw.isNotEmpty) {
+      serviceDetail = serviceDetailsRaw.first as Map<String, dynamic>? ?? {};
+    } else if (serviceDetailsRaw is Map<String, dynamic>) {
+      serviceDetail = serviceDetailsRaw;
+    } else {
+      serviceDetail = {};
+    }
+
+    // Handle category as either a populated Map or a plain ID string
+    final categoryRaw = json['category'];
+    final String categoryName;
+    final String categoryIdValue;
+    if (categoryRaw is Map<String, dynamic>) {
+      categoryName = categoryRaw['name'] as String? ?? '';
+      categoryIdValue = categoryRaw['_id'] as String? ?? '';
+    } else {
+      categoryName = '';
+      categoryIdValue = categoryRaw?.toString() ?? '';
+    }
+
     final providerId = json['providerId'] as Map<String, dynamic>? ?? {};
-    
+
     // Get thumbnail images
-    final thumbnails = (serviceDetails['serviceThumbnails'] as List<dynamic>?)
+    final thumbnails = (serviceDetail['serviceThumbnails'] as List<dynamic>?)
         ?.map((e) => e.toString())
         .toList() ?? [];
-    
+
     // Use first thumbnail or category image
     final image = thumbnails.isNotEmpty
         ? thumbnails.first
-        : (category['catImage'] as String? ?? '');
-    
-    // Generate provider handle from name
+        : ((categoryRaw is Map ? categoryRaw['catImage'] : null) as String? ?? '');
+
     final providerName = (providerId['name'] as String?) ?? 'Provider';
     final providerHandle = '@${providerName.replaceAll(' ', '')}';
-    
+
     return ProviderServiceModel(
       id: json['_id'] as String? ?? '',
-      title: (serviceDetails['title'] as String?) ?? '',
-      category: (category['name'] as String?) ?? '',
+      title: (serviceDetail['title'] as String?) ?? '',
+      category: categoryName,
+      categoryId: categoryIdValue,
       image: image,
       providerName: providerName,
       providerHandle: providerHandle,
       rating: (json['averageRating'] as num?)?.toDouble() ?? 0.0,
-      distance: 0.0, // API doesn't provide distance
-      pricePerHour: ((serviceDetails['hourlyPrice'] as num?)?.toDouble()) ?? 0.0,
+      distance: 0.0,
+      pricePerHour: ((serviceDetail['hourlyPrice'] as num?)?.toDouble()) ?? 0.0,
       thumbnailImages: thumbnails,
-      serviceDetails: (serviceDetails['details'] as String?) ?? '',
-      serviceType: (serviceDetails['serviceType'] as String?) ?? 'hourly',
-      perSessionPrice: ((serviceDetails['perSessionPrice'] as num?)?.toDouble()) ?? 0.0,
+      serviceDetails: (serviceDetail['details'] as String?) ?? '',
+      serviceType: (serviceDetail['serviceType'] as String?) ?? 'hourly',
+      perSessionPrice: ((serviceDetail['perSessionPrice'] as num?)?.toDouble()) ?? 0.0,
     );
   }
 
@@ -88,6 +110,7 @@ class ProviderServiceModel {
     String? id,
     String? title,
     String? category,
+    String? categoryId,
     String? image,
     String? providerName,
     String? providerHandle,
@@ -103,6 +126,7 @@ class ProviderServiceModel {
       id: id ?? this.id,
       title: title ?? this.title,
       category: category ?? this.category,
+      categoryId: categoryId ?? this.categoryId,
       image: image ?? this.image,
       providerName: providerName ?? this.providerName,
       providerHandle: providerHandle ?? this.providerHandle,

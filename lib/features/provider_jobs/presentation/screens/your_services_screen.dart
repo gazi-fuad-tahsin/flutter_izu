@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../data/model/provider_service_model.dart';
 import '../controller/provider_jobs_controller.dart';
 import 'add_service_screen.dart';
+import 'edit_service_screen.dart';
 
 class YourServicesScreen extends StatelessWidget {
   final bool showBackButton;
@@ -423,11 +424,7 @@ class YourServicesScreen extends StatelessWidget {
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          Get.snackbar(
-                            'Coming Soon',
-                            'Edit Service coming soon',
-                            snackPosition: SnackPosition.BOTTOM,
-                          );
+                          Get.to(() => EditServiceScreen(service: service));
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
