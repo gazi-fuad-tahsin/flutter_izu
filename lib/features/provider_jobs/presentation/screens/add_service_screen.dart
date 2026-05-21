@@ -8,6 +8,7 @@ import '../../data/model/service_category_model.dart';
 import '../../data/repo/service_category_repository.dart';
 import '../widgets/additional_image_picker_card.dart';
 import '../widgets/image_picker_card.dart';
+import '../controller/provider_jobs_controller.dart';
 
 class AddServiceScreen extends StatefulWidget {
   const AddServiceScreen({super.key});
@@ -402,10 +403,38 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
 
   Future<void> _handleAddService() async {
     // Validate fields
+    if (selectedImage == null) {
+      Get.snackbar(
+        'Error',
+        'Please select a service thumbnail image',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    if (selectedCategory == null) {
+      Get.snackbar(
+        'Error',
+        'Please select a service category',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
     if (serviceAmountController.text.isEmpty) {
       Get.snackbar(
         'Error',
         'Please enter service amount',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    final price = double.tryParse(serviceAmountController.text.trim());
+    if (price == null) {
+      Get.snackbar(
+        'Error',
+        'Please enter a valid amount',
         snackPosition: SnackPosition.BOTTOM,
       );
       return;
@@ -423,21 +452,48 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
     setState(() => isLoading = true);
 
     try {
-      // TODO: Implement API call to add service
-      await Future.delayed(const Duration(milliseconds: 500));
+      final categoryModel = categories.firstWhere(
+        (cat) => cat.name == selectedCategory,
+        orElse: () => throw Exception('Category not found'),
+      );
+      final categoryId = categoryModel.id;
 
-      Get.snackbar(
-        'Success',
-        'Service added successfully',
-        snackPosition: SnackPosition.BOTTOM,
+      final List<File> nonNullAdditionalImages = additionalImages
+          .where((img) => img != null)
+          .cast<File>()
+          .toList();
+
+      final providerJobsController = Get.find<ProviderJobsController>();
+      final success = await providerJobsController.createService(
+        categoryId: categoryId,
+        title: selectedCategory!,
+        price: price,
+        details: serviceDetailsController.text.trim(),
+        primaryImage: selectedImage!,
+        additionalImages: nonNullAdditionalImages,
       );
 
-      // Go back after successful addition
-      Get.back();
+      if (success) {
+        Get.snackbar(
+          'Success',
+          'Service added successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        // Go back after successful addition
+        Get.back();
+      } else {
+        Get.snackbar(
+          'Error',
+          'Failed to add service',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
     } catch (e) {
       Get.snackbar(
         'Error',
-        'Failed to add service',
+        'Failed to add service: $e',
         snackPosition: SnackPosition.BOTTOM,
       );
     } finally {

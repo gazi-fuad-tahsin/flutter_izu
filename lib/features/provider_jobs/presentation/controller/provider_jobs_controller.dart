@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:get/get.dart';
 
 import '../../../../../core/base/base_controller.dart';
@@ -136,5 +137,41 @@ class ProviderJobsController extends BaseController {
     services.clear();
     errorMessage.value = '';
     isLoading.value = false;
+  }
+
+  /// Create new service on the server and fetch updated list
+  Future<bool> createService({
+    required String categoryId,
+    required String title,
+    required double price,
+    required String details,
+    required File primaryImage,
+    required List<File> additionalImages,
+  }) async {
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+      
+      final success = await _repo.createService(
+        categoryId: categoryId,
+        title: title,
+        price: price,
+        details: details,
+        primaryImage: primaryImage,
+        additionalImages: additionalImages,
+      );
+
+      if (success) {
+        DPrint.log('✅ Service created, refreshing list...');
+        await fetchProviderServices();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      DPrint.log('❌ Exception in controller createService: $e');
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
   }
 }
