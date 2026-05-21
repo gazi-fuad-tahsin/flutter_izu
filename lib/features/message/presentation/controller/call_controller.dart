@@ -70,6 +70,7 @@ class CallController extends GetxController {
     }
     callState.value = CallState.active;
     _startTimer();
+    _callService.setSpeaker(isSpeakerOn.value);
     DPrint.log('✅ Call connected');
   }
 
@@ -116,6 +117,7 @@ class CallController extends GetxController {
       _callService.onCallConnected = () {
         callState.value = CallState.active;
         _startTimer();
+        _callService.setSpeaker(isSpeakerOn.value);
       };
 
       final offer = await _callService.createOffer();
@@ -143,6 +145,7 @@ class CallController extends GetxController {
       _callService.onCallConnected = () {
         callState.value = CallState.active;
         _startTimer();
+        _callService.setSpeaker(isSpeakerOn.value);
       };
 
       if (_pendingOffer == null) return;
@@ -155,6 +158,7 @@ class CallController extends GetxController {
 
       callState.value = CallState.active;
       _startTimer();
+      _callService.setSpeaker(isSpeakerOn.value);
       Get.to(() => const AudioCallScreen());
     } catch (e) {
       DPrint.error('❌ Accept call failed: $e');

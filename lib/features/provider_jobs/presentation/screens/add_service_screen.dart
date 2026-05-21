@@ -474,20 +474,24 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
       );
 
       if (success) {
+        if (mounted) setState(() => isLoading = false);
+        Get.back();
         Get.snackbar(
           'Success',
           'Service added successfully',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.green,
           colorText: Colors.white,
+          duration: const Duration(seconds: 3),
         );
-        // Go back after successful addition
-        Get.back();
+        return;
       } else {
         Get.snackbar(
           'Error',
-          'Failed to add service',
+          'Failed to add service. Please try again.',
           snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
         );
       }
     } catch (e) {
@@ -497,7 +501,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
         snackPosition: SnackPosition.BOTTOM,
       );
     } finally {
-      setState(() => isLoading = false);
+      if (mounted) setState(() => isLoading = false);
     }
   }
 

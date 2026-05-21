@@ -163,7 +163,8 @@ class ProviderJobsController extends BaseController {
 
       if (success) {
         DPrint.log('✅ Service created, refreshing list...');
-        await fetchProviderServices();
+        // Refresh independently — don't let it fail the success result
+        fetchProviderServices().catchError((_) {});
         return true;
       }
       return false;
