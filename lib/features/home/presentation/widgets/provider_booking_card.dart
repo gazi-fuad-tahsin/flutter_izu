@@ -170,22 +170,21 @@ class _ProviderBookingCardState extends State<ProviderBookingCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  _buildClientImage(booking.clientImage),
-                  const SizedBox(width: 12),
-                  Text(
-                    booking.clientName,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black,
-                    ),
+              _buildClientImage(booking.clientImage),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  booking.clientName,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black,
                   ),
-                ],
+                ),
               ),
+              const SizedBox(width: 8),
               _buildStatusBadge(filterType, booking),
             ],
           ),

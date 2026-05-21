@@ -117,27 +117,26 @@ class _UserBookingCardState extends State<UserBookingCard> {
         children: [
           // Header with provider name and status badge
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 24,
-                    backgroundImage: widget.booking.providerImage.startsWith('http')
-                        ? NetworkImage(widget.booking.providerImage) as ImageProvider
-                        : AssetImage(widget.booking.providerImage),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    widget.booking.providerName,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
+              CircleAvatar(
+                radius: 24,
+                backgroundImage: widget.booking.providerImage.startsWith('http')
+                    ? NetworkImage(widget.booking.providerImage) as ImageProvider
+                    : AssetImage(widget.booking.providerImage),
               ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  widget.booking.providerName,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
               _buildStatusBadge(widget.filterType),
             ],
           ),

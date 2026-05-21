@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutx_core/flutx_core.dart';
 import 'package:get/get.dart';
 import 'package:izu/core/network/constants/api_constants.dart';
+import 'package:izu/core/services/notification_sound_service.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class SocketService extends GetxService {
@@ -12,6 +13,9 @@ class SocketService extends GetxService {
 
   // Observable for request-confirmation event
   final Rxn<Map<String, dynamic>> requestConfirmation = Rxn<Map<String, dynamic>>();
+
+  // Observable for booking-created event
+  final Rxn<Map<String, dynamic>> bookingCreated = Rxn<Map<String, dynamic>>();
 
   // Observable for provider-completed-request event
   final Rxn<Map<String, dynamic>> providerCompletedRequest = Rxn<Map<String, dynamic>>();
@@ -48,6 +52,8 @@ class SocketService extends GetxService {
   }
   String? get currentUserId => _currentUserId;
   IO.Socket get socket => _socket;
+
+  NotificationSoundService get _sound => Get.find<NotificationSoundService>();
 
   /// Connect to socket server
   Future<void> connect(String userId, {String? token}) async {
@@ -159,13 +165,17 @@ class SocketService extends GetxService {
       }
       if (data != null && data is Map) {
         newMessage.value = Map<String, dynamic>.from(data);
+        _sound.play();
       }
     });
 
     // WebRTC audio call signaling events
     _socket.on('call:incoming', (data) {
       if (kDebugMode) DPrint.log('📞 call:incoming: $data');
-      if (data != null && data is Map) callIncoming.value = Map<String, dynamic>.from(data);
+      if (data != null && data is Map) {
+        callIncoming.value = Map<String, dynamic>.from(data);
+        _sound.play();
+      }
     });
     _socket.on('call:answered', (data) {
       if (kDebugMode) DPrint.log('✅ call:answered: $data');
@@ -190,6 +200,7 @@ class SocketService extends GetxService {
       }
       if (data != null && data is Map) {
         liveNotification.value = Map<String, dynamic>.from(data);
+        _sound.play();
       }
     });
 
@@ -214,6 +225,25 @@ class SocketService extends GetxService {
     _socket.on('serviceRequest', (data) {
       if (kDebugMode) {
         DPrint.log('🔔 Service request: $data');
+      }
+    });
+
+    // Booking created notification
+    _socket.on('booking-created', (data) {
+      DPrint.log(
+          "\n╔═══════════════════════════════════════════════════════════════");
+      DPrint.log("║ 📬 BOOKING-CREATED EVENT RECEIVED");
+      DPrint.log(
+          "╠═══════════════════════════════════════════════════════════════");
+      DPrint.log("║ Raw Data: $data");
+      DPrint.log("║ Data Type: ${data.runtimeType}");
+      DPrint.log(
+          "╚═══════════════════════════════════════════════════════════════\n");
+
+      if (data != null && data is Map) {
+        final mappedData = Map<String, dynamic>.from(data);
+        DPrint.log('✅ Updating bookingCreated observable with: $mappedData');
+        bookingCreated.value = mappedData;
       }
     });
 
@@ -255,7 +285,7 @@ class SocketService extends GetxService {
       }
     });
 
-    // Provider ready confirmation event
+    // Provider ready confirmation event — plays sound for user
     _socket.on('request-confirmation', (data) {
       DPrint.log(
           "\n╔═══════════════════════════════════════════════════════════════");
@@ -272,6 +302,7 @@ class SocketService extends GetxService {
         DPrint.log('✅ Updating requestConfirmation observable with: $mappedData');
         requestConfirmation.value = mappedData;
         DPrint.log('✅ Observable value is now: ${requestConfirmation.value}');
+        _sound.play();
       } else {
         DPrint.log('⚠️ Data is null or not a Map: $data');
       }

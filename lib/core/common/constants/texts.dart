@@ -377,6 +377,12 @@ class appTexts {
   static const String yourEarning = "yourEarning";
   static const String yourServices = "yourServices";
   static const String termsAndConditions = "termsAndConditions";
+  static const String privacyPolicyTitle = "privacyPolicyTitle";
+  static const String termsConditionsTitle = "termsConditionsTitle";
+  static const String aboutAppTitle = "aboutAppTitle";
+  static const String privacyPolicyContent = "privacyPolicyContent";
+  static const String termsConditionsContent = "termsConditionsContent";
+  static const String aboutAppContent = "aboutAppContent";
   static const String areYouSureYouWantToSignOut = "areYouSureYouWantToSignOut";
   static const String yes = "yes";
   static const String legal = "legal";

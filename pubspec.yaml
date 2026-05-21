@@ -35,6 +35,7 @@ dependencies:
   socket_io_client: ^2.0.2
   flutter_webrtc: ^1.4.1
   shimmer: ^3.0.0
+  audioplayers: ^6.1.0
   flutter_map: ^6.1.2
   latlong2: ^0.9.1
   video_player: ^2.9.5
@@ -68,3 +69,4 @@ flutter:
     - assets/images/
     - assets/images/home_assets/
     - assets/icons/
+    - assets/sounds/

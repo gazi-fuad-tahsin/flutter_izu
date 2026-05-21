@@ -3,10 +3,11 @@ import 'package:get/get.dart';
 
 import '../../../../../core/common/constants/feature_texts.dart';
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../core/common/widgets/app_skeleton.dart';
 import '../../../auth/presentation/controller/user_controller.dart';
+import '../../../booking/data/model/user_booking_model.dart';
 import '../../../booking/presentation/controller/user_booking_controller.dart';
 import '../../../booking/presentation/screens/booking_list_screen.dart';
-import '../../../../core/common/widgets/app_skeleton.dart';
 import '../../../category/presentation/controller/category_controller.dart';
 import '../../../category/presentation/screens/all_categories_screen.dart';
 import '../../../chatbot/presentation/widgets/chatbot_overlay_popup.dart';
@@ -16,14 +17,13 @@ import '../../../profile/presentation/screens/user_profile_screen.dart';
 import '../../../service/presentation/controller/service_controller.dart';
 import '../../../service/presentation/screens/services_list_screen.dart';
 import '../controllers/home_controller.dart';
+import '../widgets/cancel_booking_dialog.dart';
 import '../widgets/categories_list.dart';
 import '../widgets/featured_artisans_section.dart';
 import '../widgets/home_header.dart';
 import '../widgets/nearby_artisans_section.dart';
-import '../widgets/cancel_booking_dialog.dart';
-import '../widgets/provider_ready_dialog.dart';
 import '../widgets/provider_completed_dialog.dart';
-import '../../../booking/data/model/user_booking_model.dart';
+import '../widgets/provider_ready_dialog.dart';
 import '../widgets/review_giving_sheet.dart';
 import '../widgets/section_header.dart';
 import '../widgets/super_deals_banner.dart';
@@ -357,17 +357,21 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => ProviderReadyConfirmationDialog(
-        providerName: providerName,
-        providerImage: providerImage,
-        onAccept: () {
-          _homeController.acceptProviderRequest();
-        },
-        onCancel: () {
-          // Close the first popup then show the cancel confirmation
-          Navigator.of(context).pop();
-          _showCancelConfirmationDialog();
-        },
+      builder: (context) => Obx(
+        () => ProviderReadyConfirmationDialog(
+          providerName: providerName,
+          providerImage: providerImage,
+          isLoading: _homeController.isConfirmLoading.value,
+          onAccept: () async {
+            final success = await _homeController.acceptProviderRequest();
+            if (success && mounted) {
+              Navigator.of(context).pop();
+            }
+          },
+          onCancel: () {
+            _showCancelConfirmationDialog();
+          },
+        ),
       ),
     );
   }

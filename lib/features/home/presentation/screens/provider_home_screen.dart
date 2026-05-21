@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:izu/core/network/services/socket_service.dart';
 import 'package:izu/core/utils/debug_print.dart';
 
 import '../../../../../core/common/constants/feature_texts.dart';
@@ -32,6 +33,7 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
   int _selectedNavIndex = 0;
   late ProviderHomeController _controller;
   late ProviderProfileController _profileController;
+  Worker? _bookingCreatedWorker;
 
   @override
   void initState() {
@@ -43,6 +45,39 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
     } else {
       _profileController = Get.put(ProviderProfileController());
     }
+
+    _listenToBookingCreatedEvents();
+  }
+
+  void _listenToBookingCreatedEvents() {
+    final socketService = Get.find<SocketService>();
+    _bookingCreatedWorker = ever(socketService.bookingCreated, (data) {
+      if (data == null || !mounted) return;
+
+      final clientName = data['userName']?.toString() ??
+          data['name']?.toString() ??
+          'Client';
+
+      Get.snackbar(
+        'New booking request',
+        'A new booking request has come from $clientName',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: AppColors.homePrimary,
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+        duration: const Duration(seconds: 5),
+        isDismissible: true,
+        onTap: (_) {
+          Get.until((route) => route.isFirst);
+          if (!mounted) return;
+          setState(() {
+            _selectedNavIndex = 0;
+          });
+          _refreshTabData(0);
+        },
+      );
+    });
   }
 
   void _handleAccept(int index) {
@@ -150,6 +185,12 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
         _profileController.fetchProfileData();
         break;
     }
+  }
+
+  @override
+  void dispose() {
+    _bookingCreatedWorker?.dispose();
+    super.dispose();
   }
 
   @override

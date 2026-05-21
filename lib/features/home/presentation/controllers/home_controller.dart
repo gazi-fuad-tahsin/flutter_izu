@@ -64,12 +64,11 @@ class HomeController extends GetxController {
   }
 
   /// Confirm booking — PATCH /bookings/confirm/:bookingId
-  Future<void> acceptProviderRequest() async {
+  Future<bool> acceptProviderRequest() async {
     final bookingId = _bookingId;
     if (bookingId == null || bookingId.isEmpty) {
       DPrint.error('❌ No bookingId found in socket data');
-      Get.back();
-      return;
+      return false;
     }
 
     isConfirmLoading.value = true;
@@ -77,12 +76,14 @@ class HomeController extends GetxController {
     isConfirmLoading.value = false;
 
     showAcceptanceDialog.value = false;
-    Get.back();
+    requestAcceptedData.value = null;
 
     if (result != null) {
       DPrint.log('✅ Booking confirmed: ${result.id}');
+      return true;
     } else {
       DPrint.error('❌ Failed to confirm booking');
+      return false;
     }
   }
 
@@ -151,13 +152,30 @@ class HomeController extends GetxController {
     final result = await _bookingRepository.cancelBooking(bookingId);
     isCancelLoading.value = false;
 
-    Get.back(); // close cancel confirmation dialog
-    requestAcceptedData.value = null;
-
     if (result != null) {
       DPrint.log('✅ Booking cancelled: ${result.id}');
+      Get.back(); // close cancel confirmation dialog
+      Get.back(); // close provider ready dialog
+      requestAcceptedData.value = null;
+      showAcceptanceDialog.value = false;
+      Get.snackbar(
+        'Success',
+        'Booking cancel successfully',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
     } else {
       DPrint.error('❌ Failed to cancel booking');
+      Get.snackbar(
+        'Error',
+        'Failed to cancel booking',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
     }
   }
 

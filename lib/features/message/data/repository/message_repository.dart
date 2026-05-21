@@ -1,9 +1,11 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:get/get.dart' hide FormData, MultipartFile;
 
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/models/network_failure.dart';
 import '../../../../core/network/services/auth_storage_service.dart';
+import '../../../../core/utils/jwt_decoder.dart';
 import '../model/conversation_model.dart';
 import '../model/message_model.dart';
 
@@ -15,11 +17,31 @@ class MessageRepository {
 		ApiClient? apiClient,
 		AuthStorageService? authStorageService,
 	}) : _apiClient = apiClient ?? ApiClient(),
-			 _authStorageService = authStorageService ?? AuthStorageService();
+			 // Always use the registered singleton so userId is reliably available
+			 _authStorageService = authStorageService ??
+			     (Get.isRegistered<AuthStorageService>()
+			         ? Get.find<AuthStorageService>()
+			         : AuthStorageService());
+
+	/// Returns the current user's ID, falling back to JWT decoding if storage
+	/// returns null (can happen on first load before storage is fully warm).
+	Future<String?> _getCurrentUserId() async {
+		var userId = await _authStorageService.getUserId();
+		if (userId == null || userId.isEmpty) {
+			final token = await _authStorageService.getAccessToken();
+			if (token != null && token.isNotEmpty) {
+				userId = JwtDecoder.extractUserIdFromToken(token);
+				if (userId != null && userId.isNotEmpty) {
+					await _authStorageService.storeUserId(userId);
+				}
+			}
+		}
+		return userId;
+	}
 
 	Future<Either<NetworkFailure, List<Conversation>>> getConversations() async {
 		try {
-			final currentUserId = await _authStorageService.getUserId();
+			final currentUserId = await _getCurrentUserId();
 
 			final result = await _apiClient.get<Map<String, dynamic>>(
 				'/api/v1/messages/',
@@ -139,7 +161,7 @@ class MessageRepository {
 		String chatId,
 	) async {
 		try {
-			final currentUserId = await _authStorageService.getUserId();
+			final currentUserId = await _getCurrentUserId();
 
 			final result = await _apiClient.get<List<dynamic>>(
 				'/api/v1/messages/$chatId/messages',
@@ -179,7 +201,7 @@ class MessageRepository {
 		String? filePath,
 	}) async {
 		try {
-			final currentUserId = await _authStorageService.getUserId();
+			final currentUserId = await _getCurrentUserId();
 
 			final formData = FormData();
 			formData.fields.add(MapEntry('chatId', chatId));
@@ -275,7 +297,7 @@ class MessageRepository {
 		String participantId,
 	) async {
 		try {
-			final currentUserId = await _authStorageService.getUserId();
+			final currentUserId = await _getCurrentUserId();
 
 			final result = await _apiClient.post<Map<String, dynamic>>(
 				'/api/v1/messages/create',

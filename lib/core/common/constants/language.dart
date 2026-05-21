@@ -374,6 +374,15 @@ class AppLanguages {
     appTexts.services: "Services",
     appTexts.settings: "Settings",
     appTexts.vehicleDetails: "Vehicle Details",
+    appTexts.privacyPolicyTitle: "Privacy Policy",
+    appTexts.termsConditionsTitle: "Terms & Conditions",
+    appTexts.aboutAppTitle: "About App",
+    appTexts.privacyPolicyContent:
+        "Privacy Policy\n\nLast updated: 2026\n\n1. Information We Collect\nWe collect your name, email, phone number, profile image, and location data when you register and use our platform. Booking and payment details are also collected to facilitate service transactions.\n\n2. How We Use Your Data\nYour information is used to connect you with service providers, process bookings, send service notifications, and improve your app experience. We do not use your data for unsolicited marketing.\n\n3. Data Sharing\nWe share your contact details only with the service provider you book. We do not sell your personal data to third parties. Data may be shared with trusted partners solely to operate our platform securely.\n\n4. Data Security\nAll personal data is encrypted in transit and at rest. We apply industry-standard security measures to protect your information from unauthorised access.\n\n5. Your Rights\nYou may access, update, or delete your personal data at any time through your profile settings. For privacy concerns, contact us at support@izu.app.\n\n6. Changes to This Policy\nWe may update this policy periodically. Continued use of the app after changes constitutes acceptance of the updated policy.",
+    appTexts.termsConditionsContent:
+        "Terms & Conditions\n\nLast updated: 2026\n\n1. Acceptance\nBy using Izu you agree to these Terms & Conditions. If you do not agree, please stop using the platform immediately.\n\n2. User Responsibilities\nYou agree to provide accurate registration information, keep your account credentials secure, and use the platform only for lawful purposes. Treat all service providers with courtesy and professionalism.\n\n3. Provider Responsibilities\nService providers agree to deliver services as described, maintain professional standards, arrive punctually, and honour all confirmed bookings.\n\n4. Bookings & Cancellations\nBookings are confirmed once accepted by a provider. Cancellations should be made at least 2 hours before the scheduled service time. Repeated last-minute cancellations may result in account restrictions.\n\n5. Payments\nAll transactions are processed securely. Prices are set by providers and clearly displayed before booking confirmation. Izu is not responsible for pricing disputes between users and providers.\n\n6. Liability\nIzu acts as an intermediary marketplace. We are not liable for the quality, safety, or outcomes of services delivered by independent providers.\n\n7. Amendments\nThese terms may be updated at any time. Continued use of the platform constitutes acceptance of any revised terms.",
+    appTexts.aboutAppContent:
+        "About Izu\n\nIzu is a modern service marketplace that connects homeowners and individuals with verified, skilled artisans and service professionals in their local area.\n\nOur Mission\nWe believe everyone deserves access to reliable, high-quality home and professional services. Izu makes finding and booking trusted artisans as simple and seamless as possible.\n\nFor Users\n• Browse and book a wide range of services — cleaning, electrical, plumbing, carpentry, and more.\n• View real ratings and reviews from verified customers.\n• Communicate directly with your provider in real time.\n• Secure, transparent payments with no hidden fees.\n\nFor Providers\nIzu empowers skilled artisans to grow their business by connecting them with clients nearby. Providers set their own rates, availability, and service offerings.\n\nVersion 1.0.0\n© 2026 Izu. All rights reserved.\n\nContact: support@izu.app",
   };
 
   static const Map<String, String> es = {
@@ -659,6 +668,19 @@ class AppLanguages {
     appTexts.authEnterNewAndConfirm: "Ingresa tu nueva contraseña y confírmala",
     appTexts.authNewPassword: "Nueva contraseña",
     appTexts.authContinue: "Continuar",
+    appTexts.completed: "Completado",
+    appTexts.cancelled: "Cancelado",
+    appTexts.aboutApp: "Sobre la aplicación",
+    appTexts.termsAndConditions: "Términos y Condiciones",
+    appTexts.privacyPolicyTitle: "Política de Privacidad",
+    appTexts.termsConditionsTitle: "Términos y Condiciones",
+    appTexts.aboutAppTitle: "Sobre la App",
+    appTexts.privacyPolicyContent:
+        "Política de Privacidad\n\nÚltima actualización: 2026\n\n1. Información que recopilamos\nRecopilamos tu nombre, correo electrónico, número de teléfono, imagen de perfil y datos de ubicación cuando te registras y usas nuestra plataforma.\n\n2. Cómo usamos tus datos\nTu información se utiliza para conectarte con proveedores de servicios, procesar reservas, enviar notificaciones de servicio y mejorar tu experiencia en la aplicación.\n\n3. Compartir datos\nCompartimos tus datos de contacto únicamente con el proveedor de servicios que reserves. No vendemos tus datos personales a terceros.\n\n4. Seguridad de datos\nTodos los datos personales están cifrados en tránsito y en reposo. Aplicamos medidas de seguridad estándar del sector.\n\n5. Tus derechos\nPuedes acceder, actualizar o eliminar tus datos personales en cualquier momento a través de la configuración de tu perfil.\n\n6. Cambios en esta política\nPodemos actualizar esta política periódicamente. El uso continuado de la aplicación constituye la aceptación de la política actualizada.",
+    appTexts.termsConditionsContent:
+        "Términos y Condiciones\n\nÚltima actualización: 2026\n\n1. Aceptación\nAl usar Izu, aceptas estos Términos y Condiciones.\n\n2. Responsabilidades del usuario\nAcuerdas proporcionar información de registro precisa y usar la plataforma solo para fines legales.\n\n3. Responsabilidades del proveedor\nLos proveedores de servicios acuerdan prestar los servicios tal como se describen y respetar todas las reservas confirmadas.\n\n4. Reservas y cancelaciones\nLas cancelaciones deben realizarse al menos 2 horas antes del servicio programado.\n\n5. Pagos\nTodas las transacciones se procesan de forma segura. Los precios los fijan los proveedores.\n\n6. Responsabilidad\nIzu actúa como intermediario y no es responsable de la calidad de los servicios prestados.\n\n7. Modificaciones\nEstos términos pueden actualizarse en cualquier momento.",
+    appTexts.aboutAppContent:
+        "Acerca de Izu\n\nIzu es un marketplace de servicios moderno que conecta a propietarios de viviendas con artesanos verificados y profesionales de servicios en su área local.\n\nNuestra misión\nCreemos que todos merecen acceso a servicios domésticos y profesionales confiables y de alta calidad.\n\nPara usuarios\n• Reserva una amplia gama de servicios: limpieza, electricidad, fontanería, carpintería y más.\n• Visualiza calificaciones y reseñas reales de clientes verificados.\n• Pagos seguros y transparentes sin cargos ocultos.\n\nPara proveedores\nIzu empodera a artesanos calificados para hacer crecer su negocio.\n\nVersión 1.0.0\n© 2026 Izu. Todos los derechos reservados.\n\nContacto: support@izu.app",
   };
 
   static const Map<String, String> it = {
@@ -944,6 +966,19 @@ class AppLanguages {
     appTexts.authEnterNewAndConfirm: "Inserisci la tua nuova password e confermala",
     appTexts.authNewPassword: "Nuova password",
     appTexts.authContinue: "Continua",
+    appTexts.completed: "Completato",
+    appTexts.cancelled: "Annullato",
+    appTexts.aboutApp: "Informazioni sull'app",
+    appTexts.termsAndConditions: "Termini e Condizioni",
+    appTexts.privacyPolicyTitle: "Informativa sulla Privacy",
+    appTexts.termsConditionsTitle: "Termini e Condizioni",
+    appTexts.aboutAppTitle: "Informazioni sull'App",
+    appTexts.privacyPolicyContent:
+        "Informativa sulla Privacy\n\nUltimo aggiornamento: 2026\n\n1. Informazioni che raccogliamo\nRaccogliamo il tuo nome, email, numero di telefono, immagine del profilo e dati sulla posizione quando ti registri e utilizzi la nostra piattaforma.\n\n2. Come utilizziamo i tuoi dati\nLe tue informazioni vengono utilizzate per connetterti con i fornitori di servizi, elaborare prenotazioni e migliorare la tua esperienza nell'app.\n\n3. Condivisione dei dati\nCondividiamo i tuoi dati di contatto solo con il fornitore di servizi che prenoti. Non vendiamo i tuoi dati personali a terzi.\n\n4. Sicurezza dei dati\nTutti i dati personali sono crittografati in transito e a riposo.\n\n5. I tuoi diritti\nPuoi accedere, aggiornare o eliminare i tuoi dati personali in qualsiasi momento tramite le impostazioni del profilo.\n\n6. Modifiche a questa politica\nPotremmo aggiornare questa politica periodicamente. L'uso continuato dell'app costituisce accettazione della politica aggiornata.",
+    appTexts.termsConditionsContent:
+        "Termini e Condizioni\n\nUltimo aggiornamento: 2026\n\n1. Accettazione\nUtilizzando Izu, accetti questi Termini e Condizioni.\n\n2. Responsabilità dell'utente\nAccetti di fornire informazioni di registrazione accurate e di utilizzare la piattaforma solo per scopi leciti.\n\n3. Responsabilità del fornitore\nI fornitori di servizi si impegnano a erogare i servizi come descritto e a rispettare tutte le prenotazioni confermate.\n\n4. Prenotazioni e cancellazioni\nLe cancellazioni devono essere effettuate almeno 2 ore prima del servizio programmato.\n\n5. Pagamenti\nTutte le transazioni vengono elaborate in modo sicuro. I prezzi sono fissati dai fornitori.\n\n6. Responsabilità\nIzu agisce come intermediario e non è responsabile della qualità dei servizi erogati.\n\n7. Modifiche\nQuesti termini possono essere aggiornati in qualsiasi momento.",
+    appTexts.aboutAppContent:
+        "Informazioni su Izu\n\nIzu è un moderno marketplace di servizi che connette proprietari di case e privati con artigiani verificati e professionisti dei servizi nella loro area locale.\n\nLa nostra missione\nCridiamo che tutti meritino accesso a servizi domestici e professionali affidabili e di alta qualità.\n\nPer gli utenti\n• Prenota un'ampia gamma di servizi: pulizie, elettricità, idraulica, falegnameria e altro.\n• Visualizza valutazioni e recensioni reali di clienti verificati.\n• Pagamenti sicuri e trasparenti senza costi nascosti.\n\nPer i fornitori\nIzu supporta gli artigiani qualificati nella crescita del loro business.\n\nVersione 1.0.0\n© 2026 Izu. Tutti i diritti riservati.\n\nContatto: support@izu.app",
   };
 
   static const Map<String, String> de = {
@@ -1229,6 +1264,19 @@ class AppLanguages {
     appTexts.authEnterNewAndConfirm: "Geben Sie Ihr neues Passwort ein und bestätigen Sie es",
     appTexts.authNewPassword: "Neues Passwort",
     appTexts.authContinue: "Fortfahren",
+    appTexts.completed: "Abgeschlossen",
+    appTexts.cancelled: "Storniert",
+    appTexts.aboutApp: "Über die App",
+    appTexts.termsAndConditions: "Allgemeine Geschäftsbedingungen",
+    appTexts.privacyPolicyTitle: "Datenschutzrichtlinie",
+    appTexts.termsConditionsTitle: "Allgemeine Geschäftsbedingungen",
+    appTexts.aboutAppTitle: "Über die App",
+    appTexts.privacyPolicyContent:
+        "Datenschutzrichtlinie\n\nZuletzt aktualisiert: 2026\n\n1. Informationen, die wir sammeln\nWir sammeln Ihren Namen, Ihre E-Mail, Telefonnummer, Profilbild und Standortdaten, wenn Sie sich registrieren und unsere Plattform nutzen.\n\n2. Wie wir Ihre Daten verwenden\nIhre Informationen werden verwendet, um Sie mit Dienstleistern zu verbinden, Buchungen zu verarbeiten und Ihre App-Erfahrung zu verbessern.\n\n3. Datenweitergabe\nWir teilen Ihre Kontaktdaten nur mit dem von Ihnen gebuchten Dienstleister. Wir verkaufen Ihre persönlichen Daten nicht an Dritte.\n\n4. Datensicherheit\nAlle persönlichen Daten werden bei der Übertragung und im Ruhezustand verschlüsselt.\n\n5. Ihre Rechte\nSie können Ihre persönlichen Daten jederzeit über Ihre Profileinstellungen abrufen, aktualisieren oder löschen.\n\n6. Änderungen dieser Richtlinie\nWir können diese Richtlinie regelmäßig aktualisieren. Die weitere Nutzung der App gilt als Zustimmung zur aktualisierten Richtlinie.",
+    appTexts.termsConditionsContent:
+        "Allgemeine Geschäftsbedingungen\n\nZuletzt aktualisiert: 2026\n\n1. Akzeptanz\nDurch die Nutzung von Izu stimmen Sie diesen Allgemeinen Geschäftsbedingungen zu.\n\n2. Benutzerverantwortlichkeiten\nSie stimmen zu, genaue Registrierungsinformationen bereitzustellen und die Plattform nur für rechtmäßige Zwecke zu nutzen.\n\n3. Anbieterverantwortlichkeiten\nDienstleister verpflichten sich, Leistungen wie beschrieben zu erbringen und alle bestätigten Buchungen einzuhalten.\n\n4. Buchungen und Stornierungen\nStornierungen müssen mindestens 2 Stunden vor dem geplanten Service erfolgen.\n\n5. Zahlungen\nAlle Transaktionen werden sicher verarbeitet. Preise werden von Anbietern festgelegt.\n\n6. Haftung\nIzu fungiert als Vermittler und ist nicht für die Qualität der erbrachten Leistungen verantwortlich.\n\n7. Änderungen\nDiese Bedingungen können jederzeit aktualisiert werden.",
+    appTexts.aboutAppContent:
+        "Über Izu\n\nIzu ist ein moderner Service-Marktplatz, der Hausbesitzer und Einzelpersonen mit verifizierten, qualifizierten Handwerkern und Dienstleistungsprofis in ihrer Region verbindet.\n\nUnsere Mission\nWir glauben, dass jeder Zugang zu zuverlässigen, hochwertigen Heim- und Berufsdienstleistungen verdient.\n\nFür Benutzer\n• Buchen Sie ein breites Spektrum an Dienstleistungen — Reinigung, Elektrik, Klempner, Zimmerei und mehr.\n• Sehen Sie echte Bewertungen von verifizierten Kunden.\n• Sichere, transparente Zahlungen ohne versteckte Gebühren.\n\nFür Anbieter\nIzu unterstützt qualifizierte Handwerker beim Wachstum ihres Unternehmens.\n\nVersion 1.0.0\n© 2026 Izu. Alle Rechte vorbehalten.\n\nKontakt: support@izu.app",
   };
 
   static const Map<String, String> fr = {
@@ -1603,5 +1651,14 @@ class AppLanguages {
     appTexts.services: "Services",
     appTexts.settings: "Paramètres",
     appTexts.vehicleDetails: "Détails du véhicule",
+    appTexts.privacyPolicyTitle: "Politique de Confidentialité",
+    appTexts.termsConditionsTitle: "Termes et Conditions",
+    appTexts.aboutAppTitle: "À propos de l'App",
+    appTexts.privacyPolicyContent:
+        "Politique de Confidentialité\n\nDernière mise à jour : 2026\n\n1. Informations que nous collectons\nNous collectons votre nom, email, numéro de téléphone, image de profil et données de localisation lorsque vous vous inscrivez et utilisez notre plateforme.\n\n2. Comment nous utilisons vos données\nVos informations sont utilisées pour vous connecter avec des prestataires, traiter les réservations et améliorer votre expérience dans l'application.\n\n3. Partage des données\nNous partageons vos coordonnées uniquement avec le prestataire que vous réservez. Nous ne vendons pas vos données personnelles à des tiers.\n\n4. Sécurité des données\nToutes les données personnelles sont chiffrées en transit et au repos.\n\n5. Vos droits\nVous pouvez accéder, mettre à jour ou supprimer vos données personnelles à tout moment via les paramètres de votre profil.\n\n6. Modifications de cette politique\nNous pouvons mettre à jour cette politique périodiquement. L'utilisation continue de l'application vaut acceptation de la politique mise à jour.",
+    appTexts.termsConditionsContent:
+        "Termes et Conditions\n\nDernière mise à jour : 2026\n\n1. Acceptation\nEn utilisant Izu, vous acceptez ces Termes et Conditions.\n\n2. Responsabilités de l'utilisateur\nVous acceptez de fournir des informations d'inscription précises et d'utiliser la plateforme uniquement à des fins légales.\n\n3. Responsabilités du prestataire\nLes prestataires s'engagent à fournir les services tels que décrits et à honorer toutes les réservations confirmées.\n\n4. Réservations et annulations\nLes annulations doivent être effectuées au moins 2 heures avant le service prévu.\n\n5. Paiements\nToutes les transactions sont traitées en toute sécurité. Les prix sont fixés par les prestataires.\n\n6. Responsabilité\nIzu agit en tant qu'intermédiaire et n'est pas responsable de la qualité des services fournis.\n\n7. Modifications\nCes conditions peuvent être mises à jour à tout moment.",
+    appTexts.aboutAppContent:
+        "À propos d'Izu\n\nIzu est un marché de services moderne qui connecte les propriétaires et les particuliers avec des artisans vérifiés et des professionnels des services dans leur région.\n\nNotre mission\nNous croyons que tout le monde mérite un accès à des services domestiques et professionnels fiables et de haute qualité.\n\nPour les utilisateurs\n• Réservez une large gamme de services — nettoyage, électricité, plomberie, menuiserie et plus encore.\n• Consultez de vraies évaluations de clients vérifiés.\n• Paiements sécurisés et transparents sans frais cachés.\n\nPour les prestataires\nIzu aide les artisans qualifiés à développer leur activité.\n\nVersion 1.0.0\n© 2026 Izu. Tous droits réservés.\n\nContact : support@izu.app",
   };
 }

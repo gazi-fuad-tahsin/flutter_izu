@@ -5,6 +5,7 @@ class ProviderReadyConfirmationDialog extends StatelessWidget {
   final String? providerImage;
   final VoidCallback onAccept;
   final VoidCallback onCancel;
+  final bool isLoading;
 
   const ProviderReadyConfirmationDialog({
     super.key,
@@ -12,6 +13,7 @@ class ProviderReadyConfirmationDialog extends StatelessWidget {
     this.providerImage,
     required this.onAccept,
     required this.onCancel,
+    this.isLoading = false,
   });
 
   @override
@@ -108,7 +110,7 @@ class ProviderReadyConfirmationDialog extends StatelessWidget {
                 // Cancel Button
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: onCancel,
+                    onPressed: isLoading ? null : onCancel,
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(
                         color: Color(0xFFFCA048),
@@ -133,7 +135,7 @@ class ProviderReadyConfirmationDialog extends StatelessWidget {
                 // Accept Button
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: onAccept,
+                    onPressed: isLoading ? null : onAccept,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2870BC),
                       shape: RoundedRectangleBorder(
@@ -142,20 +144,29 @@ class ProviderReadyConfirmationDialog extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       elevation: 0,
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.check, size: 18),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Accept',
-                          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
+                    child: isLoading
+                        ? const SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.check, size: 18),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Accept',
+                                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                               ),
-                        ),
-                      ],
-                    ),
+                            ],
+                          ),
                   ),
                 ),
               ],
