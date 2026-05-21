@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:izu/core/common/widgets/app_skeleton.dart';
 import 'package:izu/core/network/services/socket_service.dart';
 
 import '../../data/model/conversation_model.dart';
@@ -269,8 +270,9 @@ class _MessageScreenState extends State<MessageScreen> {
             // Conversations List
             Expanded(
               child: _isLoading
-                  ? const Center(
-                      child: CircularProgressIndicator(),
+                  ? ListView(
+                      physics: const NeverScrollableScrollPhysics(),
+                      children: List.generate(6, (_) => const ConversationTileSkeleton()),
                     )
                   : _error.isNotEmpty
                       ? Center(

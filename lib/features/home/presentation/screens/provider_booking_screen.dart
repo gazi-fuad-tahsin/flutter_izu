@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../../core/common/constants/feature_texts.dart';
+import '../../../../../core/common/widgets/app_skeleton.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../controllers/provider_booking_controller.dart';
 import '../widgets/provider_booking_card.dart';
@@ -58,10 +59,9 @@ class _ProviderBookingScreenState extends State<ProviderBookingScreen> {
           Expanded(
             child: Obx(() {
               if (_controller.isLoading.value) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.homePrimary),
-                  ),
+                return ListView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: List.generate(3, (_) => const BookingCardSkeleton()),
                 );
               }
 

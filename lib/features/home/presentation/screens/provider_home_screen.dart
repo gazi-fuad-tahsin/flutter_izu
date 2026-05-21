@@ -9,6 +9,7 @@ import '../../../message/presentation/screens/message_screen.dart';
 import '../../../notifications/presentation/controller/notification_controller.dart';
 import '../../../notifications/presentation/screens/notifications_screen.dart';
 import '../../../profile_provider/presentation/controller/provider_profile_controller.dart';
+import '../../../../../core/common/widgets/app_skeleton.dart';
 import '../../../provider_jobs/presentation/controller/provider_jobs_controller.dart';
 import '../controllers/provider_booking_controller.dart';
 import '../../../profile_provider/presentation/screens/provider_profile_screen.dart';
@@ -389,16 +390,7 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
                 if (_controller.isLoading.value) {
                   return ListView(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.45,
-                        child: const Center(
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(AppColors.homePrimary),
-                          ),
-                        ),
-                      ),
-                    ],
+                    children: List.generate(3, (_) => const RequestCardSkeleton()),
                   );
                 }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/common/constants/texts.dart';
+import '../../../../core/common/widgets/app_skeleton.dart';
 import '../../data/models/notification_model.dart';
 import '../controller/notification_controller.dart';
 
@@ -68,8 +69,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       body: Obx(
         () {
           if (_controller.isLoading.value) {
-            return const Center(
-              child: CircularProgressIndicator(),
+            return ListView(
+              physics: const NeverScrollableScrollPhysics(),
+              children: List.generate(7, (_) => const NotificationItemSkeleton()),
             );
           }
 

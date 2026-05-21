@@ -6,6 +6,7 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../auth/presentation/controller/user_controller.dart';
 import '../../../booking/presentation/controller/user_booking_controller.dart';
 import '../../../booking/presentation/screens/booking_list_screen.dart';
+import '../../../../core/common/widgets/app_skeleton.dart';
 import '../../../category/presentation/controller/category_controller.dart';
 import '../../../category/presentation/screens/all_categories_screen.dart';
 import '../../../chatbot/presentation/widgets/chatbot_overlay_popup.dart';
@@ -211,7 +212,8 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                     final categoryController = Get.find<CategoryController>();
                     final topCategories = categoryController.topFiveCategories;
 
-                    // Convert CategoryModel to Map format for CategoriesList widget
+                    if (topCategories.isEmpty) return const HomeContentSkeleton();
+
                     final categoriesList = topCategories.map((cat) {
                       return {
                         'name': cat.name,

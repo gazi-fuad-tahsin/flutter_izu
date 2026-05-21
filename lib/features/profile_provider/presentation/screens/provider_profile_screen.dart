@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../../core/common/constants/feature_texts.dart';
+import '../../../../../core/common/widgets/app_skeleton.dart';
 import '../../../../../core/common/widgets/logout_confirmation_dialog.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../profile/presentation/screens/change_password_screen.dart';
@@ -80,16 +81,7 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
 
                 Obx(() {
                   if (_controller.isLoading.value) {
-                    return const SizedBox(
-                      height: 280,
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Color(0xFF2870BC),
-                          ),
-                        ),
-                      ),
-                    );
+                    return const ProfileSkeleton();
                   }
 
                   final profile = _controller.profileData.value;

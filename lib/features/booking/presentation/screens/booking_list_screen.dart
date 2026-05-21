@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/common/constants/texts.dart';
-
+import '../../../../core/common/widgets/app_skeleton.dart';
 import '../controller/user_booking_controller.dart';
 import '../widgets/user_booking_card.dart';
 
@@ -58,10 +58,9 @@ class _BookingListScreenState extends State<BookingListScreen> {
             child: GetBuilder<UserBookingController>(
               builder: (controller) {
                 if (controller.isLoading.value) {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2870BC)),
-                    ),
+                  return ListView(
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: List.generate(4, (_) => const BookingCardSkeleton()),
                   );
                 }
 

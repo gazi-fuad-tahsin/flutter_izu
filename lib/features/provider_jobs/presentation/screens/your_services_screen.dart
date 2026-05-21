@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../../core/common/widgets/app_skeleton.dart';
 import '../../data/model/provider_service_model.dart';
 import '../controller/provider_jobs_controller.dart';
 import 'add_service_screen.dart';
@@ -92,13 +93,8 @@ class YourServicesScreen extends StatelessWidget {
               ];
 
               if (controller.isLoading.value) {
-                widgets.add(
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.65,
-                    child: const Center(
-                      child: CircularProgressIndicator(color: Color(0xFF2870BC)),
-                    ),
-                  ),
+                widgets.addAll(
+                  List.generate(2, (_) => const ServiceCardSkeleton()),
                 );
               } else if (controller.services.isEmpty) {
                 widgets.add(
