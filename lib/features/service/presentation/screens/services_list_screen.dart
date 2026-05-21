@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../../core/common/widgets/app_skeleton.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../home/presentation/widgets/featured_artisan_item.dart';
 import '../controller/service_controller.dart';
@@ -60,8 +61,9 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
         final categories = serviceController.categoryNames;
 
         if (categories.isEmpty) {
-          return const Center(
-            child: CircularProgressIndicator(),
+          return ListView(
+            physics: const NeverScrollableScrollPhysics(),
+            children: List.generate(5, (_) => const ServiceListItemSkeleton()),
           );
         }
 

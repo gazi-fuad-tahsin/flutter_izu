@@ -2,6 +2,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:izu/core/common/widgets/app_skeleton.dart';
 import 'package:izu/core/network/services/socket_service.dart';
 
 import '../../data/model/conversation_model.dart';
@@ -283,7 +284,10 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> {
           // Messages List
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? ListView(
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: List.generate(4, (_) => const MessageBubbleSkeleton()),
+                  )
                 : _error.isNotEmpty
                     ? Center(
                         child: Column(

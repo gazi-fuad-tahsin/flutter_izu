@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../booking/presentation/widgets/booking_confirmation_sheet.dart';
+import '../../../../../core/common/widgets/app_skeleton.dart';
 import '../controller/service_controller.dart';
 import 'package:izu/features/service/data/models/service_detail_model.dart';
 
@@ -89,7 +90,7 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
         final isLoading = serviceController.isLoadingDetail;
 
         if (isLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const ServiceDetailSkeleton();
         }
 
         if (serviceDetail == null) {

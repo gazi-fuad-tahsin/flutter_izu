@@ -239,6 +239,203 @@ class ServiceCardSkeleton extends StatelessWidget {
       );
 }
 
+// ─── Category grid item skeleton (AllCategoriesScreen) ───────────────────────
+
+class CategoryGridSkeleton extends StatelessWidget {
+  const CategoryGridSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) => _shimmer(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          child: GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 20,
+              childAspectRatio: 0.95,
+            ),
+            itemCount: 6,
+            itemBuilder: (_, __) => Column(
+              children: [
+                Expanded(child: _SkeletonBox(width: double.infinity, height: double.infinity, radius: 12)),
+                const SizedBox(height: 8),
+                _SkeletonBox(width: 80, height: 12, radius: 6),
+              ],
+            ),
+          ),
+        ),
+      );
+}
+
+// ─── Services list skeleton (ServicesListScreen) ──────────────────────────────
+
+class ServiceListItemSkeleton extends StatelessWidget {
+  const ServiceListItemSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) => _shimmer(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Container(
+            height: 160,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              children: [
+                _SkeletonBox(width: 130, height: 160, radius: 16),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _SkeletonBox(width: 70, height: 10, radius: 4),
+                        const SizedBox(height: 8),
+                        _SkeletonBox(height: 14, radius: 6),
+                        const SizedBox(height: 6),
+                        _SkeletonBox(width: 110, height: 12, radius: 6),
+                        const SizedBox(height: 12),
+                        _SkeletonBox(width: 80, height: 10, radius: 4),
+                        const SizedBox(height: 6),
+                        _SkeletonBox(width: 60, height: 10, radius: 4),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+}
+
+// ─── Service detail skeleton (ServiceDetailsScreen) ──────────────────────────
+
+class ServiceDetailSkeleton extends StatelessWidget {
+  const ServiceDetailSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) => _shimmer(
+        SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Hero image
+              _SkeletonBox(width: double.infinity, height: 280, radius: 0),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _SkeletonBox(width: 200, height: 20, radius: 8),
+                    const SizedBox(height: 12),
+                    _SkeletonBox(height: 13, radius: 6),
+                    const SizedBox(height: 6),
+                    _SkeletonBox(width: 260, height: 13, radius: 6),
+                    const SizedBox(height: 24),
+                    // Provider row
+                    Row(
+                      children: [
+                        _SkeletonCircle(52),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _SkeletonBox(width: 130, height: 14, radius: 6),
+                              const SizedBox(height: 6),
+                              _SkeletonBox(width: 90, height: 11, radius: 6),
+                            ],
+                          ),
+                        ),
+                        _SkeletonBox(width: 60, height: 28, radius: 14),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    ...List.generate(3, (_) => Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: _SkeletonBox(height: 12, radius: 6),
+                    )),
+                    const SizedBox(height: 24),
+                    _SkeletonBox(width: double.infinity, height: 50, radius: 12),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+}
+
+// ─── Message bubble skeleton (MessageDetailScreen) ────────────────────────────
+
+class MessageBubbleSkeleton extends StatelessWidget {
+  const MessageBubbleSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) => _shimmer(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            children: [
+              // Incoming message (left)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    _SkeletonCircle(32),
+                    const SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _SkeletonBox(width: 180, height: 40, radius: 16),
+                        const SizedBox(height: 4),
+                        _SkeletonBox(width: 40, height: 9, radius: 4),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Outgoing message (right)
+              Align(
+                alignment: Alignment.centerRight,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    _SkeletonBox(width: 200, height: 36, radius: 16),
+                    const SizedBox(height: 4),
+                    _SkeletonBox(width: 40, height: 9, radius: 4),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Another incoming (short)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    _SkeletonCircle(32),
+                    const SizedBox(width: 8),
+                    _SkeletonBox(width: 120, height: 36, radius: 16),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+}
+
 // ─── Request card skeleton (ProviderHomeScreen pending requests) ──────────────
 
 class RequestCardSkeleton extends StatelessWidget {

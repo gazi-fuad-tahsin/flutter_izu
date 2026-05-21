@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../../core/common/widgets/app_skeleton.dart';
 import '../controller/category_controller.dart';
 import '../widgets/category_grid_card.dart';
 
@@ -39,9 +40,7 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
           final categories = categoryController.categories;
           
           if (categories.isEmpty) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const CategoryGridSkeleton();
           }
           
           return SingleChildScrollView(
