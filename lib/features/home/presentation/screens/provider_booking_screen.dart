@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../../core/common/constants/feature_texts.dart';
+import '../../../../../core/common/constants/texts.dart';
 import '../../../../../core/common/widgets/app_skeleton.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../controllers/provider_booking_controller.dart';
@@ -79,7 +80,7 @@ class _ProviderBookingScreenState extends State<ProviderBookingScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'No ${_controller.selectedFilter.value} bookings',
+                        appTexts.noBookingsYet.tr,
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey.shade600,
@@ -92,9 +93,9 @@ class _ProviderBookingScreenState extends State<ProviderBookingScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.homePrimary,
                         ),
-                        child: const Text(
-                          'Refresh',
-                          style: TextStyle(color: Colors.white),
+                        child: Text(
+                          appTexts.refresh.tr,
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ),
                     ],
