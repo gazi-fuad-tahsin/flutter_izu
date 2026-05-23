@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../../core/common/constants/feature_texts.dart';
+import '../../../../../core/network/services/socket_service.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../core/common/widgets/app_skeleton.dart';
 import '../../../auth/presentation/controller/user_controller.dart';
@@ -17,6 +18,7 @@ import '../../../profile/presentation/screens/user_profile_screen.dart';
 import '../../../service/presentation/controller/service_controller.dart';
 import '../../../service/presentation/screens/services_list_screen.dart';
 import '../controllers/home_controller.dart';
+import '../widgets/booking_payment_sheet.dart';
 import '../widgets/cancel_booking_dialog.dart';
 import '../widgets/categories_list.dart';
 import '../widgets/featured_artisans_section.dart';
@@ -38,16 +40,34 @@ class UserHomeScreen extends StatefulWidget {
 class _UserHomeScreenState extends State<UserHomeScreen> {
   int _currentIndex = 0;
   late HomeController _homeController;
+  Worker? _bookingCreatedWorker;
 
   @override
   void initState() {
     super.initState();
-    // Get or create HomeController
     if (Get.isRegistered<HomeController>()) {
       _homeController = Get.find<HomeController>();
     } else {
       _homeController = Get.put(HomeController());
     }
+    _listenToBookingCreated();
+  }
+
+  void _listenToBookingCreated() {
+    final socketService = Get.find<SocketService>();
+    _bookingCreatedWorker = ever(socketService.bookingCreated, (data) {
+      if (data == null || !mounted) return;
+      // Refresh home screen data when a booking is created
+      if (_currentIndex == 0) {
+        _refreshHomeData();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _bookingCreatedWorker?.dispose();
+    super.dispose();
   }
 
   @override
@@ -62,12 +82,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                   ? const BookingListScreen()
                   : _currentIndex == 2
                       ? const MessageScreen()
-                      : Scaffold(
-                          backgroundColor: AppColors.primaryWhite,
-                          body: Center(
-                            child: Text(IzuHomeTexts.navMessage),
-                          ),
-                        ),
+                      : const UserProfileScreen(showEmbedded: true),
           // Listen for request-accepted event and show dialog
           Obx(() {
             final requestData = _homeController.requestAcceptedData.value;
@@ -99,12 +114,8 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: (index) {
-            if (index == 3) {
-              Get.to(() => const UserProfileScreen());
-            } else {
-              setState(() => _currentIndex = index);
-              _refreshTabData(index);
-            }
+            setState(() => _currentIndex = index);
+            _refreshTabData(index);
           },
           type: BottomNavigationBarType.fixed,
           backgroundColor: AppColors.primaryWhite,
@@ -149,6 +160,9 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
         if (Get.isRegistered<UserBookingController>()) {
           Get.find<UserBookingController>().refreshCurrentFilter();
         }
+        break;
+      case 3:
+        Get.find<UserController>().fetchUserProfile();
         break;
       // Tab 2 (MessageScreen) refreshes itself in its own initState
     }
@@ -390,10 +404,12 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
           providerImage: providerImage,
           isLoading: _homeController.isCompletionConfirmLoading.value,
           onAccept: () async {
-            final booking = await _homeController.acceptProviderCompletion();
-            Navigator.of(context).pop();
-            if (booking != null) {
-              _showReviewGivingSheet(booking);
+            final paymentFlow = await _homeController.acceptCompletionAndCreatePayment(
+              completionData: data,
+            );
+            if (paymentFlow != null && mounted) {
+              Navigator.of(context).pop();
+              _showBookingPaymentSheet(paymentFlow.booking, paymentFlow.amount);
             }
           },
           onCancel: () {
@@ -401,6 +417,22 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
             Navigator.of(context).pop();
           },
         ),
+      ),
+    );
+  }
+
+  void _showBookingPaymentSheet(UserBookingModel booking, double amount) {
+    showModalBottomSheet(
+      context: context,
+      isDismissible: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => BookingPaymentSheet(
+        amount: amount,
+        onPayNow: () {
+          Navigator.of(context).pop();
+          _showReviewGivingSheet(booking);
+        },
       ),
     );
   }
