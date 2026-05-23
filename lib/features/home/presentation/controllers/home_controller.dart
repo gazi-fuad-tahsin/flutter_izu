@@ -134,6 +134,96 @@ class HomeController extends GetxController {
     return result;
   }
 
+  Future<CompletionPaymentFlowResult?> acceptCompletionAndCreatePayment({
+    required Map<String, dynamic> completionData,
+  }) async {
+    String? bookingId;
+    String? providerId;
+    double price = 0;
+
+    final booking = completionData['booking'];
+    if (booking is Map) {
+      bookingId = booking['_id']?.toString();
+      final bookingProvider = booking['providerId'];
+      if (bookingProvider is Map) {
+        providerId = bookingProvider['_id']?.toString();
+      } else {
+        providerId = bookingProvider?.toString();
+      }
+      price = (booking['totalPrice'] as num?)?.toDouble() ?? 0;
+    }
+
+    bookingId ??= completionData['bookingId']?.toString() ?? completionData['_id']?.toString();
+    final providerData = completionData['providerId'];
+    if (providerId == null || providerId.isEmpty) {
+      if (providerData is Map) {
+        providerId = providerData['_id']?.toString();
+      } else {
+        providerId = providerData?.toString();
+      }
+    }
+    if (price <= 0) {
+      price = (completionData['totalPrice'] as num?)?.toDouble() ?? 0;
+    }
+
+    if (bookingId == null || bookingId.isEmpty || providerId == null || providerId.isEmpty || price <= 0) {
+      DPrint.error('❌ Missing payment payload fields from completion socket data');
+      Get.snackbar(
+        'Error',
+        'Missing payment information',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return null;
+    }
+
+    isCompletionConfirmLoading.value = true;
+    try {
+      final confirmedBooking = await _bookingRepository.confirmCompletion(bookingId);
+      if (confirmedBooking == null) {
+        DPrint.error('❌ Failed to confirm service completion');
+        Get.snackbar(
+          'Error',
+          'Failed to confirm service completion',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return null;
+      }
+
+      final clientSecret = await _bookingRepository.createBookingPayment(
+        price: price,
+        bookingId: bookingId,
+        providerId: providerId,
+      );
+
+      if (clientSecret == null || clientSecret.isEmpty) {
+        DPrint.error('❌ Failed to create payment intent');
+        Get.snackbar(
+          'Error',
+          'Failed to initialize payment',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return null;
+      }
+
+      showCompletionDialog.value = false;
+      providerCompletedData.value = null;
+
+      return CompletionPaymentFlowResult(
+        booking: confirmedBooking,
+        amount: price,
+        clientSecret: clientSecret,
+      );
+    } finally {
+      isCompletionConfirmLoading.value = false;
+    }
+  }
+
   void cancelProviderCompletion() {
     showCompletionDialog.value = false;
     providerCompletedData.value = null;
@@ -184,4 +274,16 @@ class HomeController extends GetxController {
     DPrint.log('🏠 HomeController closed');
     super.onClose();
   }
+}
+
+class CompletionPaymentFlowResult {
+  final UserBookingModel booking;
+  final double amount;
+  final String clientSecret;
+
+  const CompletionPaymentFlowResult({
+    required this.booking,
+    required this.amount,
+    required this.clientSecret,
+  });
 }
