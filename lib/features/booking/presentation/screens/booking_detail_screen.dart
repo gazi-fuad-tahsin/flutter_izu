@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
+import '../../../../core/common/constants/texts.dart';
 import '../../data/model/booking_model.dart';
 import '../widgets/booking_confirmation_sheet.dart';
 
@@ -131,7 +133,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                       ElevatedButton.icon(
                         onPressed: () {},
                         icon: const Icon(Icons.phone, size: 16),
-                        label: const Text('Call'),
+                        label: Text(appTexts.callLabel.tr),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF2870BC),
                           shape: RoundedRectangleBorder(
