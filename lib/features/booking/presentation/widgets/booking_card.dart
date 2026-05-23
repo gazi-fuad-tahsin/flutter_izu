@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../core/common/constants/texts.dart';
 import '../../../message/data/repository/message_repository.dart';
 import '../../../message/presentation/screens/message_detail_screen.dart';
 import '../../data/model/booking_model.dart';
@@ -287,7 +288,7 @@ class _BookingCardState extends State<BookingCard> {
                   child: ElevatedButton.icon(
                     onPressed: () {},
                     icon: const Icon(Icons.location_on, size: 18),
-                    label: const Text('Location'),
+                    label: Text(appTexts.location.tr),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2870BC),
                       shape: RoundedRectangleBorder(
