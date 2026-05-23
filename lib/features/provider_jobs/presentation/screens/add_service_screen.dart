@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../../core/common/constants/texts.dart';
 import '../../data/model/service_category_model.dart';
 import '../../data/repo/service_category_repository.dart';
 import '../widgets/additional_image_picker_card.dart';
@@ -78,9 +79,9 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
           onPressed: () => Get.back(),
         ),
-        title: const Text(
-          'Set Your Service',
-          style: TextStyle(
+        title: Text(
+          appTexts.setYourService.tr,
+          style: const TextStyle(
             color: Colors.black,
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -98,9 +99,9 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Service Thumbnail',
-                    style: TextStyle(
+                  Text(
+                    appTexts.serviceThumbnail.tr,
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: Colors.black,
@@ -120,9 +121,9 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Service Category',
-                    style: TextStyle(
+                  Text(
+                    appTexts.serviceCategory.tr,
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: Colors.black,
@@ -192,9 +193,9 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Service Amount',
-                    style: TextStyle(
+                  Text(
+                    appTexts.serviceAmount.tr,
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: Colors.black,
@@ -244,9 +245,9 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Service Details',
-                    style: TextStyle(
+                  Text(
+                    appTexts.serviceDetailsLabel.tr,
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: Colors.black,
@@ -382,9 +383,9 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                             strokeWidth: 2,
                           ),
                         )
-                      : const Text(
-                          'Update',
-                          style: TextStyle(
+                      : Text(
+                          appTexts.update.tr,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
