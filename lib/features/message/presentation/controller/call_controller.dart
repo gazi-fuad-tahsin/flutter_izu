@@ -4,6 +4,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
 import 'package:izu/core/network/services/socket_service.dart';
 import 'package:izu/core/services/call_service.dart';
+import 'package:izu/core/services/notification_sound_service.dart';
 import 'package:izu/core/utils/debug_print.dart';
 
 import '../screens/audio_call_screen.dart';
@@ -28,6 +29,7 @@ class CallController extends GetxController {
   Timer? _callTimer;
 
   SocketService get _socket => Get.find<SocketService>();
+  NotificationSoundService get _sound => Get.find<NotificationSoundService>();
 
   @override
   void onInit() {
@@ -56,6 +58,7 @@ class CallController extends GetxController {
     _pendingOffer = offerRaw is Map ? Map<String, dynamic>.from(offerRaw) : null;
 
     callState.value = CallState.incoming;
+    _sound.playRinging();
     if (!isDialogShown.value) {
       isDialogShown.value = true;
       Get.dialog(const IncomingCallOverlay(), barrierDismissible: false);
@@ -64,6 +67,7 @@ class CallController extends GetxController {
 
   void _onCallAnswered(Map<String, dynamic>? data) async {
     if (data == null) return;
+    _sound.stopCallSound();
     final answerRaw = data['answer'];
     if (answerRaw is Map) {
       await _callService.setRemoteAnswer(Map<String, dynamic>.from(answerRaw));
@@ -112,6 +116,7 @@ class CallController extends GetxController {
       remoteName.value = toUserName;
       remoteImage.value = toUserImage;
       callState.value = CallState.outgoing;
+      _sound.playCalling();
 
       _callService.onIceCandidate = _sendIceCandidate;
       _callService.onCallConnected = () {
@@ -138,6 +143,7 @@ class CallController extends GetxController {
   /// Accept the incoming call
   Future<void> acceptCall() async {
     isDialogShown.value = false;
+    _sound.stopCallSound();
     Get.back(); // close incoming overlay
 
     try {
@@ -173,6 +179,7 @@ class CallController extends GetxController {
       'from': _socket.currentUserId,
     });
     isDialogShown.value = false;
+    _sound.stopCallSound();
     _cleanup();
     Get.back();
   }
@@ -220,6 +227,7 @@ class CallController extends GetxController {
   }
 
   void _cleanup() {
+    _sound.stopCallSound();
     _callTimer?.cancel();
     callDurationSeconds.value = 0;
     _pendingOffer = null;
