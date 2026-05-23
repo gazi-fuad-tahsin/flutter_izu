@@ -15,6 +15,17 @@ class ChooseLanguageScreen extends StatefulWidget {
 class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
   String _selectedLanguage = 'English';
 
+  String get _updateButtonLabel {
+    switch (_selectedLanguage) {
+      case 'Français':
+        return 'Mettre à jour';
+      case 'Pidgin':
+        return 'Update Am';
+      default:
+        return 'Update';
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -172,7 +183,7 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
                     elevation: 0,
                   ),
                   child: Text(
-                    appTexts.update.tr,
+                    _updateButtonLabel,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
