@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../../core/common/constants/texts.dart';
 import '../../../../../core/common/widgets/app_skeleton.dart';
 import '../../data/model/provider_service_model.dart';
 import '../controller/provider_jobs_controller.dart';
@@ -468,21 +469,21 @@ class YourServicesScreen extends StatelessWidget {
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Service'),
-        content: Text('Are you sure you want to delete ${service.title}?'),
+        title: Text(appTexts.deleteServiceTitle.tr),
+        content: Text(appTexts.areYouSureDeleteService.tr),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(appTexts.cancel.tr),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               controller.deleteService(service.id);
             },
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.red),
+            child: Text(
+              appTexts.delete.tr,
+              style: const TextStyle(color: Colors.red),
             ),
           ),
         ],
