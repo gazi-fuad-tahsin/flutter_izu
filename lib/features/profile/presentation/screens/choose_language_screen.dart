@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
 import '../../../../core/common/constants/texts.dart';
+import '../../../../core/network/constants/cache_constants.dart';
 
 class ChooseLanguageScreen extends StatefulWidget {
   const ChooseLanguageScreen({super.key});
@@ -15,9 +18,11 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize based on current locale
-    if (Get.locale?.languageCode == 'fr') {
-      _selectedLanguage = 'France';
+    final code = Get.locale?.languageCode ?? 'en';
+    if (code == 'fr') {
+      _selectedLanguage = 'Français';
+    } else if (code == 'pcm') {
+      _selectedLanguage = 'Pidgin';
     } else {
       _selectedLanguage = 'English';
     }
@@ -27,10 +32,17 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
     {
       'name': 'English',
       'flag': '🇬🇧',
+      'code': 'en',
     },
     {
-      'name': 'France',
+      'name': 'Français',
       'flag': '🇫🇷',
+      'code': 'fr',
+    },
+    {
+      'name': 'Pidgin',
+      'flag': '🇳🇬',
+      'code': 'pcm',
     },
   ];
 
@@ -135,7 +147,6 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
                 },
               ),
             ),
-            // Save Button
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
               child: SizedBox(
@@ -143,12 +154,14 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
                 height: 52,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Update app language
-                    if (_selectedLanguage == 'English') {
-                      Get.updateLocale(const Locale('en'));
-                    } else if (_selectedLanguage == 'France') {
-                      Get.updateLocale(const Locale('fr'));
-                    }
+                    final selected = languages.firstWhere(
+                      (l) => l['name'] == _selectedLanguage,
+                      orElse: () => {'code': 'en'},
+                    );
+                    final code = selected['code']!;
+                    Hive.box(ApiCacheConstants.settingsCacheKey)
+                        .put('locale_code', code);
+                    Get.updateLocale(Locale(code));
                     Get.back();
                   },
                   style: ElevatedButton.styleFrom(
@@ -159,7 +172,7 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
                     elevation: 0,
                   ),
                   child: Text(
-                    appTexts.update.tr, // Using 'Update' for 'Save' as it's available
+                    appTexts.update.tr,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
