@@ -78,6 +78,49 @@ class UserBookingRepository {
     }
   }
 
+  /// POST /payments/create-payment
+  Future<String?> createBookingPayment({
+    required double price,
+    required String bookingId,
+    required String providerId,
+  }) async {
+    try {
+      DPrint.log('🔄 Creating booking payment for booking: $bookingId');
+      final result = await _apiClient.post<Map<String, dynamic>>(
+        '/api/v1/payments/create-payment',
+        data: {
+          'price': price,
+          'bookingId': bookingId,
+          'providerId': providerId,
+          'paymentType': 'booking',
+        },
+        fromJsonT: (json) => json is Map<String, dynamic> ? json : {},
+      );
+
+      return result.fold(
+        (failure) {
+          DPrint.error('❌ Create booking payment failed: ${failure.message}');
+          return null;
+        },
+        (success) {
+          final payload = success.data['data'] is Map<String, dynamic>
+              ? success.data['data'] as Map<String, dynamic>
+              : success.data;
+          final clientSecret = payload['clientSecret']?.toString();
+          if (clientSecret == null || clientSecret.isEmpty) {
+            DPrint.error('❌ Payment created but clientSecret missing');
+            return null;
+          }
+          DPrint.log('✅ Booking payment created');
+          return clientSecret;
+        },
+      );
+    } catch (e) {
+      DPrint.error('❌ Exception creating booking payment: $e');
+      return null;
+    }
+  }
+
   /// Fetch user bookings by status
   /// Endpoints:
   /// - 'live' -> /api/v1/bookings/live
