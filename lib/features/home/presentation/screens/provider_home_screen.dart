@@ -34,6 +34,7 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
   late ProviderHomeController _controller;
   late ProviderProfileController _profileController;
   Worker? _bookingCreatedWorker;
+  Worker? _requestConfirmedWorker;
 
   @override
   void initState() {
@@ -47,6 +48,31 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
     }
 
     _listenToBookingCreatedEvents();
+    _listenToRequestConfirmedEvents();
+  }
+
+  void _listenToRequestConfirmedEvents() {
+    final socketService = Get.find<SocketService>();
+    _requestConfirmedWorker = ever(socketService.requestConfirmed, (data) {
+      if (data == null || !mounted) return;
+
+      Get.snackbar(
+        'Service Started',
+        'User has accepted your service start request',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: AppColors.homePrimary,
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+        duration: const Duration(seconds: 5),
+        isDismissible: true,
+      );
+
+      // If provider is on booking tab, refresh the live bookings
+      if (_selectedNavIndex == 1 && Get.isRegistered<ProviderBookingController>()) {
+        Get.find<ProviderBookingController>().fetchBookingsByStatus('live');
+      }
+    });
   }
 
   void _listenToBookingCreatedEvents() {
@@ -96,14 +122,12 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          title: const Text('Cancel request?'),
-          content: const Text(
-            'Are you sure you want to cancel this booking request?',
-          ),
+          title: Text(appTexts.cancelRequest.tr),
+          content: Text(appTexts.areYouSureCancelRequest.tr),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('No'),
+              child: Text(appTexts.noText.tr),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -115,7 +139,7 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.cancelOrange,
               ),
-              child: const Text('Yes, cancel'),
+              child: Text(appTexts.yesCancel.tr),
             ),
           ],
         );
@@ -190,6 +214,7 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
   @override
   void dispose() {
     _bookingCreatedWorker?.dispose();
+    _requestConfirmedWorker?.dispose();
     super.dispose();
   }
 
