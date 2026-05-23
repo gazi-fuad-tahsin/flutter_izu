@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../../core/common/constants/texts.dart';
 import '../../data/model/provider_service_model.dart';
 import '../../data/repo/service_category_repository.dart';
 import '../../data/model/service_category_model.dart';
@@ -162,9 +163,9 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
           onPressed: () => Get.back(),
         ),
-        title: const Text(
-          'Edit Service',
-          style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
+        title: Text(
+          appTexts.editService.tr,
+          style: const TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
       ),
@@ -175,8 +176,8 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Thumbnail
-              const Text('Service Thumbnail',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black)),
+              Text(appTexts.serviceThumbnail.tr,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black)),
               const SizedBox(height: 12),
               // Show existing image URL as preview if no new image selected
               if (selectedImage == null && widget.service.image.isNotEmpty)
@@ -219,8 +220,8 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
               const SizedBox(height: 32),
 
               // Category
-              const Text('Service Category',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black)),
+              Text(appTexts.serviceCategory.tr,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black)),
               const SizedBox(height: 12),
               isCategoriesLoading
                   ? Container(
@@ -260,8 +261,8 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
               const SizedBox(height: 24),
 
               // Amount
-              const Text('Service Amount',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black)),
+              Text(appTexts.serviceAmount.tr,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black)),
               const SizedBox(height: 12),
               TextField(
                 controller: serviceAmountController,
@@ -285,8 +286,8 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
               const SizedBox(height: 24),
 
               // Details
-              const Text('Service Details',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black)),
+              Text(appTexts.serviceDetailsLabel.tr,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black)),
               const SizedBox(height: 12),
               TextField(
                 controller: serviceDetailsController,
@@ -372,8 +373,8 @@ class _EditServiceScreenState extends State<EditServiceScreen> {
                           height: 24,
                           width: 24,
                           child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : const Text('Update Service',
-                          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
+                      : Text(appTexts.updateService.tr,
+                          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
                 ),
               ),
 
