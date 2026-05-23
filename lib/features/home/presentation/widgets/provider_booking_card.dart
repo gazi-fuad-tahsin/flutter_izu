@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../../core/common/constants/texts.dart';
 import '../../../location/data/model/location_model.dart';
 import '../../../location/presentation/screens/location_screen.dart';
 import '../../../message/data/repository/message_repository.dart';
@@ -343,7 +344,7 @@ class _ProviderBookingCardState extends State<ProviderBookingCard> {
                       ));
                     },
                     icon: const Icon(Icons.location_on, size: 18),
-                    label: const Text('Location'),
+                    label: Text(appTexts.location.tr),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2870BC),
                       shape: RoundedRectangleBorder(
