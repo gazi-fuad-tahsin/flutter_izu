@@ -17,6 +17,9 @@ class SocketService extends GetxService {
   // Observable for booking-created event
   final Rxn<Map<String, dynamic>> bookingCreated = Rxn<Map<String, dynamic>>();
 
+  // Observable for request-confirmed event (user confirmed provider's service start)
+  final Rxn<Map<String, dynamic>> requestConfirmed = Rxn<Map<String, dynamic>>();
+
   // Observable for provider-completed-request event
   final Rxn<Map<String, dynamic>> providerCompletedRequest = Rxn<Map<String, dynamic>>();
 
@@ -282,6 +285,14 @@ class SocketService extends GetxService {
         final mappedData = Map<String, dynamic>.from(data);
         DPrint.log('✅ Updating serviceReviewSubmitted observable with: $mappedData');
         serviceReviewSubmitted.value = mappedData;
+      }
+    });
+
+    // User confirmed service start — fires to provider
+    _socket.on('request-confirmed', (data) {
+      DPrint.log('✅ request-confirmed event: $data');
+      if (data != null && data is Map) {
+        requestConfirmed.value = Map<String, dynamic>.from(data);
       }
     });
 
