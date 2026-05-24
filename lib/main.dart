@@ -20,7 +20,7 @@ class AppTranslations extends Translations {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AppInitializer.initializeApp();
-  runApp(MyApp());
+  runApp(MyApp()); 
 }
 
 class MyApp extends StatelessWidget {
